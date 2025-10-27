@@ -32,50 +32,76 @@
 
 :root {
   --radius: 0.5rem;
-  --background: 1 0 0;
-  --foreground: 0.145 0 0;
+  
+  /* Light Theme - Soft Blue & White Palette */
+  --background: 0.98 0.01 240;
+  --foreground: 0.15 0.08 250;
   --card: 1 0 0;
-  --card-foreground: 0.145 0 0;
+  --card-foreground: 0.15 0.08 250;
   --popover: 1 0 0;
-  --popover-foreground: 0.145 0 0;
-  --primary: 0.205 0 0;
-  --primary-foreground: 0.985 0 0;
-  --secondary: 0.97 0 0;
-  --secondary-foreground: 0.205 0 0;
-  --muted: 0.97 0 0;
-  --muted-foreground: 0.556 0 0;
-  --accent: 0.97 0 0;
-  --accent-foreground: 0.205 0 0;
+  --popover-foreground: 0.15 0.08 250;
+  
+  /* Facebook Blue Button - #1877f2 */
+  --primary: 0.59 0.21 264;
+  --primary-foreground: 0.98 0.01 250;
+  
+  --secondary: 0.95 0.02 240;
+  --secondary-foreground: 0.25 0.1 250;
+  --muted: 0.96 0.02 240;
+  --muted-foreground: 0.45 0.05 250;
+  --accent: 0.92 0.04 235;
+  --accent-foreground: 0.25 0.1 250;
   --destructive: 0.577 0.245 27.325;
-  --border: 0.922 0 0;
-  --input: 0.922 0 0;
-  --ring: 0.708 0 0;
+  --destructive-foreground: 0.985 0 0;
+  --border: 0.9 0.02 240;
+  --input: 0.9 0.02 240;
+  --ring: 0.59 0.21 264;
 }
 
 .dark {
-  --background: 0.145 0 0;
-  --foreground: 0.985 0 0;
-  --card: 0.205 0 0;
-  --card-foreground: 0.985 0 0;
-  --popover: 0.269 0 0;
-  --popover-foreground: 0.985 0 0;
-  --primary: 0.922 0 0;
-  --primary-foreground: 0.205 0 0;
-  --secondary: 0.269 0 0;
-  --secondary-foreground: 0.985 0 0;
-  --muted: 0.269 0 0;
-  --muted-foreground: 0.708 0 0;
-  --accent: 0.371 0 0;
-  --accent-foreground: 0.985 0 0;
-  --destructive: 0.704 0.191 22.216;
-  --border: 1 0 0 / 10%;
-  --input: 1 0 0 / 15%;
-  --ring: 0.556 0 0;
+  /* Softer Dark Theme - Reduced Eye Strain */
+  /* Using dark gray instead of pure black (#121212 equivalent) */
+  --background: 0.18 0.015 240;
+  --foreground: 0.92 0.008 240;
+  
+  /* Card slightly lighter than background for depth */
+  --card: 0.23 0.02 240;
+  --card-foreground: 0.92 0.008 240;
+  
+  /* Popover even lighter for elevation */
+  --popover: 0.27 0.025 240;
+  --popover-foreground: 0.92 0.008 240;
+  
+  /* Facebook Blue Button - Slightly desaturated for dark mode */
+  --primary: 0.58 0.18 264;
+  --primary-foreground: 0.98 0.008 240;
+  
+  /* Secondary with reduced contrast */
+  --secondary: 0.28 0.025 240;
+  --secondary-foreground: 0.88 0.01 240;
+  
+  /* Muted colors with softer contrast */
+  --muted: 0.32 0.03 240;
+  --muted-foreground: 0.65 0.015 240;
+  
+  /* Accent with moderate elevation */
+  --accent: 0.35 0.04 240;
+  --accent-foreground: 0.92 0.008 240;
+  
+  /* Destructive slightly desaturated */
+  --destructive: 0.65 0.18 27;
+  --destructive-foreground: 0.98 0.005 20;
+  
+  /* Borders and inputs with subtle contrast */
+  --border: 0.35 0.025 240;
+  --input: 0.3 0.025 240;
+  --ring: 0.58 0.18 264;
 }
 
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: thin;
   }
   
   body {
@@ -83,12 +109,34 @@
     font-family: "Geist Variable", "Geist", system-ui, sans-serif;
   }
 }
-button{
+
+button {
   cursor: pointer;
 }
 
-
-/* set scrollbar width to thin */
+/* Improved scrollbar for dark mode */
 ::-webkit-scrollbar {
-  width: thin;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.4);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
 }
