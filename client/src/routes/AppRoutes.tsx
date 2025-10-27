@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import { authUtils } from '../utils/auth';
 import {authRoutes, protectedRoutes} from './routes';
@@ -17,6 +17,7 @@ const AppRoutes: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loading, setLoading] = useState(true)
   const dispatch = useDispatch()
+  const location = useLocation()
   const fetchMe = async () => {
     try {
       const response = await getMe()
@@ -31,7 +32,10 @@ const AppRoutes: React.FC = () => {
     }
   }
   useEffect(() => {
-    fetchMe()
+    if(location.pathname !== authRoutes.LOGIN && location.pathname !== authRoutes.SIGNUP){
+      fetchMe()
+    }
+    else setLoading(false)
   }, []);
 
   if (loading) {
