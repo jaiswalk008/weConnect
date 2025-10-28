@@ -1,9 +1,9 @@
 import { MessageSquare, Users, Settings, Moon, Sun } from 'lucide-react';
-import { useTheme } from '@/theme/ThemeProvider'
+import { useTheme } from '@/theme/theme-context';
 
 interface SidebarProps {
   activeTab: 'chats' | 'friends';
-  onTabChange: (tab: 'chats' | 'friends') => void;
+  onTabChange: (_tab: 'chats' | 'friends') => void;
 }
 
 export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
@@ -35,8 +35,8 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
         <button
           onClick={() => onTabChange('chats')}
           className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-            activeTab === 'chats' 
-              ? 'bg-primary text-primary-foreground' 
+            activeTab === 'chats'
+              ? 'bg-primary text-primary-foreground'
               : 'hover:bg-accent text-muted-foreground'
           }`}
           aria-label="Chats"
@@ -47,8 +47,8 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
         <button
           onClick={() => onTabChange('friends')}
           className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-            activeTab === 'friends' 
-              ? 'bg-primary text-primary-foreground' 
+            activeTab === 'friends'
+              ? 'bg-primary text-primary-foreground'
               : 'hover:bg-accent text-muted-foreground'
           }`}
           aria-label="Friends"

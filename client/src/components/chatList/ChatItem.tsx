@@ -30,9 +30,7 @@ export const ChatItem = ({ chat, isSelected, onClick }: ChatItemProps) => {
       <div className="flex-1 min-w-0 text-left">
         <div className="flex items-center justify-between mb-1">
           <h3 className="font-semibold text-foreground truncate">{chat.name}</h3>
-          <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
-            {chat.timestamp}
-          </span>
+          <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">{chat.timestamp}</span>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>

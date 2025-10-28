@@ -1,19 +1,18 @@
-
-import { useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import React, { useState } from "react";
+import { useForm } from 'react-hook-form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import googleIcon from "@/assets/googleicon.svg"
-import type { AuthFormProps, AuthFormData } from "@/types/auth";
-import { useDispatch } from "react-redux";
-import { authActions } from "@/store/store";
-import { authRoutes, protectedRoutes } from "@/routes/routes";
-import { getMe } from "@/services/user";
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import googleIcon from '@/assets/googleicon.svg';
+import type { AuthFormProps, AuthFormData } from '@/types/auth';
+import { useDispatch } from 'react-redux';
+import { authActions } from '@/store/store';
+import { authRoutes, protectedRoutes } from '@/routes/routes';
+import { getMe } from '@/services/user';
 
 const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) => {
   const navigate = useNavigate();
@@ -26,20 +25,24 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const isSignup = title === 'Signup';
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const handleFormSubmit = async (data: AuthFormData) => {
     setIsLoading(true);
     try {
       const response = await onSubmit(data);
       toast.success(response.message);
-      dispatch(authActions.initializeToken({authToken: response.accessToken, refreshToken: response.refreshToken}));
-      const userDetails = await getMe()
-      dispatch(authActions.setUserData(userDetails.data.user))
-      navigate(protectedRoutes.HOME)
-
+      dispatch(
+        authActions.initializeToken({
+          authToken: response.accessToken,
+          refreshToken: response.refreshToken,
+        })
+      );
+      const userDetails = await getMe();
+      dispatch(authActions.setUserData(userDetails.data.user));
+      navigate(protectedRoutes.HOME);
     } catch (error: any) {
-      console.log(error)
-      toast.error(error.response.data.message || "Something went wrong");
+      console.log(error);
+      toast.error(error.response.data.message || 'Something went wrong');
     } finally {
       setIsLoading(false);
     }
@@ -78,8 +81,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
           >
-        With weConnect, you can easily share media, voice/video call, and chat with your friends and family. Experience a seamless online experience that brings you closer to your loved ones.
-            
+            With weConnect, you can easily share media, voice/video call, and chat with your friends
+            and family. Experience a seamless online experience that brings you closer to your loved
+            ones.
           </motion.p>
         </div>
 
@@ -93,15 +97,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
           <Card className="rounded-2xl shadow-xl border-border">
             <CardContent className="p-6 md:p-8">
               <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
-                <h2 className="text-2xl font-semibold">
-                  {isSignup ? 'Sign up now' : 'Log in'}
-                </h2>
+                <h2 className="text-2xl font-semibold">{isSignup ? 'Sign up now' : 'Log in'}</h2>
 
                 {isSignup && (
                   <div className="space-y-2">
                     <Input
                       placeholder="Name"
-                      {...register("name", { required: "Name is required" })}
+                      {...register('name', { required: 'Name is required' })}
                       className="h-11"
                     />
                     {errors.name && (
@@ -114,11 +116,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
                   <Input
                     placeholder="Email address"
                     type="email"
-                    {...register("email", {
-                      required: "Email is required",
+                    {...register('email', {
+                      required: 'Email is required',
                       pattern: {
                         value: /^\S+@\S+$/i,
-                        message: "Invalid email address",
+                        message: 'Invalid email address',
                       },
                     })}
                     className="h-11"
@@ -131,13 +133,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
                 <div className="space-y-2">
                   <div className="relative">
                     <Input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="Password"
-                      {...register("password", {
-                        required: "Password is required",
+                      {...register('password', {
+                        required: 'Password is required',
                         minLength: {
                           value: 8,
-                          message: "Password must be at least 8 characters",
+                          message: 'Password must be at least 8 characters',
                         },
                       })}
                       className="h-11 pr-10"
@@ -146,7 +148,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
                       type="button"
                       variant="secondary"
                       size="icon"
-                      onClick={() => setShowPassword((prev) => !prev)}
+                      onClick={() => setShowPassword(prev => !prev)}
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -160,15 +162,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
                   )}
                 </div>
 
-                <Button 
-                  disabled={isLoading} 
-                  type="submit" 
-                  className="w-full h-11 cursor-pointer"
-                >
+                <Button disabled={isLoading} type="submit" className="w-full h-11 cursor-pointer">
                   {isLoading ? (
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : isSignup ? (
+                    'Sign up'
                   ) : (
-                    isSignup ? "Sign up" : "Log in"
+                    'Log in'
                   )}
                 </Button>
 
@@ -177,9 +177,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
                   <span className="text-sm font-medium text-muted-foreground">OR</span>
                   <hr className="grow border-border" />
                 </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={onGoogleSignIn}
                   className="w-full h-11 cursor-pointer flex items-center justify-center gap-2"
                 >
@@ -188,13 +188,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
                 </Button>
 
                 <p className="text-sm text-center text-muted-foreground mt-2">
-                  {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
+                  {isSignup ? 'Already have an account?' : "Don't have an account?"}{' '}
                   <button
                     type="button"
                     onClick={() => handleNavigate(isSignup ? authRoutes.LOGIN : authRoutes.SIGNUP)}
                     className="underline text-foreground font-medium hover:text-primary transition-colors"
                   >
-                    {isSignup ? "Log in" : "Sign up"}
+                    {isSignup ? 'Log in' : 'Sign up'}
                   </button>
                 </p>
               </form>

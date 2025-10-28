@@ -1,4 +1,4 @@
-import { Search, Plus, ArrowLeft } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { ChatItem } from './ChatItem';
 
 interface Chat {
@@ -12,26 +12,33 @@ interface Chat {
 
 interface ChatListProps {
   activeTab: 'chats' | 'friends';
-  onChatSelect: (chatId: string) => void;
+  onChatSelect: (_chatId: string) => void;
   selectedChatId?: string;
   isMobile: boolean;
   showChatList: boolean;
-  onBack?: () => void;
+  _onBack?: () => void;
 }
 
 const MOCK_CHATS: Chat[] = [
   { id: '1', name: 'John Doe', lastMessage: 'Hey, how are you?', timestamp: '10:30 AM', unread: 2 },
   { id: '2', name: 'Jane Smith', lastMessage: 'See you tomorrow!', timestamp: '9:15 AM' },
-  { id: '3', name: 'Team Project', lastMessage: 'Meeting at 3 PM', timestamp: 'Yesterday', unread: 5 },
+  {
+    id: '3',
+    name: 'Team Project',
+    lastMessage: 'Meeting at 3 PM',
+    timestamp: 'Yesterday',
+    unread: 5,
+  },
   { id: '4', name: 'Mom', lastMessage: 'Call me when you can', timestamp: 'Yesterday' },
 ];
 
-export const ChatList = ({ 
-  activeTab, 
-  onChatSelect, 
-  selectedChatId, 
+export const ChatList = ({
+  activeTab,
+  onChatSelect,
+  selectedChatId,
   isMobile,
-  showChatList 
+  showChatList,
+  // _onBack,
 }: ChatListProps) => {
   if (isMobile && !showChatList) return null;
 
@@ -64,18 +71,17 @@ export const ChatList = ({
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
-        {activeTab === 'chats' && MOCK_CHATS.map(chat => (
-          <ChatItem
-            key={chat.id}
-            chat={chat}
-            isSelected={selectedChatId === chat.id}
-            onClick={() => onChatSelect(chat.id)}
-          />
-        ))}
+        {activeTab === 'chats' &&
+          MOCK_CHATS.map(chat => (
+            <ChatItem
+              key={chat.id}
+              chat={chat}
+              isSelected={selectedChatId === chat.id}
+              onClick={() => onChatSelect(chat.id)}
+            />
+          ))}
         {activeTab === 'friends' && (
-          <div className="p-8 text-center text-muted-foreground">
-            Friends list will appear here
-          </div>
+          <div className="p-8 text-center text-muted-foreground">Friends list will appear here</div>
         )}
       </div>
     </div>

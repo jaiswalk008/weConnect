@@ -18,7 +18,12 @@ interface ChatWindowProps {
 
 const MOCK_MESSAGES: Message[] = [
   { id: '1', text: 'Hey! How are you doing?', timestamp: '10:25 AM', isSender: false },
-  { id: '2', text: "I'm good! Thanks for asking. How about you?", timestamp: '10:26 AM', isSender: true },
+  {
+    id: '2',
+    text: "I'm good! Thanks for asking. How about you?",
+    timestamp: '10:26 AM',
+    isSender: true,
+  },
   { id: '3', text: 'Doing great! Want to catch up later?', timestamp: '10:27 AM', isSender: false },
   { id: '4', text: 'Sure! What time works for you?', timestamp: '10:28 AM', isSender: true },
   { id: '5', text: 'How about 3 PM?', timestamp: '10:29 AM', isSender: false },
@@ -48,11 +53,11 @@ export const ChatWindow = ({ chatId, isMobile, showChatWindow, onBack }: ChatWin
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
         )}
-        
+
         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold flex-shrink-0">
           J
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <h2 className="font-semibold text-foreground truncate">John Doe</h2>
           <p className="text-xs text-muted-foreground">Online</p>
@@ -89,13 +94,13 @@ export const ChatWindow = ({ chatId, isMobile, showChatWindow, onBack }: ChatWin
           <button className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors flex-shrink-0">
             <Paperclip className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
           </button>
-          
+
           <input
             type="text"
             placeholder="Type a message..."
             className="flex-1 min-w-0 px-3 py-2 md:px-4 bg-secondary rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          
+
           <button className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors flex-shrink-0">
             <Mic className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
           </button>

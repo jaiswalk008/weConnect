@@ -4,7 +4,7 @@ export interface UserInterface {
   email: string;
   name: string;
   profile_image: string | null;
-  username:string | null
+  username: string | null;
 }
 
 export interface UserLoginInterface {
