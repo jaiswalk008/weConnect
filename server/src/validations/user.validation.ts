@@ -18,14 +18,13 @@ export const updatePasswordSchema = z.object({
   body: z.object({
     newPassword: z.string().min(8, 'Password must be at least 8 characters'),
   }),
-}); 
+});
 
 export const getUserProfileSchema = z.object({
   params: z.object({
     id: z.string().min(1, 'User ID is required'),
   }),
 });
-
 
 export type CreateUserInput = z.infer<typeof createUserSchema>['body'];
 export type GetUserProfileInput = z.infer<typeof getUserProfileSchema>['params'];

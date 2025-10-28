@@ -1,5 +1,4 @@
-
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,68 +6,72 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Upload, Check } from 'lucide-react'
-import { dicebearAvatars } from '@/components/ui/avatars'
-import axiosInstance from '@/utils/axiosInstance'
-import { userAPIs } from '@/api/user'
-import { updateUsername, updateProfileImage } from '@/services/user'
-import { useDispatch } from 'react-redux'
-import { authActions } from '@/store/store'
-import { toast } from 'sonner'
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Upload, Check } from 'lucide-react';
+import { dicebearAvatars } from '@/components/ui/avatars';
+import axiosInstance from '@/utils/axiosInstance';
+import { userAPIs } from '@/api/user';
+import { updateUsername, updateProfileImage } from '@/services/user';
+import { useDispatch } from 'react-redux';
+import { authActions } from '@/store/store';
+import { toast } from 'sonner';
 
-export function ProfileSetupModal({open, setOpen}: {open: boolean, setOpen: (open: boolean) => void}) {
-  const [username, setUsername] = useState('')
-  const [selectedAvatar, setSelectedAvatar] = useState<string >("profile-0")
-  const [uploadedImage, setUploadedImage] = useState<string>("")
-  const [useUpload, setUseUpload] = useState(false)
+export function ProfileSetupModal({
+  open,
+  setOpen,
+}: {
+  open: boolean;
+  setOpen: (_open: boolean) => void;
+}) {
+  const [username, setUsername] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState<string>('profile-0');
+  const [uploadedImage, setUploadedImage] = useState<string>('');
+  const [useUpload, setUseUpload] = useState(false);
   const dispatch = useDispatch();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setUploadedImage(reader.result as string)
-        setUseUpload(true)
-        setSelectedAvatar("")
-      }
-      reader.readAsDataURL(file)
+        setUploadedImage(reader.result as string);
+        setUseUpload(true);
+        setSelectedAvatar('');
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleAvatarSelect = (seed: string) => {
-    setSelectedAvatar(seed)
-    setUseUpload(false)
-  }
+    setSelectedAvatar(seed);
+    setUseUpload(false);
+  };
 
   const handleSubmit = async () => {
-    try{
-      const [_, response2] = await Promise.all([
+    try {
+      const [, response2] = await Promise.all([
         updateUsername(username),
         updateProfileImage(useUpload ? uploadedImage : selectedAvatar),
-        axiosInstance.get(userAPIs.me)
-      ])
+        axiosInstance.get(userAPIs.me),
+      ]);
       dispatch(authActions.setUserData(response2.data.user));
 
-      setOpen(false)
+      setOpen(false);
+    } catch (error: any) {
+      toast.error(error.response.data.message || 'Failed to update profile');
     }
-    catch(error:any){
-      toast.error(error.response.data.message || "Failed to update profile")
-    }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-      </DialogTrigger>
-      <DialogContent 
+      <DialogTrigger asChild></DialogTrigger>
+      <DialogContent
         className="max-w-[90%] [&>button]:hidden md:max-w-[600px] max-h-[90vh] overflow-y-auto"
-        onInteractOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
+        onInteractOutside={e => e.preventDefault()}
+        onEscapeKeyDown={e => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle>Setup Your Profile</DialogTitle>
@@ -76,7 +79,7 @@ export function ProfileSetupModal({open, setOpen}: {open: boolean, setOpen: (ope
             Enter your username and choose a professional profile picture
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-6 py-4">
           {/* Username Input */}
           <div className="space-y-2">
@@ -85,7 +88,7 @@ export function ProfileSetupModal({open, setOpen}: {open: boolean, setOpen: (ope
               id="username"
               placeholder="Enter your username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={e => setUsername(e.target.value)}
             />
           </div>
 
@@ -111,11 +114,7 @@ export function ProfileSetupModal({open, setOpen}: {open: boolean, setOpen: (ope
               </div>
               {uploadedImage && (
                 <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary">
-                  <img
-                    src={uploadedImage}
-                    alt="Uploaded"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={uploadedImage} alt="Uploaded" className="w-full h-full object-cover" />
                   {useUpload && (
                     <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                       <Check className="w-6 h-6 text-primary" />
@@ -130,7 +129,7 @@ export function ProfileSetupModal({open, setOpen}: {open: boolean, setOpen: (ope
           <div className="space-y-3">
             <Label>Or Choose an Avatar</Label>
             <div className="grid grid-cols-4 gap-3">
-              {dicebearAvatars.map((avatar) => (
+              {dicebearAvatars.map(avatar => (
                 <button
                   key={avatar.id}
                   onClick={() => handleAvatarSelect(avatar.seed)}
@@ -169,5 +168,5 @@ export function ProfileSetupModal({open, setOpen}: {open: boolean, setOpen: (ope
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

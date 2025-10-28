@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 import { AUTH_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME } from '../constants/auth';
-import {authRoutes} from '../routes/routes';
+import { authRoutes } from '../routes/routes';
 
 export const authUtils = {
   // Set authentication token
@@ -33,6 +33,7 @@ export const authUtils = {
   logout: () => {
     Cookies.remove(AUTH_COOKIE_NAME, { path: '/' });
     Cookies.remove(REFRESH_TOKEN_COOKIE_NAME, { path: '/' });
+    localStorage.removeItem('userData');
     window.location.href = authRoutes.LOGIN;
   },
 

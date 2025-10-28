@@ -13,21 +13,21 @@ export const httpLogger = {
 // Application logger
 /* eslint-disable no-console */
 export const logger = {
-  info: (message: string) => {
+  info: (message: string): void => {
     console.log(`[INFO] ${new Date().toISOString()}: ${message}`);
   },
-  error: (message: string, error?: unknown) => {
+  error: (message: string, error?: unknown): void => {
     console.error(`[ERROR] ${new Date().toISOString()}: ${message}`, error || '');
   },
-  warn: (message: string) => {
+  warn: (message: string): void => {
     console.warn(`[WARN] ${new Date().toISOString()}: ${message}`);
   },
-  debug: (message: string) => {
+  debug: (message: string): void => {
     if (process.env.NODE_ENV === 'development') {
       console.debug(`[DEBUG] ${new Date().toISOString()}: ${message}`);
     }
   },
-  http: (message: string) => {
+  http: (message: string): void => {
     console.log(`[HTTP] ${new Date().toISOString()}: ${message}`);
   },
 };

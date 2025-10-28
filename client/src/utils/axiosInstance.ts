@@ -17,12 +17,12 @@ const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = authUtils.getAuthToken();
-    
+
     // Add authorization header if token exists
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     return config;
   },
   (error: AxiosError) => {
@@ -44,7 +44,7 @@ axiosInstance.interceptors.response.use(
       switch (status) {
         case 401:
           // Unauthorized - Clear auth and redirect to login
-          if(window.location.pathname !== authRoutes.LOGIN){
+          if (window.location.pathname !== authRoutes.LOGIN) {
             authUtils.removeAuthToken();
             window.location.href = authRoutes.LOGIN;
           }

@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
 
 interface LoaderProps {
   showLoader: boolean;
@@ -9,7 +9,7 @@ const Loader = ({ showLoader }: LoaderProps) => {
 
   return (
     <div className="fixed inset-0 backdrop-blur-xs bg-opacity-50 flex items-center justify-center z-50">
-     <Loader2 className="animate-spin h-8 w-8 text-primary" />
+      <Loader2 className="animate-spin h-8 w-8 text-primary" />
     </div>
   );
 };

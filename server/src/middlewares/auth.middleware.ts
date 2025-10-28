@@ -4,7 +4,11 @@ import config from '../config/environment';
 import { JwtPayload } from '../types/user';
 import { AppError, AuthenticationError } from '../utils/errors';
 import userRepository from '../repository/user.repository';
-export const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const authenticateToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -15,8 +19,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
   try {
     const decoded = jwt.verify(token, String(config.jwtSecret)) as JwtPayload;
-    const user = await userRepository.getUser({id:decoded.userId});
-    if(!user){
+    const user = await userRepository.getUser({ id: decoded.userId });
+    if (!user) {
       throw new AuthenticationError('User not found');
     }
     req.userId = user.id;

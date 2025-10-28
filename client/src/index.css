@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "@fontsource-variable/geist";
+@import 'tailwindcss';
+@import '@fontsource-variable/geist';
 
 @theme {
   /* Color mappings for Tailwind v4 */
@@ -22,7 +22,7 @@
   --color-border: oklch(var(--border));
   --color-input: oklch(var(--input));
   --color-ring: oklch(var(--ring));
-  
+
   /* Radius values */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -32,7 +32,7 @@
 
 :root {
   --radius: 0.5rem;
-  
+
   /* Light Theme - Soft Blue & White Palette */
   --background: 0.98 0.01 240;
   --foreground: 0.15 0.08 250;
@@ -40,11 +40,11 @@
   --card-foreground: 0.15 0.08 250;
   --popover: 1 0 0;
   --popover-foreground: 0.15 0.08 250;
-  
+
   /* Facebook Blue Button - #1877f2 */
   --primary: 0.59 0.21 264;
   --primary-foreground: 0.98 0.01 250;
-  
+
   --secondary: 0.95 0.02 240;
   --secondary-foreground: 0.25 0.1 250;
   --muted: 0.96 0.02 240;
@@ -63,35 +63,35 @@
   /* Using dark gray instead of pure black (#121212 equivalent) */
   --background: 0.18 0.015 240;
   --foreground: 0.92 0.008 240;
-  
+
   /* Card slightly lighter than background for depth */
   --card: 0.23 0.02 240;
   --card-foreground: 0.92 0.008 240;
-  
+
   /* Popover even lighter for elevation */
   --popover: 0.27 0.025 240;
   --popover-foreground: 0.92 0.008 240;
-  
+
   /* Facebook Blue Button - Slightly desaturated for dark mode */
   --primary: 0.58 0.18 264;
   --primary-foreground: 0.98 0.008 240;
-  
+
   /* Secondary with reduced contrast */
   --secondary: 0.28 0.025 240;
   --secondary-foreground: 0.88 0.01 240;
-  
+
   /* Muted colors with softer contrast */
   --muted: 0.32 0.03 240;
   --muted-foreground: 0.65 0.015 240;
-  
+
   /* Accent with moderate elevation */
   --accent: 0.35 0.04 240;
   --accent-foreground: 0.92 0.008 240;
-  
+
   /* Destructive slightly desaturated */
   --destructive: 0.65 0.18 27;
   --destructive-foreground: 0.98 0.005 20;
-  
+
   /* Borders and inputs with subtle contrast */
   --border: 0.35 0.025 240;
   --input: 0.3 0.025 240;
@@ -103,10 +103,10 @@
     @apply border-border;
     scrollbar-width: thin;
   }
-  
+
   body {
     @apply bg-background text-foreground;
-    font-family: "Geist Variable", "Geist", system-ui, sans-serif;
+    font-family: 'Geist Variable', 'Geist', system-ui, sans-serif;
   }
 }
 

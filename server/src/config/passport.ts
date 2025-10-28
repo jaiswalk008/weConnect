@@ -4,7 +4,7 @@ import prisma from '../config/database';
 import logger from './logger';
 import userRepository from '../repository/user.repository';
 
-const configurePassport = () => {
+const configurePassport: () => void = () => {
   passport.use(
     new GoogleStrategy(
       {
@@ -18,13 +18,11 @@ const configurePassport = () => {
           if (!email) {
             return done(new Error('No email found in Google profile'));
           }
-
+          console.log(profile);
           const profilePicUrl = profile.photos?.[0]?.value || null;
 
-          let user = await prisma.user.findFirst({
-            where: {
-              OR: [{ email }, { googleId: profile.id }],
-            },
+          let user = await userRepository.getUser({
+            OR: [{ email }, { googleId: profile.id }],
           });
 
           if (user) {
@@ -44,8 +42,7 @@ const configurePassport = () => {
               password: '',
               googleId: profile.id,
               profile_image: profilePicUrl,
-            }) 
-            
+            });
           }
 
           return done(null, user);
@@ -53,10 +50,23 @@ const configurePassport = () => {
           logger.error('Google auth error:', error);
           return done(error);
         }
-      },
-    ),
+      }
+    )
   );
-  return passport;
+
+  // IMPORTANT: Add serialization
+  passport.serializeUser((user: any, done): void => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: string, done): Promise<void> => {
+    try {
+      const user = await userRepository.getUser({ id: parseInt(id) });
+      done(null, user);
+    } catch (error) {
+      done(error, null);
+    }
+  });
 };
 
 export default configurePassport;

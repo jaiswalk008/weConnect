@@ -1,29 +1,14 @@
-import axiosInstance from "@/utils/axiosInstance"
-import { userAPIs } from "@/api/user"
+import axiosInstance from '@/utils/axiosInstance';
+import { userAPIs } from '@/api/user';
 
-export const getMe = () =>{
-    try {
-        const response = axiosInstance.get(userAPIs.me)
-        return response
-    } catch (error) {
-        throw error
-    }
-}
+export const getMe = () => {
+  return axiosInstance.get(userAPIs.me);
+};
 
 export const updateUsername = (username: string) => {
-    try {
-        const response = axiosInstance.patch(userAPIs.username, {username})
-        return response;
-    } catch (error) {
-        throw error
-    }
-}
+  return axiosInstance.patch(userAPIs.username, { username });
+};
 
 export const updateProfileImage = (profile_image: string) => {
-    try {
-        const response = axiosInstance.patch(userAPIs.profileImage, {profile_image})
-        return response;
-    } catch (error) {
-        throw error
-    }
-}
+  return axiosInstance.patch(userAPIs.profileImage, { profile_image });
+};
