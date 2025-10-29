@@ -1,4 +1,4 @@
-import React, {   useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ThemeProviderContext } from './theme-context';
 
 type ThemeProviderProps = {
@@ -6,7 +6,6 @@ type ThemeProviderProps = {
   defaultTheme?: 'dark' | 'light';
   storageKey?: string;
 };
-
 
 export function AppThemeProvider({
   children,
