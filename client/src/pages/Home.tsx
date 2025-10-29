@@ -7,7 +7,9 @@ import { useLocation } from 'react-router-dom';
 import { getMe } from '@/services/user';
 import { toast } from 'sonner';
 import { authRoutes } from '@/routes/routes';
-import Loader from '@/components/ui/loader';
+// import Loader from '@/components/ui/loader';
+import { ChatLayoutSkeleton } from '@/components/ui/ChatSkeletonLoader';
+import { authUtils } from '@/utils/auth';
 
 function Home() {
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -21,11 +23,11 @@ function Home() {
       dispatch(authActions.setUserData(response.data.user));
     } catch (error: any) {
       toast.error(error.response.data.message || 'Failed to fetch user data');
-      // authUtils.logout()
+      authUtils.logout();
     } finally {
       setLoading(false);
     }
-  },[dispatch])
+  }, [dispatch]);
   useEffect(() => {
     if (
       location.pathname !== authRoutes.LOGIN &&
@@ -43,7 +45,7 @@ function Home() {
     }
   }, [userData?.username, loading]);
   if (loading) {
-    return <Loader showLoader={loading} />;
+    return <ChatLayoutSkeleton />;
   }
   return (
     <>

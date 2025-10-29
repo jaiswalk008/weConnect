@@ -44,7 +44,7 @@ export default defineConfig([
 
       // Disallow unused variables
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      
+
       // Allow explicit any type
       '@typescript-eslint/no-explicit-any': 'off',
     },
