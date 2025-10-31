@@ -1,50 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import userService from '../services/user.service';
-import { AuthenticationError, ValidationError } from '../utils/errors';
-import passport from 'passport';
-import config from '../config/environment';
+import { ValidationError } from '../utils/errors';
+
 class UserController {
-  static async createUser(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { email, name, password } = req.body;
-      if (!email || !name || !password) {
-        throw new ValidationError('Email and name are required');
-      }
-
-      const user = await userService.createUser({ email, name, password });
-      const accessToken = userService.generateAccessToken(user.id);
-      const refreshToken = userService.generateRefreshToken(user.id);
-      res.status(201).json({
-        status: 'success',
-        accessToken,
-        refreshToken,
-        message: 'User created successfully',
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-  static async login(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { email, password } = req.body;
-      if (!email || !password) {
-        throw new ValidationError('Email and password are required');
-      }
-
-      const user = await userService.login({ email, password });
-      const accessToken = userService.generateAccessToken(user.id);
-      const refreshToken = userService.generateRefreshToken(user.id);
-      res.status(200).json({
-        status: 'success',
-        accessToken,
-        refreshToken,
-        message: 'User logged in successfully',
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-
   static async getUserProfile(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
@@ -75,12 +33,13 @@ class UserController {
       res.status(200).json({
         status: 'success',
         user,
-        message: 'User profile updated successfully',
+        message: 'Username updated successfully',
       });
     } catch (error) {
       next(error);
     }
   }
+
   static async updateProfileImage(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
@@ -93,35 +52,8 @@ class UserController {
       res.status(200).json({
         status: 'success',
         user,
-        message: 'User profile updated successfully',
+        message: 'Profile image updated successfully',
       });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  static googleAuth(req: Request, res: Response, next: NextFunction) {
-    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
-  }
-
-  static async googleAuthCallback(req: Request, res: Response, next: NextFunction) {
-    try {
-      const user = req.user as any;
-      console.log(user);
-      if (!user) {
-        throw new AuthenticationError('Authentication failed');
-      }
-
-      const token = userService.generateAccessToken(user.id);
-      const refreshToken = userService.generateRefreshToken(user.id);
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: false,
-        // sameSite: "",
-      });
-
-      res.redirect(`${config.frontendUrl}/auth/google/callback/?token=${token}`);
     } catch (error) {
       next(error);
     }
@@ -130,11 +62,8 @@ class UserController {
   static async searchUser(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
-      console.log(req.query);
-      // Handle case-insensitive query parameter
       const userInput = req.query.userinput as string;
-      console.log(userId);
-      console.log(userInput);
+
       if (!userId || !userInput) {
         throw new ValidationError('User ID and username are required');
       }
