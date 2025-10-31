@@ -43,6 +43,7 @@ export const ChatLayout = () => {
         isMobile={isMobile}
         showChatWindow={!isMobile || showChatWindow}
         onBack={handleBack}
+        activeTab={activeTab}
       />
     </div>
   );

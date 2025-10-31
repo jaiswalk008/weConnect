@@ -1,8 +1,13 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors';
 import logger from '../config/logger';
 
-export const errorMiddleware = (err: Error | AppError, req: Request, res: Response) => {
+export const errorMiddleware = (
+  err: Error | AppError,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // Log the full error for debugging
   logger.error('Error occurred:', {
     message: err.message,

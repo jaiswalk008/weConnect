@@ -7,11 +7,12 @@ import {
   UserSignupInterface,
   UserUpdateInterface,
 } from '../types/user';
-import { AuthenticationError, ConflictError } from '../utils/errors';
+import { AuthenticationError, ConflictError, ValidationError } from '../utils/errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../config/environment';
 import { User } from '@prisma/client';
+import friendRepository from '../repository/friend.repository';
 class UserService {
   private saltRounds = 10;
   async createUser(data: UserSignupInterface): Promise<User> {
@@ -69,18 +70,12 @@ class UserService {
     }
     return user;
   }
-  async getUserProfile(userId: number): Promise<UserInterface | null> {
+  async getUserDetails(userId: number): Promise<UserInterface | null> {
     const user = await userRepository.getUser({ id: userId });
     if (!user) {
       throw new AuthenticationError('User not found');
     }
-    const userProfile = {
-      name: user.name,
-      email: user.email,
-      profile_image: user.profile_image,
-      username: user.username,
-    };
-    return userProfile;
+    return this.getUserProfile(user);
   }
 
   async updateUsername(userId: number, username: string): Promise<UserInterface | null> {
@@ -114,22 +109,45 @@ class UserService {
     if (!updatedUser) {
       throw new AuthenticationError('User not found');
     }
+
+    return this.getUserProfile(updatedUser);
+  }
+
+  getUserProfile(user: User): UserInterface {
     const userProfile = {
-      name: updatedUser.name,
-      email: updatedUser.email,
-      profile_image: updatedUser.profile_image,
-      username: updatedUser.username,
+      name: user.name,
+      email: user.email,
+      profile_image: user.profile_image,
+      username: user.username,
     };
     return userProfile;
   }
-  // async getUserByGoogleId(googleId: string): Promise<UserInterface | null> {
-  //   return await prisma.user.findUnique({
-  //     where: { googleId },
-  //     include: {
-  //       profile: true,
-  //     },
-  //   });
-  // }
+  async searchUser(userId: number, userInput: string): Promise<UserInterface[]> {
+    let topTenUsers = [];
+    if (userInput.length < 3) {
+      throw new ValidationError('User input must be at least 3 characters long');
+    }
+    const users = await userRepository.searchUser(userId, userInput);
+    const topTenPromise = users.slice(0, 10).map(async (user: User) => {
+      return {
+        ...user,
+        friends: await friendRepository.findFriends({
+          user_id: userId,
+          friend_user_id: user.id,
+        }),
+      };
+    });
+    const topTen = await Promise.all(topTenPromise);
+    console.log(topTen);
+
+    topTenUsers = topTen.map(user => ({
+      ...this.getUserProfile(user),
+      friendShipStatus: user.friends.length > 0 ? user.friends[0].status : 'NOT_FRIEND',
+    }));
+
+    console.dir(topTenUsers, { depth: null });
+    return topTenUsers;
+  }
 }
 
 export default new UserService();

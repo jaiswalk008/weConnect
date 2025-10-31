@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { authActions, type RootState } from '@/store/store';
 import { ProfileSetupModal } from '@/components/common/ProfileSetupModal';
@@ -13,7 +13,7 @@ import { authUtils } from '@/utils/auth';
 
 function Home() {
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const { userData } = useSelector((state: RootState) => state.auth);
+  const { userData, token } = useSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const location = useLocation();
@@ -39,11 +39,10 @@ function Home() {
   }, [fetchMe, location.pathname]);
 
   useEffect(() => {
-    console.log('User Data:', userData);
-    if (!loading && !userData?.username) {
+    if (token && !userData?.username) {
       setShowProfileModal(true);
     }
-  }, [userData?.username, loading]);
+  }, [userData?.username, token]);
   if (loading) {
     return <ChatLayoutSkeleton />;
   }

@@ -1,4 +1,3 @@
-'use client';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { userAuthState } from '@/types/user';
 import { authUtils } from '@/utils/auth';
@@ -27,10 +26,10 @@ const authSlice = createSlice({
       }
     },
     logout: state => {
-      state.userData = { name: '', email: '', profile_image: '', username: '' };
+      authUtils.logout();
       state.token = '';
       state.refreshToken = '';
-      authUtils.logout();
+      state.userData = { name: '', email: '', profile_image: '', username: '' };
     },
     initializeToken: (
       state,

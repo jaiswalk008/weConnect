@@ -4,7 +4,7 @@ import config from '../config/environment';
 import { JwtPayload } from '../types/user';
 import { AppError, AuthenticationError } from '../utils/errors';
 import userRepository from '../repository/user.repository';
-export const authenticateToken = async (
+export const authenticateMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction

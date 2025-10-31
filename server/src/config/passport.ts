@@ -22,7 +22,7 @@ const configurePassport: () => void = () => {
           const profilePicUrl = profile.photos?.[0]?.value || null;
 
           let user = await userRepository.getUser({
-            OR: [{ email }, { googleId: profile.id }],
+            OR: [{ email }, { google_id: profile.id }],
           });
 
           if (user) {
@@ -31,16 +31,17 @@ const configurePassport: () => void = () => {
                 where: { id: user.id },
                 data: {
                   profile_image: profilePicUrl,
-                  googleId: profile.id,
+                  google_id: profile.id,
                 },
               });
             }
           } else {
             user = await userRepository.createUser({
+              username: profile.displayName || email.split('@')[0] || 'User',
               email,
               name: profile.displayName || email.split('@')[0] || 'User',
               password: '',
-              googleId: profile.id,
+              google_id: profile.id,
               profile_image: profilePicUrl,
             });
           }

@@ -52,7 +52,7 @@ class UserController {
         throw new ValidationError('User ID is required');
       }
 
-      const user = await userService.getUserProfile(userId);
+      const user = await userService.getUserDetails(userId);
       res.status(200).json({
         status: 'success',
         user,
@@ -122,6 +122,29 @@ class UserController {
       });
 
       res.redirect(`${config.frontendUrl}/auth/google/callback/?token=${token}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async searchUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.userId;
+      console.log(req.query);
+      // Handle case-insensitive query parameter
+      const userInput = req.query.userinput as string;
+      console.log(userId);
+      console.log(userInput);
+      if (!userId || !userInput) {
+        throw new ValidationError('User ID and username are required');
+      }
+
+      const users = await userService.searchUser(userId, userInput);
+      res.status(200).json({
+        status: 'success',
+        users,
+        message: 'Users fetched successfully',
+      });
     } catch (error) {
       next(error);
     }
