@@ -13,9 +13,9 @@ datasource db {
 // ============== Enums ==============
 
 enum FriendStatus {
-  PENDING
+  SENT
   ACCEPTED
-  REJECTED
+  RECEIVED
 }
 
 enum ChatType {
@@ -81,8 +81,7 @@ model Friend {
   id           Int         @id @default(autoincrement())
   user_id       Int         
   friend_user_id Int         
-  status         FriendStatus @default(PENDING)
-  requested_by   Int         
+  status         FriendStatus?
   created_at     DateTime    @default(now())
   updated_at     DateTime    @updatedAt
   

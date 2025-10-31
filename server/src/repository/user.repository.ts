@@ -22,6 +22,20 @@ class UserRepository {
     });
     return user;
   }
+  async searchUser(userId: number, userInput: string): Promise<User[]> {
+    const users = await prisma.user.findMany({
+      where: {
+        id: {
+          not: userId,
+        },
+        username: {
+          contains: userInput,
+        },
+      },
+    });
+
+    return users;
+  }
 }
 
 export default new UserRepository();

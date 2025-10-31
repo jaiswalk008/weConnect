@@ -19,7 +19,7 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
             : 'bg-card text-card-foreground rounded-bl-sm'
         }`}
       >
-        <p className="text-sm break-words whitespace-pre-wrap">{message.text}</p>
+        <p className="text-sm wrap-break whitespace-pre-wrap">{message.text}</p>
         <p
           className={`text-xs mt-1 ${
             message.isSender ? 'text-primary-foreground/70' : 'text-muted-foreground'

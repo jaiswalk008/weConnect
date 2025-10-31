@@ -3,7 +3,7 @@ import { validate } from '../middlewares/validate';
 import { createUserSchema, loginUserSchema } from '../validations/user.validation';
 import passport from 'passport';
 import UserController from '../controllers/user.controller';
-import { authenticateToken } from '../middlewares/auth.middleware';
+import { authenticateMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -17,28 +17,9 @@ router.get(
 
 router.post('/auth/signup', validate(createUserSchema), UserController.createUser);
 router.post('/auth/login', validate(loginUserSchema), UserController.login);
-router.get('/me', authenticateToken, UserController.getUserProfile);
-router.patch('/me/username', authenticateToken, UserController.updateUserName);
-router.patch('/me/profile-image', authenticateToken, UserController.updateProfileImage);
-// Protected routes
-// router.get('/', isAuthenticated, userController.getAllUsers);
-// router.post(
-//   '/',
-//   isAuthenticated,
-//   validate(createUserSchema),
-//   userController.createUser
-// );
-
-// router.get(
-//   '/profile/:id',
-//   isAuthenticated,
-//   validate(getUserProfileSchema),
-//   userController.getUserProfile
-// );
-
-// router.get('/logout', (req, res) => {
-//   req.logout();
-//   res.redirect('/');
-// });
+router.get('/me', authenticateMiddleware, UserController.getUserProfile);
+router.patch('/me/username', authenticateMiddleware, UserController.updateUserName);
+router.patch('/me/profile-image', authenticateMiddleware, UserController.updateProfileImage);
+router.get('/search', authenticateMiddleware, UserController.searchUser);
 
 export default router;
