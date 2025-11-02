@@ -8,7 +8,7 @@ import { useFetch } from '@/hooks/useFetch';
 import { UserSearchCard } from './UserSearchCard';
 import type { SearchUsersResponse, FriendshipStatus, SearchUser } from '@/types/friend';
 import { useDispatch } from 'react-redux';
-import { friendActions } from '@/store/store';
+import { friendActions } from '@/context/store';
 import { friendsAPI } from '@/api/friend';
 import { FRIENDS_UPDATE_STATUS_TYPE } from '@/constants/friend';
 
@@ -49,8 +49,6 @@ const SearchUserComponent = () => {
         switch (status) {
           case FRIENDS_UPDATE_STATUS_TYPE.ACCEPTED:
             // Open message - implement your message logic
-            console.log('Open message with:', username);
-            toast.success(`Opening chat with ${username}`);
             setActionLoading(null);
             return;
 

@@ -23,11 +23,6 @@ enum ChatType {
   GROUP
 }
 
-enum ParticipantRole {
-  ADMIN
-  MEMBER
-}
-
 enum MessageStatusType {
   SENT
   DELIVERED
@@ -51,45 +46,47 @@ enum NotificationType {
 // ============== User Management ==============
 
 model User {
-  id              Int       @id @default(autoincrement())
-  username        String    @unique @db.VarChar(100)
-  name            String    @db.VarChar(255)
-  email           String    @unique @db.VarChar(255)
-  profile_image   String?   @db.VarChar(500)
-  password        String    @db.VarChar(255)
-  status          String?   @db.VarChar(500) 
-  last_seen       DateTime? 
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-  google_id       String?
-  
+  id                       Int               @id @default(autoincrement())
+  username                 String            @unique @db.VarChar(100)
+  name                     String            @db.VarChar(255)
+  email                    String            @unique @db.VarChar(255)
+  profile_image            String?           @db.VarChar(500)
+  password                 String            @db.VarChar(255)
+  status                   String?           @db.VarChar(500)
+  last_seen                DateTime?
+  google_id                String?
+  created_at               DateTime          @default(now())
+  updated_at               DateTime          @updatedAt
+
   // Relations
-  sent_friend_requests     Friend[]     @relation("SentFriendRequests")
-  received_friend_requests Friend[]     @relation("ReceivedFriendRequests")
-  chat_participants     ChatParticipant[]
-  messages             Message[]
-  messageStatuses      MessageStatus[]
-  notifications        Notification[]
-  created_chats        Chat[]       @relation("CreatedChats")
-  
+  sent_friend_requests     Friend[]          @relation("SentFriendRequests")
+  received_friend_requests Friend[]          @relation("ReceivedFriendRequests")
+  chat_participants        ChatParticipant[]
+  messages                 Message[]
+  message_statuses         MessageStatus[]
+  notifications            Notification[]
+  created_chats            Chat[]            @relation("CreatedChats")
+
   @@map("users")
 }
 
 // ============== Contacts/Friends ==============
 
 model Friend {
-  id           Int         @id @default(autoincrement())
-  user_id       Int         
-  friend_user_id Int         
-  status         FriendStatus?
-  created_at     DateTime    @default(now())
-  updated_at     DateTime    @updatedAt
-  
+  id             Int          @id @default(autoincrement())
+  user_id        Int
+  friend_user_id Int
+  status         FriendStatus @default(SENT)
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+
   // Relations
-  user         User   @relation("SentFriendRequests", fields: [user_id], references: [id])
-  friend_user  User   @relation("ReceivedFriendRequests", fields: [friend_user_id], references: [id])
-  
+  user        User @relation("SentFriendRequests", fields: [user_id], references: [id])
+  friend_user User @relation("ReceivedFriendRequests", fields: [friend_user_id], references: [id])
+
   @@unique([user_id, friend_user_id])
+  @@index([user_id])
+  @@index([friend_user_id])
   @@map("friends")
 }
 
@@ -97,124 +94,127 @@ model Friend {
 
 model Chat {
   id              Int               @id @default(autoincrement())
-  chat_type       ChatType          
+  chat_type       ChatType
   chat_name       String?           @db.VarChar(255)
   chat_image      String?           @db.VarChar(500)
-  last_message_id Int?              
-  created_by      Int?              @default(1)
+  last_message_id Int?              @unique
+  created_by      Int
   created_at      DateTime          @default(now())
   updated_at      DateTime          @updatedAt
-  
+
   // Relations
-  created_by_user User?             @relation("CreatedChats", fields: [created_by], references: [id])
+  created_by_user User              @relation("CreatedChats", fields: [created_by], references: [id])
   participants    ChatParticipant[]
-  messages        Message[]
+  messages        Message[]         @relation("ChatMessages")
   group           Group?
   last_message    Message?          @relation("LastMessage", fields: [last_message_id], references: [id])
-  
+
+  @@index([created_by])
   @@map("chats")
 }
 
 // ============== Chat Participants ==============
 
 model ChatParticipant {
-  id                    Int       @id @default(autoincrement())
-  chat_id               Int      
-  user_id               Int      
-  role                  String   @default("member") @db.VarChar(20)
-  joined_at             DateTime @default(now())
-  left_at               DateTime? 
-  is_active             Boolean  @default(true)
-  unread_count          Int      @default(0)
-  last_read_message_id  Int?     
-  
+  id                   Int       @id @default(autoincrement())
+  chat_id              Int
+  user_id              Int
+  role                 String    @default("member") @db.VarChar(20)
+  joined_at            DateTime  @default(now())
+  left_at              DateTime?
+  is_active            Boolean   @default(true)
+  unread_count         Int       @default(0)
+  last_read_message_id Int?
+
   // Relations
-  chat               Chat     @relation(fields: [chat_id], references: [id])
-  user               User     @relation(fields: [user_id], references: [id])
-  last_read_message  Message? @relation("ReadMessages", fields: [last_read_message_id], references: [id])
-  
+  chat              Chat     @relation(fields: [chat_id], references: [id])
+  user              User     @relation(fields: [user_id], references: [id])
+  last_read_message Message? @relation("ReadMessages", fields: [last_read_message_id], references: [id])
+
   @@unique([chat_id, user_id])
   @@index([user_id])
+  @@index([chat_id])
   @@index([is_active])
+  @@map("chat_participants")
 }
 
 // ============== Messages ==============
 
 model Message {
-  id                  Int             @id @default(autoincrement())
-  chat_id             Int            
-  sender_id           Int            
-  content             String?        @db.Text
-  media_url           String?        @db.VarChar(500)
-  media_type          MediaType?     
-  reply_to_message_id Int?           
-  created_at          DateTime       @default(now())
-  updated_at          DateTime       @updatedAt
-  
+  id         Int        @id @default(autoincrement())
+  chat_id    Int
+  sender_id  Int
+  content    String?    @db.Text
+  media_url  String?    @db.VarChar(500)
+  media_type MediaType?
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+
   // Relations
-  chat                Chat            @relation(fields: [chat_id], references: [id])
-  sender              User            @relation(fields: [sender_id], references: [id])
-  reply_to_message    Message?        @relation("MessageReplies", fields: [reply_to_message_id], references: [id])
-  replies             Message[]       @relation("MessageReplies")
-  message_statuses    MessageStatus[]
-  chat_last_message   Chat[]          @relation("LastMessage")
-  read_by             ChatParticipant[] @relation("ReadMessages")
-  
+  chat              Chat              @relation("ChatMessages", fields: [chat_id], references: [id])
+  sender            User              @relation(fields: [sender_id], references: [id])
+  message_statuses  MessageStatus[]
+  chat_last_message Chat?             @relation("LastMessage")
+  read_by           ChatParticipant[] @relation("ReadMessages")
+
   @@index([chat_id])
   @@index([sender_id])
+  @@index([created_at])
   @@map("messages")
 }
 
 // ============== Message Status ==============
 
 model MessageStatus {
-  id                Int             @id @default(autoincrement())
-  message_id        Int            
-  user_id           Int            
-  status            MessageStatusType @default(SENT)
-  status_timestamp  DateTime       @default(now())
-  
+  id               Int               @id @default(autoincrement())
+  message_id       Int
+  user_id          Int
+  status           MessageStatusType @default(SENT)
+  status_timestamp DateTime          @default(now())
+
   // Relations
-  message         Message         @relation(fields: [message_id], references: [id])
-  user            User            @relation(fields: [user_id], references: [id])
-  
+  message Message @relation(fields: [message_id], references: [id])
+  user    User    @relation(fields: [user_id], references: [id])
+
   @@unique([message_id, user_id])
-  @@map("message_status")
+  @@index([message_id])
+  @@index([user_id])
+  @@map("message_statuses")
 }
 
 // ============== Group Details ==============
 
 model Group {
-  id            Int      @id @default(autoincrement())
-  chat_id       Int      @unique
-  description   String?  @db.Text
-  invite_link   String?  @unique @db.VarChar(255)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  
+  id          Int      @id @default(autoincrement())
+  chat_id     Int      @unique
+  description String?  @db.Text
+  invite_link String?  @unique @db.VarChar(255)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
   // Relations
-  chat         Chat     @relation(fields: [chat_id], references: [id])
-  
+  chat Chat @relation(fields: [chat_id], references: [id])
+
   @@map("groups")
 }
 
 // ============== Notifications ==============
 
 model Notification {
-  id              Int              @id @default(autoincrement())
-  user_id         Int             
-  type            NotificationType
-  reference_id    Int?            
-  content         String?         @db.Text
-  is_read         Boolean         @default(false)
-  created_at      DateTime        @default(now())
-  
+  id           Int              @id @default(autoincrement())
+  user_id      Int
+  type         NotificationType
+  reference_id Int?
+  content      String?          @db.Text
+  is_read      Boolean          @default(false)
+  created_at   DateTime         @default(now())
+
   // Relations
-  user          User             @relation(fields: [user_id], references: [id])
-  
-  @@map("notifications")
+  user User @relation(fields: [user_id], references: [id])
+
   @@index([user_id])
   @@index([type])
   @@index([is_read])
+  @@index([created_at])
+  @@map("notifications")
 }
-

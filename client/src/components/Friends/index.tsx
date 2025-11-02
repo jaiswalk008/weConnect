@@ -8,9 +8,9 @@ import { FriendListTab } from './FriendListTab';
 import { PendingRequestsTab } from './PendingRequestTab';
 import type { fetchFriendsResponse, Friend, FriendshipAction } from '@/types/friend';
 import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import type { RootState } from '@/context/store';
 import { useDispatch } from 'react-redux';
-import { friendActions } from '@/store/store';
+import { friendActions } from '@/context/store';
 import { useFetch } from '@/hooks/useFetch';
 import { friendsAPI } from '@/api/friend';
 
@@ -19,7 +19,6 @@ const FriendsList = () => {
   const dispatch = useDispatch();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const { data, loading, fetchData } = useFetch<fetchFriendsResponse>();
-  console.log(data);
   useEffect(() => {
     fetchData(friendsAPI.fetchFriends);
   }, [fetchData]); // Make sure fetchData is memoized with useCallback in useFetch
@@ -50,7 +49,6 @@ const FriendsList = () => {
   };
 
   const handleSendMessage = (friend: Friend) => {
-    console.log('Send message to:', friend.username);
     toast.success(`Opening chat with ${friend.name}`);
   };
 

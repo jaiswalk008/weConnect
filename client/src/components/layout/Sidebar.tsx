@@ -4,7 +4,7 @@ import { useTheme } from '@/theme/theme-context';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { useDispatch } from 'react-redux';
-import { authActions } from '@/store/store';
+import { authActions } from '@/context/store';
 interface SidebarProps {
   activeTab: 'chats' | 'friends';
   onTabChange: (_tab: 'chats' | 'friends') => void;

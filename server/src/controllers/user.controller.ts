@@ -1,19 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
 import userService from '../services/user.service';
 import { ValidationError } from '../utils/errors';
+import { User } from '@prisma/client';
 
 class UserController {
   static async getUserProfile(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.userId;
-      if (!userId) {
-        throw new ValidationError('User ID is required');
+      const user = req?.user as User;
+      if (!user || !user.id) {
+        throw new ValidationError('User is required');
       }
 
-      const user = await userService.getUserDetails(userId);
+      const userInfo = userService.getUserProfile(user);
       res.status(200).json({
         status: 'success',
-        user,
+        user: userInfo,
         message: 'User profile fetched successfully',
       });
     } catch (error) {
@@ -23,16 +24,16 @@ class UserController {
 
   static async updateUserName(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.userId;
+      const user = req.user as User;
       const { username } = req.body;
-      if (!userId) {
+      if (!user) {
         throw new ValidationError('User ID is required');
       }
 
-      const user = await userService.updateUsername(userId, username);
+      const userInfo = await userService.updateUsername(user.id, username);
       res.status(200).json({
         status: 'success',
-        user,
+        user: userInfo,
         message: 'Username updated successfully',
       });
     } catch (error) {
@@ -42,16 +43,16 @@ class UserController {
 
   static async updateProfileImage(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.userId;
+      const user = req.user as User;
       const { profile_image } = req.body;
-      if (!userId) {
+      if (!user) {
         throw new ValidationError('User ID is required');
       }
 
-      const user = await userService.updateProfileImage(userId, profile_image);
+      const userInfo = await userService.updateProfileImage(user?.id, profile_image);
       res.status(200).json({
         status: 'success',
-        user,
+        userInfo,
         message: 'Profile image updated successfully',
       });
     } catch (error) {
@@ -61,14 +62,14 @@ class UserController {
 
   static async searchUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.userId;
+      const user = req.user as User;
       const userInput = req.query.userinput as string;
 
-      if (!userId || !userInput) {
+      if (!user || !userInput) {
         throw new ValidationError('User ID and username are required');
       }
 
-      const users = await userService.searchUser(userId, userInput);
+      const users = await userService.searchUser(user.id, userInput);
       res.status(200).json({
         status: 'success',
         users,

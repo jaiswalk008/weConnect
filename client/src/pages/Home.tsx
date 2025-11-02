@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { authActions, type RootState } from '@/store/store';
+import { authActions, type RootState } from '@/context/store';
 import { ProfileSetupModal } from '@/components/common/ProfileSetupModal';
 import { ChatLayout } from '@/components/layout/ChatLayout';
 import { useLocation } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { authRoutes } from '@/routes/routes';
 // import Loader from '@/components/ui/loader';
 import { ChatLayoutSkeleton } from '@/components/ui/ChatSkeletonLoader';
 import { authUtils } from '@/utils/auth';
+import { SocketProvider } from '@/context/Socket';
 
 function Home() {
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -21,6 +22,12 @@ function Home() {
     try {
       const response = await getMe();
       dispatch(authActions.setUserData(response.data.user));
+      dispatch(
+        authActions.initializeToken({
+          authToken: authUtils.getAuthToken() || '',
+          refreshToken: authUtils.getRefreshToken() || '',
+        })
+      );
     } catch (error: any) {
       toast.error(error.response.data.message || 'Failed to fetch user data');
       authUtils.logout();
@@ -47,10 +54,10 @@ function Home() {
     return <ChatLayoutSkeleton />;
   }
   return (
-    <>
+    <SocketProvider>
       <ProfileSetupModal open={showProfileModal} setOpen={setShowProfileModal} />
       <ChatLayout />
-    </>
+    </SocketProvider>
   );
 }
 

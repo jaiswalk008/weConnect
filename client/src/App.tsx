@@ -4,7 +4,7 @@ import { AppThemeProvider } from './theme/ThemeProvider';
 import './App.css';
 import { Toaster } from 'sonner';
 import { Provider } from 'react-redux';
-import { store } from './store/store';
+import { store } from './context/store';
 
 function App() {
   return (
