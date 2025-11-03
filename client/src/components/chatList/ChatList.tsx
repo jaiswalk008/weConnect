@@ -104,13 +104,9 @@ export const ChatList = ({
               }
             />
           ))}
-        {activeTab === 'friends' && 
-        <FriendsList 
-          onChatSelect={onChatSelect}
-          setActiveTab={setActiveTab}
-          
-
-        />}
+        {activeTab === 'friends' && (
+          <FriendsList onChatSelect={onChatSelect} setActiveTab={setActiveTab} />
+        )}
       </div>
     </div>
   );

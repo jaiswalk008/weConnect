@@ -20,10 +20,7 @@ interface FriendListProps {
   setActiveTab: (_tab: 'friends' | 'chats') => void;
 }
 
-const FriendsList = ({
-  onChatSelect,
-  setActiveTab,
-}:FriendListProps) => {
+const FriendsList = ({ onChatSelect, setActiveTab }: FriendListProps) => {
   const friends = useSelector((state: RootState) => state.friend);
   const dispatch = useDispatch();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -58,16 +55,13 @@ const FriendsList = ({
   };
 
   const handleSendMessage = (friend: Friend) => {
-    toast.success(`Opening chat with ${friend.name}`);
-    console.log(friend)
     onChatSelect({
       chatId: friend.chat.chatId,
       chatImage: friend.profile_image,
       chatName: friend.username,
       chatType: 'PERSONAL',
-      
-    })
-    setActiveTab("chats");
+    });
+    setActiveTab('chats');
   };
 
   const handleUnfriend = (friend: Friend) => {
@@ -80,7 +74,6 @@ const FriendsList = ({
 
   const handleRejectRequest = (username: string) => {
     updateFriendshipStatus(username, 'REJECT');
-
   };
 
   if (loading) {
