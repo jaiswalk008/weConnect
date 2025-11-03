@@ -16,7 +16,7 @@ import axiosInstance from '@/utils/axiosInstance';
 import { userAPIs } from '@/api/user';
 import { updateUsername, updateProfileImage } from '@/services/user';
 import { useDispatch } from 'react-redux';
-import { authActions } from '@/store/store';
+import { authActions } from '@/context/store';
 import { toast } from 'sonner';
 
 export function ProfileSetupModal({

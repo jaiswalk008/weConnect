@@ -1,7 +1,11 @@
+import { ChatType, User, PrismaClient } from '@prisma/client';
 import friendRepository from '../repository/friend.repository';
 import userRepository from '../repository/user.repository';
 import { ConflictError, NotFoundError } from '../utils/errors';
+import chatService from './chat.service';
 import userService from './user.service';
+
+const prisma = new PrismaClient();
 
 class FriendService {
   async findFriends(userId: number) {
@@ -12,20 +16,50 @@ class FriendService {
         friend_user: true,
       }
     );
-    const onlineFriendsData = friends.filter(friend => {
+
+    // Find chat for each friend
+    const friendsWithChats = await Promise.all(friends.map(async (friend) => {
+      const chat = await prisma.chatParticipant.findFirst({
+        where: {
+          user_id: userId,
+          chat: {
+            chat_type: 'PERSONAL',
+            participants: {
+              some: {
+                user_id: friend.friend_user_id
+              }
+            }
+          }
+        },
+        select: {
+          chat_id: true
+        }
+      });
+
+      return {
+        ...friend,
+        chat: {
+          chatId: chat?.chat_id || null
+        }
+      };
+    }));
+
+    const onlineFriendsData = friendsWithChats.filter(friend => {
       return friend.friend_user.status === 'online' && friend.status === 'ACCEPTED';
     });
     const onlineFriends = onlineFriendsData.map(friend => {
       return {
         ...userService.getUserProfile(friend.friend_user),
+        chat: friend.chat
       };
     });
-    const offlineFriendsData = friends.filter(friend => {
+    const offlineFriendsData = friendsWithChats.filter(friend => {
       return friend.friend_user.status !== 'online' && friend.status === 'ACCEPTED';
     });
     const offlineFriends = offlineFriendsData.map(friend => {
       return {
         ...userService.getUserProfile(friend.friend_user),
+        chat: friend.chat,
       };
     });
     const pendingFriendsData = friends.filter(friend => {
@@ -78,17 +112,24 @@ class FriendService {
     ]);
   }
 
-  private async updateFriendshipStatuses(userId: number, friendUserId: number, status: 'ACCEPTED') {
+  private async updateFriendshipStatuses(user: User, friendUser: User, status: 'ACCEPTED') {
     await Promise.all([
       friendRepository.updateFriendshipStatus(
-        { user_id_friend_user_id: { user_id: userId, friend_user_id: friendUserId } },
+        { user_id_friend_user_id: { user_id: user.id, friend_user_id: friendUser.id } },
         { status }
       ),
       friendRepository.updateFriendshipStatus(
-        { user_id_friend_user_id: { user_id: friendUserId, friend_user_id: userId } },
+        { user_id_friend_user_id: { user_id: friendUser.id, friend_user_id: user.id } },
         { status }
       ),
     ]);
+    await chatService.createChat(
+      `${user.username}-${friendUser.username}`,
+      '',
+      [user.id, friendUser.id],
+      ChatType.PERSONAL,
+      user.id
+    );
   }
 
   private async deleteFriendship(userId: number, friendUserId: number) {
@@ -102,14 +143,14 @@ class FriendService {
     ]);
   }
 
-  async updateFriendshipStatus(userId: number, friendUsername: string, type: string) {
+  async updateFriendshipStatus(user: User, friendUsername: string, type: string) {
     const friendUser = await this.getFriendUser(friendUsername);
-    const friendshipStatus = await this.getFriendshipStatus(userId, friendUser.id);
+    const friendshipStatus = await this.getFriendshipStatus(user.id, friendUser.id);
 
     switch (type) {
       case 'ADD':
         if (!friendshipStatus) {
-          await this.createFriendRequest(userId, friendUser.id);
+          await this.createFriendRequest(user.id, friendUser.id);
           break;
         }
         throw new ConflictError('Friend request already sent');
@@ -124,32 +165,32 @@ class FriendService {
         if (friendshipStatus.status !== 'RECEIVED') {
           throw new NotFoundError('Friend request not received');
         }
-        await this.updateFriendshipStatuses(userId, friendUser.id, 'ACCEPTED');
+        await this.updateFriendshipStatuses(user, friendUser, 'ACCEPTED');
         break;
       case 'CANCEL':
         if (!friendshipStatus || friendshipStatus.status !== 'SENT') {
           throw new NotFoundError('Friend request not sent');
         }
-        await this.deleteFriendship(userId, friendUser.id);
+        await this.deleteFriendship(user.id, friendUser.id);
         break;
       case 'REJECT':
         if (!friendshipStatus || friendshipStatus.status !== 'RECEIVED') {
           throw new NotFoundError('Friend request not received');
         }
-        await this.deleteFriendship(userId, friendUser.id);
+        await this.deleteFriendship(user.id, friendUser.id);
         break;
 
       case 'REMOVE':
         if (!friendshipStatus || friendshipStatus.status !== 'ACCEPTED') {
           throw new ConflictError('Friend request not accepted');
         }
-        await this.deleteFriendship(userId, friendUser.id);
+        await this.deleteFriendship(user.id, friendUser.id);
         break;
 
       default:
         throw new Error('Invalid operation type');
     }
-    return this.findFriends(userId);
+    return this.findFriends(user.id);
   }
 }
 

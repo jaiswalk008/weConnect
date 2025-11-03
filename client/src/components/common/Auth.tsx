@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import googleIcon from '@/assets/googleicon.svg';
 import type { AuthFormProps, AuthFormData } from '@/types/auth';
 import { useDispatch } from 'react-redux';
-import { authActions } from '@/store/store';
+import { authActions } from '@/context/store';
 import { authRoutes, protectedRoutes } from '@/routes/routes';
 import { getMe } from '@/services/user';
 
@@ -42,7 +42,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
       navigate(protectedRoutes.HOME);
     } catch (error: any) {
       console.log(error);
-      toast.error(error.response.data.message || 'Something went wrong');
+      toast.error(error?.response?.data?.message || 'Something went wrong');
     } finally {
       setIsLoading(false);
     }

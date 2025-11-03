@@ -3,47 +3,51 @@ import { ChatItem } from './ChatItem';
 import FriendsList from '../Friends';
 import SearchUserComponent from '../Friends/SearchUser';
 import { Input } from '../ui/input';
+import { useFetch } from '@/hooks/useFetch';
+import { useEffect } from 'react';
+import { ChatListSkeleton } from '../ui/ChatSkeletonLoader';
+import type { ChatData } from '@/types/socket';
+import type { ChatDetails } from '../chatWindow/ChatWindow';
 
-interface Chat {
-  id: string;
-  name: string;
-  lastMessage: string;
-  timestamp: string;
-  unread?: number;
-  avatar?: string;
+// interface ChatItemProps {
+//   id: number;
+//   chatName: string;
+//   chatImage: string;
+//   lastMessage: MessageData ;
+//   unreadCount: number;
+//   avatar?: string;
+// }
+interface ChatResponse {
+  chats: ChatData[];
+  status: string;
+  message: string;
 }
 
 interface ChatListProps {
   activeTab: 'chats' | 'friends';
-  onChatSelect: (_chatId: string) => void;
-  selectedChatId?: string;
+  onChatSelect: (_chat: ChatDetails) => void;
+  selectedChat: ChatDetails;
   isMobile: boolean;
   showChatList: boolean;
+  setActiveTab: (_tab: 'chats' | 'friends') => void;
   _onBack?: () => void;
 }
-
-const MOCK_CHATS: Chat[] = [
-  { id: '1', name: 'John Doe', lastMessage: 'Hey, how are you?', timestamp: '10:30 AM', unread: 2 },
-  { id: '2', name: 'Jane Smith', lastMessage: 'See you tomorrow!', timestamp: '9:15 AM' },
-  {
-    id: '3',
-    name: 'Team Project',
-    lastMessage: 'Meeting at 3 PM',
-    timestamp: 'Yesterday',
-    unread: 5,
-  },
-  { id: '4', name: 'Mom', lastMessage: 'Call me when you can', timestamp: 'Yesterday' },
-];
 
 export const ChatList = ({
   activeTab,
   onChatSelect,
-  selectedChatId,
+  selectedChat,
   isMobile,
   showChatList,
+  setActiveTab,
   // _onBack,
 }: ChatListProps) => {
+  const { data, loading, fetchData } = useFetch<ChatResponse>();
+  useEffect(() => {
+    fetchData('/api/chat/list');
+  }, [fetchData]);
   if (isMobile && !showChatList) return null;
+  if (loading) return <ChatListSkeleton />;
   return (
     <div className="flex flex-col h-full w-full md:w-96 bg-background border-r border-border">
       {/* Header */}
@@ -78,15 +82,35 @@ export const ChatList = ({
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
         {activeTab === 'chats' &&
-          MOCK_CHATS.map(chat => (
+          data?.chats?.map((chat: ChatData) => (
             <ChatItem
-              key={chat.id}
-              chat={chat}
-              isSelected={selectedChatId === chat.id}
-              onClick={() => onChatSelect(chat.id)}
+              key={chat.chatId}
+              chat={{
+                id: chat.chatId,
+                chatName: chat.chatName || '',
+                lastMessage: chat.lastMessage,
+                unreadCount: chat.unreadCount,
+                chatImage: chat.chatImage,
+                chatType: chat.chatType,
+              }}
+              isSelected={selectedChat.chatId === chat.chatId}
+              onClick={() =>
+                onChatSelect({
+                  chatId: chat.chatId,
+                  chatImage: chat.chatImage || '',
+                  chatName: chat.chatName,
+                  chatType: chat.chatType,
+                })
+              }
             />
           ))}
-        {activeTab === 'friends' && <FriendsList />}
+        {activeTab === 'friends' && 
+        <FriendsList 
+          onChatSelect={onChatSelect}
+          setActiveTab={setActiveTab}
+          
+
+        />}
       </div>
     </div>
   );

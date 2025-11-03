@@ -7,15 +7,17 @@ import { errorMiddleware } from './middlewares/error.middleware';
 import cors from 'cors';
 import router from './routes';
 import configurePassport from './config/passport';
+import http from 'http';
+import { initializeSocket } from './socket';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
+const server = http.createServer(app);
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  })
-);
+// Initialize Socket.IO
+const socketService = initializeSocket(server);
+
 // Session middleware (required for passport)
 app.use(
   session({
@@ -27,12 +29,23 @@ app.use(
     },
   })
 );
+// Make socket service available globally in the app
+app.set('socketService', socketService);
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true, // ✅ Enable this if you're using cookies/sessions
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined', { stream }));
-
-// Session configuration
 
 configurePassport();
 // Initialize Passport
@@ -43,8 +56,11 @@ app.use(router);
 
 // Error handling middleware
 app.use(errorMiddleware);
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy' });
 });
 
-export default app;
+// Export both server and socketService
+export { socketService };
+export default server;

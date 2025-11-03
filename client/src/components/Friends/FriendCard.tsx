@@ -1,6 +1,5 @@
 // src/components/friends/FriendCard.tsx
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -11,14 +10,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Loader2, MessageCircle, MoreVertical, UserMinus } from 'lucide-react';
 import type { FriendCardProps } from '@/types/friend';
-const getInitials = (name: string) => {
-  return name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
+import ProfileImage from '../common/ProfileImage';
+
 
 export const FriendCard = ({
   friend,
@@ -31,10 +24,7 @@ export const FriendCard = ({
     <Card className="p-4 hover:bg-accent/50 transition-colors">
       <div className="flex items-center gap-3">
         <div className="relative">
-          <Avatar className="w-12 h-12">
-            <AvatarImage src={friend.profile_image} alt={friend.name} />
-            <AvatarFallback>{getInitials(friend.name)}</AvatarFallback>
-          </Avatar>
+          <ProfileImage image={friend.profile_image} chatName={friend.name} />
           <div
             className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card ${
               isOnline ? 'bg-green-500' : 'bg-gray-400'

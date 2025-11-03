@@ -18,7 +18,6 @@ const configurePassport: () => void = () => {
           if (!email) {
             return done(new Error('No email found in Google profile'));
           }
-          console.log(profile);
           const profilePicUrl = profile.photos?.[0]?.value || null;
 
           let user = await userRepository.getUser({

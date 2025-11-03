@@ -8,18 +8,26 @@ import { FriendListTab } from './FriendListTab';
 import { PendingRequestsTab } from './PendingRequestTab';
 import type { fetchFriendsResponse, Friend, FriendshipAction } from '@/types/friend';
 import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import type { RootState } from '@/context/store';
 import { useDispatch } from 'react-redux';
-import { friendActions } from '@/store/store';
+import { friendActions } from '@/context/store';
 import { useFetch } from '@/hooks/useFetch';
 import { friendsAPI } from '@/api/friend';
+import type { ChatDetails } from '../chatWindow/ChatWindow';
 
-const FriendsList = () => {
+interface FriendListProps {
+  onChatSelect: (_chat: ChatDetails) => void;
+  setActiveTab: (_tab: 'friends' | 'chats') => void;
+}
+
+const FriendsList = ({
+  onChatSelect,
+  setActiveTab,
+}:FriendListProps) => {
   const friends = useSelector((state: RootState) => state.friend);
   const dispatch = useDispatch();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const { data, loading, fetchData } = useFetch<fetchFriendsResponse>();
-  console.log(data);
   useEffect(() => {
     fetchData(friendsAPI.fetchFriends);
   }, [fetchData]); // Make sure fetchData is memoized with useCallback in useFetch
@@ -50,8 +58,16 @@ const FriendsList = () => {
   };
 
   const handleSendMessage = (friend: Friend) => {
-    console.log('Send message to:', friend.username);
     toast.success(`Opening chat with ${friend.name}`);
+    console.log(friend)
+    onChatSelect({
+      chatId: friend.chat.chatId,
+      chatImage: friend.profile_image,
+      chatName: friend.username,
+      chatType: 'PERSONAL',
+      
+    })
+    setActiveTab("chats");
   };
 
   const handleUnfriend = (friend: Friend) => {
@@ -64,6 +80,7 @@ const FriendsList = () => {
 
   const handleRejectRequest = (username: string) => {
     updateFriendshipStatus(username, 'REJECT');
+
   };
 
   if (loading) {

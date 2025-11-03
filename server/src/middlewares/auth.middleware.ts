@@ -23,7 +23,7 @@ export const authenticateMiddleware = async (
     if (!user) {
       throw new AuthenticationError('User not found');
     }
-    req.userId = user.id;
+    req.user = user;
     next();
   } catch {
     next(new AuthenticationError('Invalid or expired token'));
