@@ -13,8 +13,17 @@ import { useDispatch } from 'react-redux';
 import { friendActions } from '@/context/store';
 import { useFetch } from '@/hooks/useFetch';
 import { friendsAPI } from '@/api/friend';
+import type { ChatDetails } from '../chatWindow/ChatWindow';
 
-const FriendsList = () => {
+interface FriendListProps {
+  onChatSelect: (_chat: ChatDetails) => void;
+  setActiveTab: (_tab: 'friends' | 'chats') => void;
+}
+
+const FriendsList = ({
+  onChatSelect,
+  setActiveTab,
+}:FriendListProps) => {
   const friends = useSelector((state: RootState) => state.friend);
   const dispatch = useDispatch();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -50,6 +59,15 @@ const FriendsList = () => {
 
   const handleSendMessage = (friend: Friend) => {
     toast.success(`Opening chat with ${friend.name}`);
+    console.log(friend)
+    onChatSelect({
+      chatId: friend.chat.chatId,
+      chatImage: friend.profile_image,
+      chatName: friend.username,
+      chatType: 'PERSONAL',
+      
+    })
+    setActiveTab("chats");
   };
 
   const handleUnfriend = (friend: Friend) => {
@@ -62,6 +80,7 @@ const FriendsList = () => {
 
   const handleRejectRequest = (username: string) => {
     updateFriendshipStatus(username, 'REJECT');
+
   };
 
   if (loading) {

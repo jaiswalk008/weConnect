@@ -1,9 +1,11 @@
-import { ChatType, User } from '@prisma/client';
+import { ChatType, User, PrismaClient } from '@prisma/client';
 import friendRepository from '../repository/friend.repository';
 import userRepository from '../repository/user.repository';
 import { ConflictError, NotFoundError } from '../utils/errors';
 import chatService from './chat.service';
 import userService from './user.service';
+
+const prisma = new PrismaClient();
 
 class FriendService {
   async findFriends(userId: number) {
@@ -14,20 +16,50 @@ class FriendService {
         friend_user: true,
       }
     );
-    const onlineFriendsData = friends.filter(friend => {
+
+    // Find chat for each friend
+    const friendsWithChats = await Promise.all(friends.map(async (friend) => {
+      const chat = await prisma.chatParticipant.findFirst({
+        where: {
+          user_id: userId,
+          chat: {
+            chat_type: 'PERSONAL',
+            participants: {
+              some: {
+                user_id: friend.friend_user_id
+              }
+            }
+          }
+        },
+        select: {
+          chat_id: true
+        }
+      });
+
+      return {
+        ...friend,
+        chat: {
+          chatId: chat?.chat_id || null
+        }
+      };
+    }));
+
+    const onlineFriendsData = friendsWithChats.filter(friend => {
       return friend.friend_user.status === 'online' && friend.status === 'ACCEPTED';
     });
     const onlineFriends = onlineFriendsData.map(friend => {
       return {
         ...userService.getUserProfile(friend.friend_user),
+        chat: friend.chat
       };
     });
-    const offlineFriendsData = friends.filter(friend => {
+    const offlineFriendsData = friendsWithChats.filter(friend => {
       return friend.friend_user.status !== 'online' && friend.status === 'ACCEPTED';
     });
     const offlineFriends = offlineFriendsData.map(friend => {
       return {
         ...userService.getUserProfile(friend.friend_user),
+        chat: friend.chat,
       };
     });
     const pendingFriendsData = friends.filter(friend => {

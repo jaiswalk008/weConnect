@@ -33,12 +33,10 @@ export const ChatLayout = () => {
   }, [socket, isConnected, error, socketId, dispatch]);
 
   const handleChatSelect = (chat: ChatDetails) => {
-    if (chat.chatId !== selectedChat?.chatId) {
-      setSelectedChat(chat);
+    setSelectedChat(chat);
       if (isMobile) {
         setShowChatWindow(true);
       }
-    }
   };
 
   const handleBack = () => {
@@ -65,6 +63,7 @@ export const ChatLayout = () => {
         onChatSelect={handleChatSelect}
         selectedChat={selectedChat}
         isMobile={isMobile}
+        setActiveTab={setActiveTab}
         showChatList={!isMobile || !showChatWindow}
       />
 

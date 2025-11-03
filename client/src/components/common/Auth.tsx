@@ -42,7 +42,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, onGoogleSignIn }) 
       navigate(protectedRoutes.HOME);
     } catch (error: any) {
       console.log(error);
-      toast.error(error.response.data.message || 'Something went wrong');
+      toast.error(error?.response?.data?.message || 'Something went wrong');
     } finally {
       setIsLoading(false);
     }

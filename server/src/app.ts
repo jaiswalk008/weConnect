@@ -9,23 +9,14 @@ import router from './routes';
 import configurePassport from './config/passport';
 import http from 'http';
 import { initializeSocket } from './socket';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
 // Initialize Socket.IO
 const socketService = initializeSocket(server);
-
-// Make socket service available globally in the app
-app.set('socketService', socketService);
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true, // ✅ Enable this if you're using cookies/sessions
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
 
 // Session middleware (required for passport)
 app.use(
@@ -38,6 +29,18 @@ app.use(
     },
   })
 );
+// Make socket service available globally in the app
+app.set('socketService', socketService);
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true, // ✅ Enable this if you're using cookies/sessions
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+
 
 // Middleware
 app.use(express.json());

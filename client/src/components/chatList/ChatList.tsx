@@ -29,6 +29,7 @@ interface ChatListProps {
   selectedChat: ChatDetails;
   isMobile: boolean;
   showChatList: boolean;
+  setActiveTab: (_tab: 'chats' | 'friends') => void;
   _onBack?: () => void;
 }
 
@@ -38,6 +39,7 @@ export const ChatList = ({
   selectedChat,
   isMobile,
   showChatList,
+  setActiveTab,
   // _onBack,
 }: ChatListProps) => {
   const { data, loading, fetchData } = useFetch<ChatResponse>();
@@ -102,7 +104,13 @@ export const ChatList = ({
               }
             />
           ))}
-        {activeTab === 'friends' && <FriendsList />}
+        {activeTab === 'friends' && 
+        <FriendsList 
+          onChatSelect={onChatSelect}
+          setActiveTab={setActiveTab}
+          
+
+        />}
       </div>
     </div>
   );

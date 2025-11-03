@@ -5,6 +5,9 @@ export interface Friend {
   email: string;
   profile_image: string;
   username: string;
+  chat:{
+    chatId:number
+  }
 }
 
 export interface fetchFriendsResponse {
