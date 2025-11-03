@@ -12,7 +12,6 @@ import { Loader2, MessageCircle, MoreVertical, UserMinus } from 'lucide-react';
 import type { FriendCardProps } from '@/types/friend';
 import ProfileImage from '../common/ProfileImage';
 
-
 export const FriendCard = ({
   friend,
   isOnline,

@@ -34,9 +34,9 @@ export const ChatLayout = () => {
 
   const handleChatSelect = (chat: ChatDetails) => {
     setSelectedChat(chat);
-      if (isMobile) {
-        setShowChatWindow(true);
-      }
+    if (isMobile) {
+      setShowChatWindow(true);
+    }
   };
 
   const handleBack = () => {

@@ -59,43 +59,43 @@
 }
 
 .dark {
-  /* Softer Dark Theme - Reduced Eye Strain */
-  /* Using dark gray instead of pure black (#121212 equivalent) */
-  --background: 0.18 0.015 240;
-  --foreground: 0.92 0.008 240;
+  /* ✅ PURE BLACK THEME - True Black with Gray Accents */
+  /* Pure black background #000000 */
+  --background: 0 0 0;
+  --foreground: 0.98 0 0;
 
-  /* Card slightly lighter than background for depth */
-  --card: 0.23 0.02 240;
-  --card-foreground: 0.92 0.008 240;
+  /* Card - Very dark gray for subtle depth */
+  --card: 0.08 0 0;
+  --card-foreground: 0.98 0 0;
 
-  /* Popover even lighter for elevation */
-  --popover: 0.27 0.025 240;
-  --popover-foreground: 0.92 0.008 240;
+  /* Popover - Slightly lighter gray */
+  --popover: 0.12 0 0;
+  --popover-foreground: 0.98 0 0;
 
-  /* Facebook Blue Button - Slightly desaturated for dark mode */
-  --primary: 0.58 0.18 264;
-  --primary-foreground: 0.98 0.008 240;
+  /* Facebook Blue Button - Vibrant for contrast */
+  --primary: 0.59 0.21 264;
+  --primary-foreground: 0.98 0 0;
 
-  /* Secondary with reduced contrast */
-  --secondary: 0.28 0.025 240;
-  --secondary-foreground: 0.88 0.01 240;
+  /* Secondary - Dark gray */
+  --secondary: 0.15 0 0;
+  --secondary-foreground: 0.9 0 0;
 
-  /* Muted colors with softer contrast */
-  --muted: 0.32 0.03 240;
-  --muted-foreground: 0.65 0.015 240;
+  /* Muted - Medium gray */
+  --muted: 0.2 0 0;
+  --muted-foreground: 0.65 0 0;
 
-  /* Accent with moderate elevation */
-  --accent: 0.35 0.04 240;
-  --accent-foreground: 0.92 0.008 240;
+  /* Accent - Lighter gray for highlights */
+  --accent: 0.25 0 0;
+  --accent-foreground: 0.98 0 0;
 
-  /* Destructive slightly desaturated */
-  --destructive: 0.65 0.18 27;
-  --destructive-foreground: 0.98 0.005 20;
+  /* Destructive red */
+  --destructive: 0.62 0.22 27;
+  --destructive-foreground: 0.98 0 0;
 
-  /* Borders and inputs with subtle contrast */
-  --border: 0.35 0.025 240;
-  --input: 0.3 0.025 240;
-  --ring: 0.58 0.18 264;
+  /* Borders and inputs - Subtle gray */
+  --border: 0.18 0 0;
+  --input: 0.15 0 0;
+  --ring: 0.59 0.21 264;
 }
 
 @layer base {
@@ -114,14 +114,14 @@ button {
   cursor: pointer;
 }
 
-/* Modern thin scrollbar - no arrows */
+/* Pure black theme scrollbars */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(100, 116, 139, 0.4) transparent;
 }
 
 .dark * {
-  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
 /* WebKit browsers (Chrome, Safari, Edge) */
@@ -140,7 +140,7 @@ button {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -148,7 +148,7 @@ button {
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Remove scrollbar arrows */

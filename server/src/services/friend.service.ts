@@ -18,31 +18,33 @@ class FriendService {
     );
 
     // Find chat for each friend
-    const friendsWithChats = await Promise.all(friends.map(async (friend) => {
-      const chat = await prisma.chatParticipant.findFirst({
-        where: {
-          user_id: userId,
-          chat: {
-            chat_type: 'PERSONAL',
-            participants: {
-              some: {
-                user_id: friend.friend_user_id
-              }
-            }
-          }
-        },
-        select: {
-          chat_id: true
-        }
-      });
+    const friendsWithChats = await Promise.all(
+      friends.map(async friend => {
+        const chat = await prisma.chatParticipant.findFirst({
+          where: {
+            user_id: userId,
+            chat: {
+              chat_type: 'PERSONAL',
+              participants: {
+                some: {
+                  user_id: friend.friend_user_id,
+                },
+              },
+            },
+          },
+          select: {
+            chat_id: true,
+          },
+        });
 
-      return {
-        ...friend,
-        chat: {
-          chatId: chat?.chat_id || null
-        }
-      };
-    }));
+        return {
+          ...friend,
+          chat: {
+            chatId: chat?.chat_id || null,
+          },
+        };
+      })
+    );
 
     const onlineFriendsData = friendsWithChats.filter(friend => {
       return friend.friend_user.status === 'online' && friend.status === 'ACCEPTED';
@@ -50,7 +52,7 @@ class FriendService {
     const onlineFriends = onlineFriendsData.map(friend => {
       return {
         ...userService.getUserProfile(friend.friend_user),
-        chat: friend.chat
+        chat: friend.chat,
       };
     });
     const offlineFriendsData = friendsWithChats.filter(friend => {
