@@ -110,3 +110,52 @@ export const formatMessageTimestamp = (dateString: string | Date): string => {
     return formatDate(date); // This will show full date with year (e.g., "1 Nov 2022")
   }
 };
+/**
+ * Get message date label for chat dividers (Today, Yesterday, day name, or date)
+ * @param dateString - ISO date string or Date object
+ * @returns Date label string (e.g., "Today", "Yesterday", "Monday", "1 Nov 2023")
+ */
+export const getMessageDateLabel = (dateString: string | Date): string => {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  // Reset time to compare only dates
+  today.setHours(0, 0, 0, 0);
+  yesterday.setHours(0, 0, 0, 0);
+  const msgDate = new Date(date);
+  msgDate.setHours(0, 0, 0, 0);
+
+  const diffTime = today.getTime() - msgDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return 'Today';
+  } else if (diffDays === 1) {
+    return 'Yesterday';
+  } else if (diffDays < 7) {
+    // Return day name (Monday, Tuesday, etc.)
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+  } else {
+    // Return formatted date (e.g., "1 Nov 2023")
+    return formatDate(date);
+  }
+};
+
+/**
+ * Check if two dates are on the same day
+ * @param date1 - First date
+ * @param date2 - Second date
+ * @returns boolean
+ */
+export const isSameDay = (date1: string | Date, date2: string | Date): boolean => {
+  const d1 = typeof date1 === 'string' ? new Date(date1) : date1;
+  const d2 = typeof date2 === 'string' ? new Date(date2) : date2;
+
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+};

@@ -1,3 +1,4 @@
+import type { NotificationData } from './notification';
 import type { userAuthState } from './user';
 export const SOCKET_EVENTS = {
   // Connection
@@ -37,7 +38,7 @@ export const SOCKET_EVENTS = {
   FRIEND_ACCEPTED: 'friend:accepted',
 
   // Notifications
-  NOTIFICATION_NEW: 'notification:new',
+  NOTIFICATION: 'notification',
 
   // Errors
   ERROR: 'error',
@@ -56,7 +57,7 @@ export interface ServerToClientEvents {
   [SOCKET_EVENTS.USER_OFFLINE]: (_data: UserPresenceData) => void;
   [SOCKET_EVENTS.FRIEND_REQUEST]: (_data: FriendRequestData) => void;
   [SOCKET_EVENTS.FRIEND_ACCEPTED]: (_data: FriendRequestData) => void;
-  [SOCKET_EVENTS.NOTIFICATION_NEW]: (_data: NotificationData) => void;
+  [SOCKET_EVENTS.NOTIFICATION]: (_data: NotificationData) => void;
   [SOCKET_EVENTS.ERROR]: (_data: ErrorData) => void;
 }
 
@@ -76,6 +77,11 @@ export interface ClientToServerEvents {
 }
 
 // Data Types
+export enum MessageStatus {
+  'DELIVERED' = 'DELIVERED',
+  'READ' = 'READ',
+  'SENT' = 'SENT',
+}
 export interface MessageData {
   id: number;
   chatId: number;
@@ -84,6 +90,7 @@ export interface MessageData {
   mediaType?: string;
   createdAt: string;
   sender: userAuthState;
+  status?: MessageStatus;
 }
 export interface ChatHistoryResponse {
   chatHistory: MessageData[];
@@ -125,12 +132,14 @@ export interface MessageDeliveredData {
 }
 
 export interface MessageReadData {
-  messageId: number;
-  userId: number;
+  messageIds: number[];
+  user: userAuthState;
+  chatId: number;
+  timestamp: Date;
 }
 
 export interface MessageDeletedData {
-  messageId: number;
+  messageIds: number[];
   chatId: number;
 }
 
@@ -165,15 +174,6 @@ export interface FriendRequestData {
     name: string;
     profileImage?: string;
   };
-}
-
-export interface NotificationData {
-  id: number;
-  userId: number;
-  type: string;
-  content?: string;
-  referenceId?: number;
-  createdAt: Date;
 }
 
 export interface ErrorData {

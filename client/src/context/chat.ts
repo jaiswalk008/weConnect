@@ -1,7 +1,8 @@
-import type { MessageData } from '@/types/socket';
+import { MessageStatus, type MessageData } from '@/types/socket';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/types/socket';
+import type { userAuthState } from '@/types/user';
 
 interface chatState {
   chatData: MessageData[];
@@ -34,6 +35,21 @@ const chatSlice = createSlice({
     updateMessageStatus: (state, action: PayloadAction<MessageData>) => {
       state.chatData = state.chatData.map(message =>
         message.id === action.payload.id ? action.payload : message
+      );
+    },
+    markMessagesAsRead: (
+      state,
+      action: PayloadAction<{
+        messageIds: number[];
+        chatId: number;
+        user: userAuthState;
+        timestamp: Date;
+      }>
+    ) => {
+      state.chatData = state.chatData.map(message =>
+        action.payload.messageIds.includes(message.id)
+          ? { ...message, status: MessageStatus.READ }
+          : message
       );
     },
     clearChatData: state => {

@@ -36,7 +36,7 @@ export const SOCKET_EVENTS = {
   FRIEND_ACCEPTED: 'friend:accepted',
 
   // Notifications
-  NOTIFICATION_NEW: 'notification:new',
+  NOTIFICATION: 'notification',
 
   // Errors
   ERROR: 'error',
