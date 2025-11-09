@@ -3,7 +3,8 @@ import type { MessageData } from '@/types/socket';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { formatTime } from '@/utils/dateUtils';
-
+import { MessageStatus } from './MessageStatus';
+import type { MessageStatus as MessageStatusType } from '@/types/socket';
 interface MessageBubbleProps {
   message: MessageData;
 }
@@ -24,13 +25,20 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
         }`}
       >
         <p className="text-sm wrap-break whitespace-pre-wrap">{message.content}</p>
-        <p
-          className={`text-xs mt-1 ${
-            isSender ? 'text-primary-foreground/70' : 'text-muted-foreground'
-          }`}
-        >
-          {formatTime(message.createdAt)}
-        </p>
+
+        {/* Time and Status */}
+        <div className="flex items-center justify-end gap-1 mt-1">
+          <span
+            className={`text-xs ${
+              isSender ? 'text-primary-foreground/70' : 'text-muted-foreground'
+            }`}
+          >
+            {formatTime(message.createdAt)}
+          </span>
+          {isSender && message.status && (
+            <MessageStatus status={message.status as MessageStatusType} isSentByMe={isSender} />
+          )}
+        </div>
       </div>
     </div>
   );

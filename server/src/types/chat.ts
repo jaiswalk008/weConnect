@@ -1,5 +1,9 @@
 import { UserInterface } from './user';
-
+export enum MessageStatus {
+  DELIVERED = 'DELIVERED',
+  READ = 'READ',
+  SENT = 'SENT',
+}
 // Data Types
 export interface MessageData {
   id: number;
@@ -10,6 +14,7 @@ export interface MessageData {
   mediaType?: string;
   createdAt: Date;
   sender: UserInterface;
+  status?: MessageStatus;
 }
 export const chatType = {
   PERSONAL: 'PERSONAL',

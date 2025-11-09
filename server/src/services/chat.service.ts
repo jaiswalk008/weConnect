@@ -1,6 +1,6 @@
 import { ChatType, Prisma } from '@prisma/client';
 import prisma from '../config/database';
-import { chatListData, MessageData } from '../types/chat';
+import { chatListData, MessageData, MessageStatus } from '../types/chat';
 import userService from './user.service';
 import { NotFoundError } from '../utils/errors';
 
@@ -42,6 +42,9 @@ class ChatService {
       where: {
         ...data,
       },
+      include: {
+        user: true,
+      },
     });
   }
   async createMessage(data: Prisma.MessageCreateInput, include?: Prisma.MessageInclude) {
@@ -65,7 +68,8 @@ class ChatService {
         data: {
           message_id: messageId,
           user_id: participant.user_id,
-          status: 'SENT',
+          status:
+            participant.user.status === 'ONLINE' ? MessageStatus.DELIVERED : MessageStatus.SENT,
         },
       })
     );
@@ -83,8 +87,7 @@ class ChatService {
     });
 
     await Promise.all([...statusPromises, unreadCountPromise]);
-
-    return participants;
+    return;
   }
   async getUserChatHistoryList(userId: number): Promise<chatListData[]> {
     const chatList = await prisma.chatParticipant.findMany({
@@ -103,6 +106,7 @@ class ChatService {
             last_message: {
               include: {
                 sender: true,
+                message_statuses: true,
               },
             },
             participants: {
@@ -125,7 +129,6 @@ class ChatService {
       },
     });
 
-    // Use Promise.all to handle async map properly
     const chatHistoryList = await Promise.all(
       chatList.map(async participant => {
         const chat = participant.chat;
@@ -133,7 +136,6 @@ class ChatService {
         let chatImage = '';
 
         if (chat.chat_type === ChatType.PERSONAL) {
-          // Use the already fetched participants from include
           const otherParticipant = chat.participants[0];
           if (otherParticipant) {
             chatName = otherParticipant.user.username;
@@ -156,6 +158,34 @@ class ChatService {
 
         if (chat.last_message) {
           const sender = userService.getUserProfile(chat.last_message.sender);
+
+          // If current user sent the message, check if OTHER participants have read it
+          let messageStatus: MessageStatus;
+
+          if (chat.last_message.sender_id === userId) {
+            // Current user is sender - check if others have read it
+            const otherStatuses = chat.last_message.message_statuses.filter(
+              status => status.user_id !== userId
+            );
+
+            // Determine overall status based on other participants
+            if (otherStatuses.length === 0) {
+              messageStatus = MessageStatus.SENT;
+            } else if (otherStatuses.every(s => s.status === MessageStatus.READ)) {
+              messageStatus = MessageStatus.READ;
+            } else if (otherStatuses.some(s => s.status === MessageStatus.DELIVERED)) {
+              messageStatus = MessageStatus.DELIVERED;
+            } else {
+              messageStatus = MessageStatus.SENT;
+            }
+          } else {
+            // Current user is receiver - check their own status
+            const userStatus = chat.last_message.message_statuses.find(
+              status => status.user_id === userId
+            );
+            messageStatus = (userStatus?.status as MessageStatus) || MessageStatus.SENT;
+          }
+
           result.lastMessage = {
             id: chat.last_message.id,
             chatId: chat.last_message.chat_id,
@@ -165,6 +195,7 @@ class ChatService {
             mediaType: chat.last_message.media_type || undefined,
             createdAt: chat.last_message.created_at,
             sender: sender,
+            status: messageStatus,
           };
         }
 
@@ -192,23 +223,47 @@ class ChatService {
       },
       include: {
         sender: true,
+        message_statuses: true,
       },
       orderBy: {
-        created_at: 'asc', // Changed to asc to show messages in chronological order
+        created_at: 'asc',
       },
     });
 
-    // Transform to camelCase and format the response
-    const formattedMessages = messages.map(message => ({
-      id: message.id,
-      chatId: message.chat_id,
-      senderId: message.sender_id,
-      content: message?.content || '',
-      mediaUrl: message?.media_url || '',
-      mediaType: message?.media_type || '',
-      createdAt: message.created_at,
-      sender: userService.getUserProfile(message.sender),
-    }));
+    const formattedMessages = messages.map(message => {
+      let messageStatus: MessageStatus;
+
+      if (message.sender_id === userId) {
+        // Current user is sender - check if OTHER participants have read it
+        const otherStatuses = message.message_statuses.filter(status => status.user_id !== userId);
+
+        if (otherStatuses.length === 0) {
+          messageStatus = MessageStatus.SENT;
+        } else if (otherStatuses.every(s => s.status === MessageStatus.READ)) {
+          messageStatus = MessageStatus.READ;
+        } else if (otherStatuses.some(s => s.status === MessageStatus.DELIVERED)) {
+          messageStatus = MessageStatus.DELIVERED;
+        } else {
+          messageStatus = MessageStatus.SENT;
+        }
+      } else {
+        // Current user is receiver - check their own status
+        const userStatus = message.message_statuses.find(status => status.user_id === userId);
+        messageStatus = (userStatus?.status as MessageStatus) || MessageStatus.SENT;
+      }
+
+      return {
+        id: message.id,
+        chatId: message.chat_id,
+        senderId: message.sender_id,
+        content: message?.content || '',
+        mediaUrl: message?.media_url || '',
+        mediaType: message?.media_type || '',
+        createdAt: message.created_at,
+        sender: userService.getUserProfile(message.sender),
+        status: messageStatus,
+      };
+    });
 
     return formattedMessages;
   }

@@ -15,7 +15,7 @@ class ChatController {
       }
       await chatService.createChat(chatName, chatImage, participants, ChatType.PERSONAL, user.id);
       res.status(201).json({
-        status: 'success',
+        success: true,
         message: 'Chat created successfully',
       });
     } catch (error) {
@@ -31,8 +31,9 @@ class ChatController {
       }
       const chats = await chatService.getUserChatHistoryList(user.id);
       res.status(200).json({
-        status: 'success',
+        success: true,
         chats,
+        message: 'Chats fetched successfully',
       });
     } catch (error) {
       next(error);
@@ -48,8 +49,9 @@ class ChatController {
       const { chatId } = req.query as { chatId: string };
       const chatHistory = await chatService.getChatHistory(parseInt(chatId), user.id);
       res.status(200).json({
-        status: 'success',
+        success: true,
         chatHistory,
+        message: 'Chat history fetched successfully',
       });
     } catch (error) {
       next(error);

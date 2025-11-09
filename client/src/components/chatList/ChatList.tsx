@@ -3,8 +3,6 @@ import { ChatItem } from './ChatItem';
 import FriendsList from '../Friends';
 import SearchUserComponent from '../Friends/SearchUser';
 import { Input } from '../ui/input';
-import { useFetch } from '@/hooks/useFetch';
-import { useEffect } from 'react';
 import { ChatListSkeleton } from '../ui/ChatSkeletonLoader';
 import type { ChatData } from '@/types/socket';
 import type { ChatDetails } from '../chatWindow/ChatWindow';
@@ -17,11 +15,6 @@ import type { ChatDetails } from '../chatWindow/ChatWindow';
 //   unreadCount: number;
 //   avatar?: string;
 // }
-interface ChatResponse {
-  chats: ChatData[];
-  status: string;
-  message: string;
-}
 
 interface ChatListProps {
   activeTab: 'chats' | 'friends';
@@ -30,7 +23,9 @@ interface ChatListProps {
   isMobile: boolean;
   showChatList: boolean;
   setActiveTab: (_tab: 'chats' | 'friends') => void;
+  data: ChatData[];
   _onBack?: () => void;
+  loading: boolean;
 }
 
 export const ChatList = ({
@@ -40,12 +35,10 @@ export const ChatList = ({
   isMobile,
   showChatList,
   setActiveTab,
+  data,
+  loading,
   // _onBack,
 }: ChatListProps) => {
-  const { data, loading, fetchData } = useFetch<ChatResponse>();
-  useEffect(() => {
-    fetchData('/api/chat/list');
-  }, [fetchData]);
   if (isMobile && !showChatList) return null;
   if (loading) return <ChatListSkeleton />;
   return (
@@ -82,7 +75,8 @@ export const ChatList = ({
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
         {activeTab === 'chats' &&
-          data?.chats?.map((chat: ChatData) => (
+          data?.length > 0 &&
+          data?.map((chat: ChatData) => (
             <ChatItem
               key={chat.chatId}
               chat={{

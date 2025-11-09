@@ -7,12 +7,19 @@ import {
   SendMessagePayload,
 } from './chat';
 import { User } from '@prisma/client';
+import { NotificationData } from './notification';
+import { UserInterface } from './user';
 
 export interface ServerToClientEvents {
   // Message events
   'message:new': (data: MessageData) => void;
-  'message:delivered': (data: { messageId: number; userId: number }) => void;
-  'message:read': (data: { messageId: number; userId: number }) => void;
+  'message:delivered': (data: { messageIds: number[]; userId: number; timestamp: Date }) => void;
+  'message:read': (data: {
+    messageIds: number[];
+    user: UserInterface;
+    chatId: number;
+    timestamp: Date;
+  }) => void;
   'message:deleted': (data: { messageId: number; chatId: number }) => void;
 
   // Chat events
@@ -33,7 +40,7 @@ export interface ServerToClientEvents {
   'friend:accepted': (data: FriendRequestData) => void;
 
   // Notification events
-  'notification:new': (data: NotificationData) => void;
+  notification: (data: NotificationData) => void;
 
   // Error events
   error: (data: { message: string; code?: string }) => void;
@@ -82,15 +89,6 @@ export interface FriendRequestData {
     name: string;
     profileImage?: string;
   };
-}
-
-export interface NotificationData {
-  id: number;
-  userId: number;
-  type: string;
-  content?: string;
-  referenceId?: number;
-  createdAt: Date;
 }
 
 // Custom Socket Type

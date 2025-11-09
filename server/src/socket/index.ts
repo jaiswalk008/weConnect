@@ -16,14 +16,19 @@ export class SocketService {
   constructor(server: HTTPServer) {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-        methods: ['GET', 'POST'],
+        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         credentials: true,
       },
       pingTimeout: 60000,
       pingInterval: 25000,
     });
-
+    this.io.engine.on('initial_headers', headers => {
+      headers['Access-Control-Allow-Origin'] = process.env.FRONTEND_URL || 'http://localhost:5173';
+    });
+    this.io.engine.on('headers', headers => {
+      headers['Access-Control-Allow-Origin'] = process.env.FRONTEND_URL || 'http://localhost:5173';
+    });
     this.initializeMiddleware();
     this.initializeHandlers();
   }
@@ -36,12 +41,12 @@ export class SocketService {
     this.io.on(SOCKET_EVENTS.CONNECTION, (socket: CustomSocket) => {
       logger.info(`User connected: ${socket.data.user.id}`);
       logger.info(socket.id);
-
+      socket.join(`user:${socket.data.user.id}`);
       const messageHandler = new MessageHandler(this.io, socket);
       const chatHandler = new ChatHandler(this.io, socket);
       // const typingHandler = new TypingHandler(this.io, socket);
       // const presenceHandler = new PresenceHandler(this.io, socket);
-
+      messageHandler.markPendingMessagesAsDelivered(socket.data.user.id);
       messageHandler.registerEvents();
       chatHandler.registerEvents();
       // typingHandler.registerEvents();
