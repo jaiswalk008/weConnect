@@ -27,11 +27,11 @@ export const ChatLayout = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [showChatWindow, setShowChatWindow] = useState(false);
   const { isConnected, error } = useSocket();
-  const [chatList, setChatList] = useState<ChatListData[]>([]);
   const { markAsRead } = useMessages(selectedChat.chatId);
   const { data, loading, fetchData } = useFetch<ChatResponse>();
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.userData);
+  const chatList = useSelector((state: RootState) => state.chat.chatList);
   // Handle new message notifications
   const createUpdatedChat = useCallback(
     (chat: ChatListData, chatData: ChatListData, isSelected: boolean): ChatListData => ({
@@ -46,7 +46,6 @@ export const ChatLayout = () => {
   );
   const createNewChat = useCallback(
     (chatData: ChatListData, isSelected: boolean): ChatListData => ({
-      id: chatData.chatId,
       createdAt: new Date(),
       chatId: chatData.chatId,
       chatName: chatData.chatName || '',
@@ -68,29 +67,25 @@ export const ChatLayout = () => {
   const handleNewGroup = useCallback(
     (notification: NotificationData) => {
       if (!notification.chatListData) return;
-      console.log('new group notiuficatioon', notification);
+      console.log('new group notification', notification);
       const chatData = notification.chatListData;
       const isSelectedChat = chatData.chatId === selectedChat.chatId;
       if (isSelectedChat && chatData.lastMessage) {
         dispatch(chatActions.addMessage(chatData.lastMessage));
         markAsRead(chatData.chatId);
       }
-      setChatList(prevList => {
-        const chatIndex = prevList.findIndex(chat => chat.chatId === chatData.chatId);
 
-        if (chatIndex !== -1) {
-          // Update existing chat
-          const updatedChat = createUpdatedChat(prevList[chatIndex], chatData, isSelectedChat);
-          return [updatedChat, ...prevList.slice(0, chatIndex), ...prevList.slice(chatIndex + 1)];
-        }
+      // Update or add chat in Redux store
+      const newChat = chatList.some(chat => chat.chatId === chatData.chatId)
+        ? createUpdatedChat(
+            chatList.find(chat => chat.chatId === chatData.chatId)!,
+            chatData,
+            isSelectedChat
+          )
+        : createNewChat(chatData, isSelectedChat);
 
-        // Add new chat
-        const newChat = createNewChat(chatData, isSelectedChat);
-        return [newChat, ...prevList];
-      });
-      console.log('new group chat list', notification.chatListData);
+      dispatch(chatActions.upsertChat(newChat));
       if (notification.chatListData.createdByUser?.username === user?.username) {
-        console.log('moving to chat tab', notification.chatListData);
         setActiveTab(TABS.CHATS);
         setSelectedChat({
           chatId: chatData.chatId,
@@ -100,7 +95,15 @@ export const ChatLayout = () => {
         });
       }
     },
-    [selectedChat.chatId, createUpdatedChat, createNewChat, dispatch, markAsRead, user?.username]
+    [
+      selectedChat.chatId,
+      createUpdatedChat,
+      createNewChat,
+      dispatch,
+      markAsRead,
+      user?.username,
+      chatList,
+    ]
   );
 
   const handleNewMessage = useCallback(
@@ -113,21 +116,19 @@ export const ChatLayout = () => {
         dispatch(chatActions.addMessage(chatData.lastMessage));
         markAsRead(chatData.chatId);
       }
-      setChatList(prevList => {
-        const chatIndex = prevList.findIndex(chat => chat.chatId === chatData.chatId);
 
-        if (chatIndex !== -1) {
-          // Update existing chat
-          const updatedChat = createUpdatedChat(prevList[chatIndex], chatData, isSelectedChat);
-          return [updatedChat, ...prevList.slice(0, chatIndex), ...prevList.slice(chatIndex + 1)];
-        }
+      // Update or add chat in Redux store
+      const newChat = chatList.some(chat => chat.chatId === chatData.chatId)
+        ? createUpdatedChat(
+            chatList.find(chat => chat.chatId === chatData.chatId)!,
+            chatData,
+            isSelectedChat
+          )
+        : createNewChat(chatData, isSelectedChat);
 
-        // Add new chat
-        const newChat = createNewChat(chatData, isSelectedChat);
-        return [newChat, ...prevList];
-      });
+      dispatch(chatActions.upsertChat(newChat));
     },
-    [selectedChat.chatId, createUpdatedChat, createNewChat, dispatch, markAsRead]
+    [selectedChat.chatId, createUpdatedChat, createNewChat, dispatch, markAsRead, chatList]
   );
 
   // Use notification system
@@ -156,9 +157,9 @@ export const ChatLayout = () => {
 
   useEffect(() => {
     if (data?.chats) {
-      setChatList(data.chats);
+      dispatch(chatActions.setChatList(data.chats));
     }
-  }, [data]);
+  }, [data, dispatch]);
 
   const handleChatSelect = async (chat: ChatDetails) => {
     setSelectedChat(chat);
@@ -167,10 +168,11 @@ export const ChatLayout = () => {
     }
     markAsRead(chat.chatId);
 
-    // Reset unread count for selected chat
-    setChatList(prevList =>
-      prevList.map(c => (c.chatId === chat.chatId ? { ...c, unreadCount: 0 } : c))
-    );
+    // Reset unread count for selected chat in Redux store
+    const updatedChat = chatList.find(c => c.chatId === chat.chatId);
+    if (updatedChat) {
+      dispatch(chatActions.updateChat({ ...updatedChat, unreadCount: 0 }));
+    }
   };
 
   const handleBack = () => {

@@ -99,7 +99,6 @@ export interface ChatHistoryResponse {
 }
 
 export interface ChatListData {
-  id: number;
   chatId: number;
   chatType: 'PERSONAL' | 'GROUP';
   chatName: string;
