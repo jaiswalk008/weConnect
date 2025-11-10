@@ -9,14 +9,15 @@ import { useMessages } from '@/hooks/useMessages';
 import { useNotifications } from '@/hooks/useNotification';
 import type { ChatResponse } from '@/types/chat';
 import { useFetch } from '@/hooks/useFetch';
-import type { ChatData } from '@/types/socket';
+import type { ChatListData } from '@/types/socket';
 import type { NotificationData } from '@/types/notification';
-import { useDispatch } from 'react-redux';
-import { chatActions } from '@/context/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { chatActions, type RootState } from '@/context/store';
 import { chatAPI } from '@/api/chat';
+import { TABS } from '@/constants/tabs';
 
 export const ChatLayout = () => {
-  const [activeTab, setActiveTab] = useState<'chats' | 'friends'>('chats');
+  const [activeTab, setActiveTab] = useState<TABS>(TABS.CHATS);
   const [selectedChat, setSelectedChat] = useState<ChatDetails>({
     chatId: 0,
     chatImage: '',
@@ -26,13 +27,14 @@ export const ChatLayout = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [showChatWindow, setShowChatWindow] = useState(false);
   const { isConnected, error } = useSocket();
-  const [chatList, setChatList] = useState<ChatData[]>([]);
+  const [chatList, setChatList] = useState<ChatListData[]>([]);
   const { markAsRead } = useMessages(selectedChat.chatId);
   const { data, loading, fetchData } = useFetch<ChatResponse>();
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.userData);
   // Handle new message notifications
   const createUpdatedChat = useCallback(
-    (chat: ChatData, chatData: ChatData, isSelected: boolean): ChatData => ({
+    (chat: ChatListData, chatData: ChatListData, isSelected: boolean): ChatListData => ({
       ...chat,
       chatName: chatData.chatName || chat.chatName,
       chatImage: chatData.chatImage || chat.chatImage,
@@ -42,9 +44,8 @@ export const ChatLayout = () => {
     }),
     []
   );
-
   const createNewChat = useCallback(
-    (chatData: ChatData, isSelected: boolean): ChatData => ({
+    (chatData: ChatListData, isSelected: boolean): ChatListData => ({
       id: chatData.chatId,
       createdAt: new Date(),
       chatId: chatData.chatId,
@@ -58,9 +59,48 @@ export const ChatLayout = () => {
         createdAt: chatData.lastMessage?.createdAt,
         sender: chatData.lastMessage?.sender,
       },
+      chatCreatedAt: new Date(),
+      createdByUser: chatData.createdByUser,
       unreadCount: isSelected ? 0 : chatData.unreadCount || 1,
     }),
     []
+  );
+  const handleNewGroup = useCallback(
+    (notification: NotificationData) => {
+      if (!notification.chatListData) return;
+      console.log('new group notiuficatioon', notification);
+      const chatData = notification.chatListData;
+      const isSelectedChat = chatData.chatId === selectedChat.chatId;
+      if (isSelectedChat && chatData.lastMessage) {
+        dispatch(chatActions.addMessage(chatData.lastMessage));
+        markAsRead(chatData.chatId);
+      }
+      setChatList(prevList => {
+        const chatIndex = prevList.findIndex(chat => chat.chatId === chatData.chatId);
+
+        if (chatIndex !== -1) {
+          // Update existing chat
+          const updatedChat = createUpdatedChat(prevList[chatIndex], chatData, isSelectedChat);
+          return [updatedChat, ...prevList.slice(0, chatIndex), ...prevList.slice(chatIndex + 1)];
+        }
+
+        // Add new chat
+        const newChat = createNewChat(chatData, isSelectedChat);
+        return [newChat, ...prevList];
+      });
+      console.log('new group chat list', notification.chatListData);
+      if (notification.chatListData.createdByUser?.username === user?.username) {
+        console.log('moving to chat tab', notification.chatListData);
+        setActiveTab(TABS.CHATS);
+        setSelectedChat({
+          chatId: chatData.chatId,
+          chatImage: chatData.chatImage || '',
+          chatName: chatData.chatName || '',
+          chatType: chatData.chatType as 'PERSONAL' | 'GROUP',
+        });
+      }
+    },
+    [selectedChat.chatId, createUpdatedChat, createNewChat, dispatch, markAsRead, user?.username]
   );
 
   const handleNewMessage = useCallback(
@@ -93,6 +133,7 @@ export const ChatLayout = () => {
   // Use notification system
   useNotifications({
     onNewMessage: handleNewMessage,
+    onNewGroup: handleNewGroup,
   });
 
   // Request notification permission on mount

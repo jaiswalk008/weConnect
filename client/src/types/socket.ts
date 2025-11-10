@@ -48,8 +48,8 @@ export interface ServerToClientEvents {
   [SOCKET_EVENTS.MESSAGE_DELIVERED]: (_data: MessageDeliveredData) => void;
   [SOCKET_EVENTS.MESSAGE_READ]: (_data: MessageReadData) => void;
   [SOCKET_EVENTS.MESSAGE_DELETED]: (_data: MessageDeletedData) => void;
-  [SOCKET_EVENTS.CHAT_CREATED]: (_data: ChatData) => void;
-  [SOCKET_EVENTS.CHAT_UPDATED]: (_data: ChatData) => void;
+  [SOCKET_EVENTS.CHAT_CREATED]: (_data: ChatListData) => void;
+  [SOCKET_EVENTS.CHAT_UPDATED]: (_data: ChatListData) => void;
   [SOCKET_EVENTS.CHAT_DELETED]: (_data: ChatDeletedData) => void;
   [SOCKET_EVENTS.TYPING_START]: (_data: TypingData) => void;
   [SOCKET_EVENTS.TYPING_STOP]: (_data: TypingStopData) => void;
@@ -98,7 +98,7 @@ export interface ChatHistoryResponse {
   message: string;
 }
 
-export interface ChatData {
+export interface ChatListData {
   id: number;
   chatId: number;
   chatType: 'PERSONAL' | 'GROUP';
@@ -111,6 +111,8 @@ export interface ChatData {
   }>;
   lastMessage: MessageData;
   createdAt: Date;
+  createdByUser?: userAuthState;
+  chatCreatedAt?: Date;
 }
 
 export interface SendMessagePayload {

@@ -3,6 +3,8 @@ import { CustomSocket, CustomServer } from '../../types/socket';
 import { SOCKET_EVENTS } from '../events';
 import chatService from '../../services/chat.service';
 import logger from '../../config/logger';
+import { NotificationType } from '../../types/notification';
+import { chatListData } from '../../types/chat';
 
 export class ChatHandler {
   constructor(

@@ -1,4 +1,4 @@
-import type { ChatData } from './socket';
+import type { ChatListData } from './socket';
 
 // types/notification.ts
 export enum NotificationType {
@@ -7,11 +7,14 @@ export enum NotificationType {
   'MESSAGE_DELIVERED' = 'MESSAGE_DELIVERED',
   'TYPING' = 'TYPING',
   'FRIEND_REQUEST' = 'FRIEND_REQUEST',
+  'NEW_GROUP' = 'NEW_GROUP',
   // Add more as needed
 }
 
 export interface NotificationData {
   type: NotificationType;
-  chatData?: ChatData;
+  chatData?: ChatListData;
+  chatListData?: ChatListData;
+
   metadata?: Record<string, any>;
 }

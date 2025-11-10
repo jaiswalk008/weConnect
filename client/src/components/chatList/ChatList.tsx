@@ -1,11 +1,13 @@
-import { Search, Plus } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { ChatItem } from './ChatItem';
 import FriendsList from '../Friends';
 import SearchUserComponent from '../Friends/SearchUser';
 import { Input } from '../ui/input';
 import { ChatListSkeleton } from '../ui/ChatSkeletonLoader';
-import type { ChatData } from '@/types/socket';
+import type { ChatListData } from '@/types/socket';
 import type { ChatDetails } from '../chatWindow/ChatWindow';
+import ChatDropdownMenu from './Menu';
+import { TABS } from '@/constants/tabs';
 
 // interface ChatItemProps {
 //   id: number;
@@ -17,13 +19,13 @@ import type { ChatDetails } from '../chatWindow/ChatWindow';
 // }
 
 interface ChatListProps {
-  activeTab: 'chats' | 'friends';
+  activeTab: TABS;
   onChatSelect: (_chat: ChatDetails) => void;
   selectedChat: ChatDetails;
   isMobile: boolean;
   showChatList: boolean;
-  setActiveTab: (_tab: 'chats' | 'friends') => void;
-  data: ChatData[];
+  setActiveTab: (_tab: TABS) => void;
+  data: ChatListData[];
   _onBack?: () => void;
   loading: boolean;
 }
@@ -47,19 +49,14 @@ export const ChatList = ({
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-foreground">
-            {activeTab === 'chats' ? 'Chats' : 'Friends'}
+            {activeTab === TABS.CHATS ? 'Chats' : 'Friends'}
           </h1>
-          <button
-            className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity"
-            aria-label="New chat"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
+          <ChatDropdownMenu setActiveTab={setActiveTab} />
         </div>
 
         {/* Search Bar */}
-        {activeTab === 'friends' ? (
-          <SearchUserComponent />
+        {activeTab === TABS.FRIENDS ? (
+          <SearchUserComponent handleChatSelect={onChatSelect} />
         ) : (
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -74,18 +71,20 @@ export const ChatList = ({
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
-        {activeTab === 'chats' &&
+        {activeTab === TABS.CHATS &&
           data?.length > 0 &&
-          data?.map((chat: ChatData) => (
+          data?.map((chat: ChatListData) => (
             <ChatItem
               key={chat.chatId}
               chat={{
                 id: chat.chatId,
                 chatName: chat.chatName || '',
-                lastMessage: chat.lastMessage,
+                lastMessage: chat?.lastMessage,
                 unreadCount: chat.unreadCount,
                 chatImage: chat.chatImage,
                 chatType: chat.chatType,
+                createdByUser: chat.createdByUser,
+                chatCreatedAt: chat.chatCreatedAt,
               }}
               isSelected={selectedChat.chatId === chat.chatId}
               onClick={() =>
@@ -98,7 +97,7 @@ export const ChatList = ({
               }
             />
           ))}
-        {activeTab === 'friends' && (
+        {activeTab === TABS.FRIENDS && (
           <FriendsList onChatSelect={onChatSelect} setActiveTab={setActiveTab} />
         )}
       </div>

@@ -5,9 +5,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 import { useDispatch } from 'react-redux';
 import { authActions } from '@/context/store';
+import { TABS } from '@/constants/tabs';
 interface SidebarProps {
-  activeTab: 'chats' | 'friends';
-  onTabChange: (_tab: 'chats' | 'friends') => void;
+  activeTab: TABS;
+  onTabChange: (_tab: TABS) => void;
 }
 
 export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
@@ -45,9 +46,9 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
       {/* Navigation Icons */}
       <div className="flex-1 flex flex-col gap-2 p-3">
         <button
-          onClick={() => onTabChange('chats')}
+          onClick={() => onTabChange(TABS.CHATS)}
           className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-            activeTab === 'chats'
+            activeTab === TABS.CHATS
               ? 'bg-primary text-primary-foreground'
               : 'hover:bg-accent text-muted-foreground'
           }`}
@@ -57,9 +58,9 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
         </button>
 
         <button
-          onClick={() => onTabChange('friends')}
+          onClick={() => onTabChange(TABS.FRIENDS)}
           className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-            activeTab === 'friends'
+            activeTab === TABS.FRIENDS
               ? 'bg-primary text-primary-foreground'
               : 'hover:bg-accent text-muted-foreground'
           }`}

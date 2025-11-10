@@ -29,6 +29,9 @@ export interface chatListData {
   lastReadMessageId?: number;
   unreadCount?: number;
   lastMessage?: MessageData;
+  createdByUser: UserInterface;
+  chatCreatedAt: Date;
+  description?: string;
 }
 
 export interface ChatData {

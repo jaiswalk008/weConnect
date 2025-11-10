@@ -11,8 +11,13 @@ import { useDispatch } from 'react-redux';
 import { friendActions } from '@/context/store';
 import { friendsAPI } from '@/api/friend';
 import { FRIENDS_UPDATE_STATUS_TYPE } from '@/constants/friend';
+import type { ChatDetails } from '../chatWindow/ChatWindow';
 
-const SearchUserComponent = () => {
+const SearchUserComponent = ({
+  handleChatSelect,
+}: {
+  handleChatSelect: (_chat: ChatDetails) => void;
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -163,6 +168,7 @@ const SearchUserComponent = () => {
                   user={user}
                   isLoading={actionLoading === user.username}
                   onAction={handleAction}
+                  handleChatSelect={handleChatSelect}
                 />
               ))}
             </div>
