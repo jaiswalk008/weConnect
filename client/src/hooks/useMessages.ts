@@ -46,7 +46,6 @@ export const useMessages = (chatId: number) => {
       SOCKET_EVENTS.MESSAGE_SEND,
       { chatId, content },
       (response: { success: boolean; message?: MessageData; error?: string }) => {
-        console.log('Message send response:', response);
         const message = response.message;
         if (response.success && message) {
           // dispatch(chatActions.upsertChat({

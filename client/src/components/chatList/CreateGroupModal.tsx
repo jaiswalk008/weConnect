@@ -66,7 +66,6 @@ export default function CreateGroupModal({ open, onOpenChange }: CreateGroupModa
     const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      console.log(imageUrl);
       setFormData(prev => ({
         ...prev,
         chatImage: imageUrl,

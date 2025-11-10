@@ -67,7 +67,6 @@ export const ChatLayout = () => {
   const handleNewGroup = useCallback(
     (notification: NotificationData) => {
       if (!notification.chatListData) return;
-      console.log('new group notification', notification);
       const chatData = notification.chatListData;
       const isSelectedChat = chatData.chatId === selectedChat.chatId;
       if (isSelectedChat && chatData.lastMessage) {

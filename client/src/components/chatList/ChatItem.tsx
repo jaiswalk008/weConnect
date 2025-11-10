@@ -24,7 +24,6 @@ export interface ChatItemProps {
 }
 
 export const ChatItem = ({ chat, isSelected, onClick }: ChatItemProps) => {
-  console.log(chat);
   const user = useSelector((state: RootState) => state.auth.userData);
   const lastMessageContent = useMemo(() => {
     if (chat?.lastMessage?.content) {
