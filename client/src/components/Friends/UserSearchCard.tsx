@@ -16,7 +16,12 @@ const getInitials = (name: string) => {
     .slice(0, 2);
 };
 
-export const UserSearchCard = ({ user, isLoading, onAction }: UserSearchCardProps) => {
+export const UserSearchCard = ({
+  user,
+  isLoading,
+  onAction,
+  handleChatSelect,
+}: UserSearchCardProps) => {
   const getActionButton = () => {
     const buttonClasses = 'shrink-0';
 
@@ -36,8 +41,23 @@ export const UserSearchCard = ({ user, isLoading, onAction }: UserSearchCardProp
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
-                <MessageCircle className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Message</span>
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() =>
+                    handleChatSelect({
+                      chatId: user?.chatId || 0,
+                      chatImage: user.profile_image,
+                      chatName: user.name,
+                      chatType: 'PERSONAL',
+                    })
+                  }
+                  disabled={isLoading}
+                  className={buttonClasses}
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Message</span>
+                </Button>
               </>
             )}
           </Button>

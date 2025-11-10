@@ -1,4 +1,4 @@
-import { MessageStatus, type MessageData } from '@/types/socket';
+import { MessageStatus, type MessageData, type ChatListData } from '@/types/socket';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/types/socket';
@@ -6,11 +6,13 @@ import type { userAuthState } from '@/types/user';
 
 interface chatState {
   chatData: MessageData[];
+  chatList: ChatListData[];
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
 }
 
 const initialState: chatState = {
   chatData: [],
+  chatList: [],
   socket: null,
 };
 
@@ -18,6 +20,29 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
+    // Chat list actions
+    setChatList: (state, action: PayloadAction<ChatListData[]>) => {
+      state.chatList = action.payload;
+    },
+    updateChat: (state, action: PayloadAction<ChatListData>) => {
+      const chatData = action.payload;
+      state.chatList = state.chatList.map(chat =>
+        chat.chatId === chatData.chatId ? chatData : chat
+      );
+    },
+    upsertChat: (state, action: PayloadAction<ChatListData>) => {
+      let chatData = action.payload;
+      const existingIndex = state.chatList.findIndex(chat => chat.chatId === chatData.chatId);
+      if (existingIndex == -1) {
+        // Remove existing and add to front
+        const oldChatData = state.chatList.splice(existingIndex, 1);
+        chatData = { ...oldChatData[0], ...chatData };
+      } else {
+        chatData.chatType = 'PERSONAL';
+      }
+      state.chatList.unshift(chatData);
+    },
+    // Message actions
     setChatData: (state, action: PayloadAction<MessageData[]>) => {
       state.chatData = action.payload;
     },

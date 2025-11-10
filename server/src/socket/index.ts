@@ -9,9 +9,12 @@ import { MessageHandler } from './handlers/message.handler';
 import { SOCKET_EVENTS } from './events';
 import { ChatHandler } from './handlers/chat.handler';
 import logger from '../config/logger';
+import { chatListData } from '../types/chat';
+import { NotificationType } from '../types/notification';
 
 export class SocketService {
   private io: CustomServer;
+  private static instance: SocketService;
 
   constructor(server: HTTPServer) {
     this.io = new SocketIOServer(server, {
@@ -32,7 +35,15 @@ export class SocketService {
     this.initializeMiddleware();
     this.initializeHandlers();
   }
-
+  public static getInstance(server?: HTTPServer): SocketService {
+    if (!SocketService.instance) {
+      if (!server) {
+        throw new Error('Server instance required for first initialization');
+      }
+      SocketService.instance = new SocketService(server);
+    }
+    return SocketService.instance;
+  }
   private initializeMiddleware() {
     this.io.use(socketAuthMiddleware);
   }
@@ -90,7 +101,15 @@ export class SocketService {
 
 export let socketService: SocketService;
 
+// Initialize using singleton pattern
 export const initializeSocket = (server: HTTPServer): SocketService => {
-  socketService = new SocketService(server);
-  return socketService;
+  return SocketService.getInstance(server);
+};
+
+// Get the singleton instance
+export const getSocketService = (): SocketService => {
+  return SocketService.getInstance();
+};
+export const getIO = (): CustomServer => {
+  return SocketService.getInstance().getIO();
 };

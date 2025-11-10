@@ -3,6 +3,7 @@ import friendRepository from '../repository/friend.repository';
 import { UserInterface, UserUpdateInterface } from '../types/user';
 import { AuthenticationError, ConflictError, ValidationError } from '../utils/errors';
 import { User } from '@prisma/client';
+import prisma from '../config/database';
 
 class UserService {
   async getUserDetails(userId: number): Promise<UserInterface> {
@@ -62,20 +63,68 @@ class UserService {
     }
 
     const users = await userRepository.searchUser(userId, userInput);
+    const topTenUsers = users.slice(0, 10);
 
-    const topTenPromise = users.slice(0, 10).map(async (user: User) => {
-      const friends = await friendRepository.findFriends({
+    // If no users found, return early
+    if (topTenUsers.length === 0) {
+      return [];
+    }
+
+    const topTenUserIds = topTenUsers.map(user => user.id);
+
+    // Batch all queries together instead of individual queries per user
+    const [friendsData, userChatIds, commonChats] = await Promise.all([
+      // Get all friendships in one query
+      friendRepository.findFriends({
         user_id: userId,
-        friend_user_id: user.id,
-      });
+        friend_user_id: { in: topTenUserIds },
+      }),
 
-      return {
-        ...this.getUserProfile(user),
-        friendShipStatus: friends.length > 0 ? friends[0].status : 'NOT_FRIEND',
-      };
+      // Get current user's chat IDs once
+      prisma.chatParticipant.findMany({
+        where: { user_id: userId },
+        select: { chat_id: true },
+      }),
+
+      // Get all common chats for all users in one query
+      prisma.chatParticipant.findMany({
+        where: {
+          user_id: { in: topTenUserIds },
+        },
+        select: {
+          user_id: true,
+          chat_id: true,
+        },
+      }),
+    ]);
+
+    // Extract chat IDs
+    const userChatIdSet = new Set(userChatIds.map(chat => chat.chat_id));
+
+    // Create lookup maps for O(1) access
+    const friendshipMap = new Map<number, string>();
+    friendsData.forEach(friend => {
+      friendshipMap.set(friend.friend_user_id, friend.status);
     });
 
-    return await Promise.all(topTenPromise);
+    // Create common chat map: userId -> chatId
+    const commonChatMap = new Map<number, number>();
+    commonChats.forEach(chat => {
+      // Only add if current user is also in this chat
+      if (userChatIdSet.has(chat.chat_id)) {
+        // Only set if not already set (first common chat)
+        if (!commonChatMap.has(chat.user_id)) {
+          commonChatMap.set(chat.user_id, chat.chat_id);
+        }
+      }
+    });
+
+    // Map users with O(1) lookups instead of queries
+    return topTenUsers.map(user => ({
+      ...this.getUserProfile(user),
+      friendShipStatus: friendshipMap.get(user.id) || 'NOT_FRIEND',
+      chatId: commonChatMap.get(user.id) || null,
+    }));
   }
 }
 

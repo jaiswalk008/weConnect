@@ -1,5 +1,7 @@
 // src/components/friends/types.ts
 
+import type { ChatDetails } from '@/components/chatWindow/ChatWindow';
+
 export interface Friend {
   name: string;
   email: string;
@@ -32,6 +34,7 @@ export interface SearchUser {
   profile_image: string;
   username: string;
   friendShipStatus: FriendshipStatus;
+  chatId?: number;
 }
 
 export interface SearchUsersResponse {
@@ -68,4 +71,5 @@ export interface UserSearchCardProps {
   user: SearchUser;
   isLoading: boolean;
   onAction: (_username: string, _status: FriendshipStatus) => void;
+  handleChatSelect: (_chat: ChatDetails) => void;
 }

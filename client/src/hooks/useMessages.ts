@@ -10,6 +10,7 @@ export const useMessages = (chatId: number) => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.userData);
   const { chatData } = useSelector((state: RootState) => state.chat);
+
   useEffect(() => {
     if (!socket || !chatId) return;
 
@@ -45,9 +46,14 @@ export const useMessages = (chatId: number) => {
       SOCKET_EVENTS.MESSAGE_SEND,
       { chatId, content },
       (response: { success: boolean; message?: MessageData; error?: string }) => {
-        console.log('Message send response:', response);
-        if (response.success && response.message) {
-          dispatch(chatActions.addMessage(response.message));
+        const message = response.message;
+        if (response.success && message) {
+          // dispatch(chatActions.upsertChat({
+          //   chatId:message?.chatId,
+          //   lastMessage:message,
+
+          // }))
+          dispatch(chatActions.addMessage(message));
         }
         callback?.(response);
       }

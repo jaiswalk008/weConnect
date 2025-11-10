@@ -188,7 +188,7 @@ model Group {
   id          Int      @id @default(autoincrement())
   chat_id     Int      @unique
   description String?  @db.Text
-  invite_link String?  @unique @db.VarChar(255)
+  group_id String   @unique @default(uuid()) @db.Uuid
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 

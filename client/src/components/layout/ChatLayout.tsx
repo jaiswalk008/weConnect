@@ -9,14 +9,15 @@ import { useMessages } from '@/hooks/useMessages';
 import { useNotifications } from '@/hooks/useNotification';
 import type { ChatResponse } from '@/types/chat';
 import { useFetch } from '@/hooks/useFetch';
-import type { ChatData } from '@/types/socket';
+import type { ChatListData } from '@/types/socket';
 import type { NotificationData } from '@/types/notification';
-import { useDispatch } from 'react-redux';
-import { chatActions } from '@/context/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { chatActions, type RootState } from '@/context/store';
 import { chatAPI } from '@/api/chat';
+import { TABS } from '@/constants/tabs';
 
 export const ChatLayout = () => {
-  const [activeTab, setActiveTab] = useState<'chats' | 'friends'>('chats');
+  const [activeTab, setActiveTab] = useState<TABS>(TABS.CHATS);
   const [selectedChat, setSelectedChat] = useState<ChatDetails>({
     chatId: 0,
     chatImage: '',
@@ -26,13 +27,14 @@ export const ChatLayout = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [showChatWindow, setShowChatWindow] = useState(false);
   const { isConnected, error } = useSocket();
-  const [chatList, setChatList] = useState<ChatData[]>([]);
   const { markAsRead } = useMessages(selectedChat.chatId);
   const { data, loading, fetchData } = useFetch<ChatResponse>();
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.userData);
+  const chatList = useSelector((state: RootState) => state.chat.chatList);
   // Handle new message notifications
   const createUpdatedChat = useCallback(
-    (chat: ChatData, chatData: ChatData, isSelected: boolean): ChatData => ({
+    (chat: ChatListData, chatData: ChatListData, isSelected: boolean): ChatListData => ({
       ...chat,
       chatName: chatData.chatName || chat.chatName,
       chatImage: chatData.chatImage || chat.chatImage,
@@ -42,10 +44,8 @@ export const ChatLayout = () => {
     }),
     []
   );
-
   const createNewChat = useCallback(
-    (chatData: ChatData, isSelected: boolean): ChatData => ({
-      id: chatData.chatId,
+    (chatData: ChatListData, isSelected: boolean): ChatListData => ({
       createdAt: new Date(),
       chatId: chatData.chatId,
       chatName: chatData.chatName || '',
@@ -58,9 +58,51 @@ export const ChatLayout = () => {
         createdAt: chatData.lastMessage?.createdAt,
         sender: chatData.lastMessage?.sender,
       },
+      chatCreatedAt: new Date(),
+      createdByUser: chatData.createdByUser,
       unreadCount: isSelected ? 0 : chatData.unreadCount || 1,
     }),
     []
+  );
+  const handleNewGroup = useCallback(
+    (notification: NotificationData) => {
+      if (!notification.chatListData) return;
+      const chatData = notification.chatListData;
+      const isSelectedChat = chatData.chatId === selectedChat.chatId;
+      if (isSelectedChat && chatData.lastMessage) {
+        dispatch(chatActions.addMessage(chatData.lastMessage));
+        markAsRead(chatData.chatId);
+      }
+
+      // Update or add chat in Redux store
+      const newChat = chatList.some(chat => chat.chatId === chatData.chatId)
+        ? createUpdatedChat(
+            chatList.find(chat => chat.chatId === chatData.chatId)!,
+            chatData,
+            isSelectedChat
+          )
+        : createNewChat(chatData, isSelectedChat);
+
+      dispatch(chatActions.upsertChat(newChat));
+      if (notification.chatListData.createdByUser?.username === user?.username) {
+        setActiveTab(TABS.CHATS);
+        setSelectedChat({
+          chatId: chatData.chatId,
+          chatImage: chatData.chatImage || '',
+          chatName: chatData.chatName || '',
+          chatType: chatData.chatType as 'PERSONAL' | 'GROUP',
+        });
+      }
+    },
+    [
+      selectedChat.chatId,
+      createUpdatedChat,
+      createNewChat,
+      dispatch,
+      markAsRead,
+      user?.username,
+      chatList,
+    ]
   );
 
   const handleNewMessage = useCallback(
@@ -73,26 +115,25 @@ export const ChatLayout = () => {
         dispatch(chatActions.addMessage(chatData.lastMessage));
         markAsRead(chatData.chatId);
       }
-      setChatList(prevList => {
-        const chatIndex = prevList.findIndex(chat => chat.chatId === chatData.chatId);
 
-        if (chatIndex !== -1) {
-          // Update existing chat
-          const updatedChat = createUpdatedChat(prevList[chatIndex], chatData, isSelectedChat);
-          return [updatedChat, ...prevList.slice(0, chatIndex), ...prevList.slice(chatIndex + 1)];
-        }
+      // Update or add chat in Redux store
+      const newChat = chatList.some(chat => chat.chatId === chatData.chatId)
+        ? createUpdatedChat(
+            chatList.find(chat => chat.chatId === chatData.chatId)!,
+            chatData,
+            isSelectedChat
+          )
+        : createNewChat(chatData, isSelectedChat);
 
-        // Add new chat
-        const newChat = createNewChat(chatData, isSelectedChat);
-        return [newChat, ...prevList];
-      });
+      dispatch(chatActions.upsertChat(newChat));
     },
-    [selectedChat.chatId, createUpdatedChat, createNewChat, dispatch, markAsRead]
+    [selectedChat.chatId, createUpdatedChat, createNewChat, dispatch, markAsRead, chatList]
   );
 
   // Use notification system
   useNotifications({
     onNewMessage: handleNewMessage,
+    onNewGroup: handleNewGroup,
   });
 
   // Request notification permission on mount
@@ -115,9 +156,9 @@ export const ChatLayout = () => {
 
   useEffect(() => {
     if (data?.chats) {
-      setChatList(data.chats);
+      dispatch(chatActions.setChatList(data.chats));
     }
-  }, [data]);
+  }, [data, dispatch]);
 
   const handleChatSelect = async (chat: ChatDetails) => {
     setSelectedChat(chat);
@@ -126,10 +167,11 @@ export const ChatLayout = () => {
     }
     markAsRead(chat.chatId);
 
-    // Reset unread count for selected chat
-    setChatList(prevList =>
-      prevList.map(c => (c.chatId === chat.chatId ? { ...c, unreadCount: 0 } : c))
-    );
+    // Reset unread count for selected chat in Redux store
+    const updatedChat = chatList.find(c => c.chatId === chat.chatId);
+    if (updatedChat) {
+      dispatch(chatActions.updateChat({ ...updatedChat, unreadCount: 0 }));
+    }
   };
 
   const handleBack = () => {

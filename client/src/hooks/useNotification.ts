@@ -8,12 +8,14 @@ interface UseNotificationsProps {
   onNewMessage?: (_notification: NotificationData) => void;
   onMessageRead?: (_data: any) => void;
   onMessageDelivered?: (_data: any) => void;
+  onNewGroup?: (_data: any) => void;
 }
 
 export const useNotifications = ({
   onNewMessage,
   onMessageRead,
   onMessageDelivered,
+  onNewGroup,
 }: UseNotificationsProps) => {
   const { socket } = useSocket();
 
@@ -48,12 +50,14 @@ export const useNotifications = ({
         case NotificationType.MESSAGE_DELIVERED:
           onMessageDelivered?.(notification);
           break;
-
+        case NotificationType.NEW_GROUP:
+          onNewGroup?.(notification);
+          break;
         default:
           console.log('Unhandled notification type:', notification.type);
       }
     },
-    [onNewMessage, onMessageRead, onMessageDelivered]
+    [onNewMessage, onMessageRead, onMessageDelivered, onNewGroup]
   );
 
   useEffect(() => {
@@ -62,11 +66,13 @@ export const useNotifications = ({
     socket.on(SOCKET_EVENTS.NOTIFICATION, handleNotification);
     socket.on(SOCKET_EVENTS.MESSAGE_READ, onMessageRead || (() => {}));
     socket.on(SOCKET_EVENTS.MESSAGE_DELIVERED, onMessageDelivered || (() => {}));
+    socket.on(SOCKET_EVENTS.NOTIFICATION, onNewGroup || (() => {}));
 
     return () => {
       socket.off(SOCKET_EVENTS.NOTIFICATION, handleNotification);
       if (onMessageRead) socket.off(SOCKET_EVENTS.MESSAGE_READ, onMessageRead);
       if (onMessageDelivered) socket.off(SOCKET_EVENTS.MESSAGE_DELIVERED, onMessageDelivered);
+      if (onNewGroup) socket.off(SOCKET_EVENTS.NOTIFICATION, onNewGroup);
     };
-  }, [socket, handleNotification, onMessageRead, onMessageDelivered]);
+  }, [socket, handleNotification, onMessageRead, onMessageDelivered, onNewGroup]);
 };

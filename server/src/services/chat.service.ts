@@ -23,16 +23,19 @@ class ChatService {
           },
         },
       },
+      include: {
+        created_by_user: true,
+      },
     });
-    await this.createParticipants(newChat.id, participants);
+    await this.createParticipants(newChat.id, userId, participants);
     return newChat;
   }
-  async createParticipants(chatId: number, participants: number[]) {
+  async createParticipants(chatId: number, userId: number, participants: number[]) {
     await prisma.chatParticipant.createMany({
       data: participants.map((participantId: number) => ({
         chat_id: chatId,
         user_id: participantId,
-        role: participantId === chatId ? 'ADMIN' : 'MEMBER',
+        role: participantId === userId ? 'ADMIN' : 'MEMBER',
         is_active: true,
       })),
     });
@@ -95,9 +98,16 @@ class ChatService {
         user_id: userId,
         is_active: true,
         chat: {
-          last_message_id: {
-            not: null,
-          },
+          OR: [
+            // Include all groups
+            {
+              chat_type: 'GROUP',
+            },
+            // Include personal chats with no last message
+            {
+              AND: [{ chat_type: 'PERSONAL' }, { last_message_id: { not: null } }],
+            },
+          ],
         },
       },
       include: {
@@ -109,6 +119,7 @@ class ChatService {
                 message_statuses: true,
               },
             },
+            created_by_user: true,
             participants: {
               where: {
                 user_id: { not: userId },
@@ -154,6 +165,8 @@ class ChatService {
           chatImage,
           lastReadMessageId: participant.last_read_message_id || undefined,
           unreadCount: participant.unread_count || 0,
+          createdByUser: userService.getUserProfile(chat.created_by_user),
+          chatCreatedAt: chat.created_at,
         };
 
         if (chat.last_message) {

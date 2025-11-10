@@ -1,7 +1,7 @@
-import type { ChatData } from './socket';
+import type { ChatListData } from './socket';
 
 export interface ChatResponse {
-  chats: ChatData[];
+  chats: ChatListData[];
   status: string;
   message: string;
 }

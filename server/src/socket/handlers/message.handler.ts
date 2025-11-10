@@ -90,6 +90,8 @@ export class MessageHandler {
                 chat_name: true,
                 chat_image: true,
                 last_message_id: true,
+                created_by_user: true,
+                created_at: true,
               },
             },
             user: {
@@ -139,6 +141,8 @@ export class MessageHandler {
               lastReadMessageId: participant.last_read_message_id || undefined,
               unreadCount: participant.unread_count || 0,
               lastMessage: messageData,
+              createdByUser: userService.getUserProfile(participant.chat.created_by_user),
+              chatCreatedAt: participant.chat.created_at,
             },
           };
 
@@ -273,8 +277,7 @@ export class MessageHandler {
         const senderMessages = messagesToMarkAsRead
           .filter(m => m.sender_id === senderId)
           .map(m => m.id);
-        console.log(senderMessages);
-        this.io.to(`chat:${data.chatId}`).emit(SOCKET_EVENTS.MESSAGE_READ, {
+          this.io.to(`chat:${data.chatId}`).emit(SOCKET_EVENTS.MESSAGE_READ, {
           messageIds: senderMessages,
           chatId: data.chatId,
           user: userService.getUserProfile(this.socket.data.user),

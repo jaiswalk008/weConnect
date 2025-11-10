@@ -14,10 +14,11 @@ import { friendActions } from '@/context/store';
 import { useFetch } from '@/hooks/useFetch';
 import { friendsAPI } from '@/api/friend';
 import type { ChatDetails } from '../chatWindow/ChatWindow';
+import { TABS } from '@/constants/tabs';
 
 interface FriendListProps {
   onChatSelect: (_chat: ChatDetails) => void;
-  setActiveTab: (_tab: 'friends' | 'chats') => void;
+  setActiveTab: (_tab: TABS.CHATS | TABS.FRIENDS) => void;
 }
 
 const FriendsList = ({ onChatSelect, setActiveTab }: FriendListProps) => {
@@ -61,7 +62,7 @@ const FriendsList = ({ onChatSelect, setActiveTab }: FriendListProps) => {
       chatName: friend.username,
       chatType: 'PERSONAL',
     });
-    setActiveTab('chats');
+    setActiveTab(TABS.CHATS);
   };
 
   const handleUnfriend = (friend: Friend) => {
