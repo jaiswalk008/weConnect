@@ -4,7 +4,7 @@ import { UserInterface, UserUpdateInterface } from '../types/user';
 import { AuthenticationError, ConflictError, ValidationError } from '../utils/errors';
 import { User } from '@prisma/client';
 import prisma from '../config/database';
-
+import bcrypt from 'bcrypt';
 class UserService {
   async getUserDetails(userId: number): Promise<UserInterface> {
     const user = await userRepository.getUser({ id: userId });
@@ -125,6 +125,12 @@ class UserService {
       friendShipStatus: friendshipMap.get(user.id) || 'NOT_FRIEND',
       chatId: commonChatMap.get(user.id) || null,
     }));
+  }
+  async updatePassword (userId: number, password: string): Promise<void> {
+
+    console.log(password)
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await userRepository.updateUser(userId, { password: hashedPassword });
   }
 }
 

@@ -1,11 +1,12 @@
-// Sidebar.tsx
-import { MessageSquare, Users, Settings, Moon, Sun, User, LogOut } from 'lucide-react';
+import { MessageSquare, Users, Settings, Moon, Sun, LogOut } from 'lucide-react';
 import { useTheme } from '@/theme/theme-context';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { useDispatch } from 'react-redux';
-import { authActions } from '@/context/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { authActions, type RootState } from '@/context/store';
 import { TABS } from '@/constants/tabs';
+import ProfileImage from '@/components/Profile/ProfileImage';
+
 interface SidebarProps {
   activeTab: TABS;
   onTabChange: (_tab: TABS) => void;
@@ -14,12 +15,14 @@ interface SidebarProps {
 export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   const { theme, setTheme } = useTheme();
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.userData);
+
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   const handleMyAccount = () => {
-    console.log('My Account');
+    onTabChange(TABS.PROFILE);
   };
 
   const handleLogout = () => {
@@ -87,7 +90,11 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
                 onClick={handleMyAccount}
                 className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors text-left w-full"
               >
-                <User className="w-4 h-4 text-muted-foreground" />
+                <ProfileImage
+                  size="small"
+                  image={user.profile_image || ''}
+                  chatName={user.username || user.name}
+                />
                 <span className="text-sm font-medium">My Account</span>
               </button>
 

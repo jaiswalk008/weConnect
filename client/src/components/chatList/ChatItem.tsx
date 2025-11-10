@@ -1,6 +1,6 @@
 import type { MessageData } from '@/types/socket';
 import { formatDayMonth } from '@/utils/dateUtils';
-import ProfileImage from '../common/ProfileImage';
+import ProfileImage from '../Profile/ProfileImage';
 import type { userAuthState } from '@/types/user';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
