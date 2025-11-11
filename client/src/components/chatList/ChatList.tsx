@@ -101,9 +101,7 @@ export const ChatList = ({
         {activeTab === TABS.FRIENDS && (
           <FriendsList onChatSelect={onChatSelect} setActiveTab={setActiveTab} />
         )}
-        {activeTab === TABS.PROFILE && (
-          <ProfileTab onClose={() => setActiveTab(TABS.CHATS)} />
-        )}
+        {activeTab === TABS.PROFILE && <ProfileTab onClose={() => setActiveTab(TABS.CHATS)} />}
       </div>
     </div>
   );

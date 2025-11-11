@@ -277,7 +277,7 @@ export class MessageHandler {
         const senderMessages = messagesToMarkAsRead
           .filter(m => m.sender_id === senderId)
           .map(m => m.id);
-          this.io.to(`chat:${data.chatId}`).emit(SOCKET_EVENTS.MESSAGE_READ, {
+        this.io.to(`chat:${data.chatId}`).emit(SOCKET_EVENTS.MESSAGE_READ, {
           messageIds: senderMessages,
           chatId: data.chatId,
           user: userService.getUserProfile(this.socket.data.user),

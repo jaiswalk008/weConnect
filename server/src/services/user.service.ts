@@ -54,6 +54,7 @@ class UserService {
       email: user.email,
       profile_image: user.profile_image,
       username: user.username,
+      about: user.about,
     };
   }
 
@@ -126,9 +127,8 @@ class UserService {
       chatId: commonChatMap.get(user.id) || null,
     }));
   }
-  async updatePassword (userId: number, password: string): Promise<void> {
-
-    console.log(password)
+  async updatePassword(userId: number, password: string): Promise<void> {
+    console.log(password);
     const hashedPassword = await bcrypt.hash(password, 10);
     await userRepository.updateUser(userId, { password: hashedPassword });
   }

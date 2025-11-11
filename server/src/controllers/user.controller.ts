@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import userService from '../services/user.service';
 import { ValidationError } from '../utils/errors';
 import { User } from '@prisma/client';
-import { success } from 'zod';
 
 class UserController {
   static async getUserProfile(req: Request, res: Response, next: NextFunction) {
@@ -92,6 +91,24 @@ class UserController {
       res.status(200).json({
         success: true,
         message: 'Password updated successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async updateProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user as User;
+      const { username, about } = req.body;
+      if (!user) {
+        throw new ValidationError('User ID is required');
+      }
+
+      const userInfo = await userService.updateUserProfile(user.id, { username, about });
+      res.status(200).json({
+        status: 'success',
+        user: userInfo,
+        message: 'Username updated successfully',
       });
     } catch (error) {
       next(error);

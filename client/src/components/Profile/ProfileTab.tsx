@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { X, Camera, Eye, EyeOff } from 'lucide-react';
-import { type RootState } from '@/context/store';
+import { authActions, type RootState } from '@/context/store';
 import ProfileImage from './ProfileImage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,9 +13,15 @@ import { cn } from '@/lib/utils';
 import axiosInstance from '@/utils/axiosInstance';
 import { userAPIs } from '@/api/user';
 import { toast } from 'sonner';
+import type { userAuthState } from '@/types/user';
 
 interface ProfileTabProps {
   onClose: () => void;
+}
+interface updateProfileResponse {
+  user: userAuthState;
+  message: string;
+  success: boolean;
 }
 
 export default function ProfileTab({ onClose }: ProfileTabProps) {
@@ -24,7 +30,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
 
   const [formData, setFormData] = useState({
     username: user.username || user.name || '',
-    // about: user.about || '',
+    about: user.about || '',
     newPassword: '',
     confirmPassword: '',
   });
@@ -39,9 +45,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isLoadingPassword, setIsLoadingPassword] = useState(false);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
@@ -93,22 +97,17 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
     setIsLoadingProfile(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await axiosInstance.patch<updateProfileResponse>(userAPIs.updateProfile, {
+        username: formData.username,
+        about: formData.about,
+      });
 
       // Update user data in store
-    //   dispatch(
-    //     authActions.updateUser({
-    //       username: formData.username,
-    //       about: formData.about,
-    //       profile_image: selectedImage,
-    //     })
-    //   );
-
-      // Show success message (you can add a toast here)
-      alert('Profile updated successfully!');
+      dispatch(authActions.setUserData(response.data.user));
+      toast.success(response.data.message);
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('Failed to update profile. Please try again.');
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setIsLoadingProfile(false);
     }
@@ -120,7 +119,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
     setIsLoadingPassword(true);
     try {
       // Simulate API call
-      await axiosInstance.patch(userAPIs.updatePassword,{newPassword:formData.newPassword})
+      await axiosInstance.patch(userAPIs.updatePassword, { newPassword: formData.newPassword });
       setFormData(prev => ({
         ...prev,
         newPassword: '',
@@ -164,7 +163,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
               />
               <button
                 onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg"
+                className="absolute top-10 left-10 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg"
                 aria-label="Change profile picture"
               >
                 <Camera className="w-5 h-5" />
@@ -217,9 +216,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
                   errors.username && 'border-destructive focus-visible:ring-destructive'
                 )}
               />
-              {errors.username && (
-                <p className="text-sm text-destructive">{errors.username}</p>
-              )}
+              {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
             </div>
 
             {/* About Section */}
@@ -230,14 +227,14 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
               <Textarea
                 id="about"
                 name="about"
-                value={"hello"}
+                value={formData.about}
                 onChange={handleInputChange}
                 placeholder="Write something about yourself..."
                 className="resize-none min-h-[100px]"
                 maxLength={200}
               />
               <p className="text-xs text-muted-foreground text-right">
-                {"hello".length}/200
+                {formData.about.length}/200
               </p>
             </div>
 
@@ -279,17 +276,11 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
                 />
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPasswords(prev => ({ ...prev, new: !prev.new }))
-                  }
+                  onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   aria-label="Toggle password visibility"
                 >
-                  {showPasswords.new ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
+                  {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.newPassword && (
@@ -317,9 +308,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
                 />
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))
-                  }
+                  onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   aria-label="Toggle password visibility"
                 >
