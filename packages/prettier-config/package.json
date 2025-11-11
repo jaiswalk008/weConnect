@@ -1,0 +1,9 @@
+{
+  "name": "@weconnect/prettier-config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "prettier.config.js",
+  "files": [
+    "prettier.config.js"
+  ]
+}
