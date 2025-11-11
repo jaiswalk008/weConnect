@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Loader2, MessageCircle, MoreVertical, UserMinus } from 'lucide-react';
 import type { FriendCardProps } from '@/types/friend';
-import ProfileImage from '../common/ProfileImage';
+import ProfileImage from '../Profile/ProfileImage';
 
 export const FriendCard = ({
   friend,

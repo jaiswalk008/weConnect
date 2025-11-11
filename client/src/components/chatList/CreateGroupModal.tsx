@@ -15,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, ArrowRight, Upload, X, Search, Loader2 } from 'lucide-react';
 import type { RootState } from '@/context/store';
-import ProfileImage from '../common/ProfileImage';
+import ProfileImage from '../Profile/ProfileImage';
 import axiosInstance from '@/utils/axiosInstance';
 import { toast } from 'sonner';
 

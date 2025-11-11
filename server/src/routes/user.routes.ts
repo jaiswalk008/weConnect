@@ -11,5 +11,6 @@ router.get('/me', authenticateMiddleware, UserController.getUserProfile);
 router.patch('/me/username', authenticateMiddleware, UserController.updateUserName);
 router.patch('/me/profile-image', authenticateMiddleware, UserController.updateProfileImage);
 router.get('/search', authenticateMiddleware, UserController.searchUser);
-
+router.patch('/me/update-password', authenticateMiddleware, UserController.updatePassword);
+router.patch('/me/update-profile', authenticateMiddleware, UserController.updateProfile);
 export default router;

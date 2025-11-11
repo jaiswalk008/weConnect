@@ -5,6 +5,7 @@ export interface UserInterface {
   name: string;
   profile_image: string | null;
   username: string | null;
+  about: string | null;
 }
 
 export interface UserLoginInterface {
@@ -26,4 +27,5 @@ export interface UserUpdateInterface {
   username?: string;
   profile_image?: string | null;
   password?: string;
+  about?: string;
 }

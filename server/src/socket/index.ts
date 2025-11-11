@@ -9,9 +9,6 @@ import { MessageHandler } from './handlers/message.handler';
 import { SOCKET_EVENTS } from './events';
 import { ChatHandler } from './handlers/chat.handler';
 import logger from '../config/logger';
-import { chatListData } from '../types/chat';
-import { NotificationType } from '../types/notification';
-
 export class SocketService {
   private io: CustomServer;
   private static instance: SocketService;

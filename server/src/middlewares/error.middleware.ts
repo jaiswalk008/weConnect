@@ -19,6 +19,7 @@ export const errorMiddleware = (
 
   // Prepare the response object
   const response: any = {
+    success: false,
     status: 'error',
     message: err.message,
   };

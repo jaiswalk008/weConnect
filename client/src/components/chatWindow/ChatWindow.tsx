@@ -16,7 +16,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import type { ChatHistoryResponse } from '@/types/socket';
 import { useFetch } from '@/hooks/useFetch';
 import { ChatWindowSkeleton } from '../ui/ChatSkeletonLoader';
-import ProfileImage from '../common/ProfileImage';
+import ProfileImage from '../Profile/ProfileImage';
 import { Input } from '../ui/input';
 import { useMessages } from '@/hooks/useMessages';
 import { useDispatch, useSelector } from 'react-redux';
@@ -24,6 +24,7 @@ import { chatActions, type RootState } from '@/context/store';
 import { getMessageDateLabel, isSameDay } from '@/utils/dateUtils';
 import { DateDivider } from './DateDivider';
 import { chatAPI } from '@/api/chat';
+import { TABS } from '@/constants/tabs';
 
 export interface ChatDetails {
   chatId: number;
@@ -37,7 +38,7 @@ interface ChatWindowProps {
   isMobile: boolean;
   showChatWindow: boolean;
   onBack: () => void;
-  activeTab: 'chats' | 'friends';
+  activeTab: TABS;
 }
 
 export const ChatWindow = ({
@@ -208,7 +209,7 @@ export const ChatWindow = ({
           </button>
         )}
 
-        <ProfileImage image={chatDetails.chatImage} chatName={chatDetails.chatName} />
+        <ProfileImage size="medium" image={chatDetails.chatImage} chatName={chatDetails.chatName} />
 
         <div className="flex-1 min-w-0">
           <h2 className="font-semibold text-foreground truncate">{chatDetails.chatName}</h2>

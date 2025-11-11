@@ -3,4 +3,5 @@ export interface userAuthState {
   email: string;
   profile_image?: string;
   username?: string;
+  about?: string;
 }

@@ -8,6 +8,7 @@ import type { ChatListData } from '@/types/socket';
 import type { ChatDetails } from '../chatWindow/ChatWindow';
 import ChatDropdownMenu from './Menu';
 import { TABS } from '@/constants/tabs';
+import ProfileTab from '../Profile/ProfileTab';
 
 // interface ChatItemProps {
 //   id: number;
@@ -100,6 +101,7 @@ export const ChatList = ({
         {activeTab === TABS.FRIENDS && (
           <FriendsList onChatSelect={onChatSelect} setActiveTab={setActiveTab} />
         )}
+        {activeTab === TABS.PROFILE && <ProfileTab onClose={() => setActiveTab(TABS.CHATS)} />}
       </div>
     </div>
   );
