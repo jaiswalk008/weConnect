@@ -54,7 +54,7 @@ export const useNotifications = ({
           onNewGroup?.(notification);
           break;
         default:
-          // console.log('Unhandled notification type:', notification.type);
+        // console.log('Unhandled notification type:', notification.type);
       }
     },
     [onNewMessage, onMessageRead, onMessageDelivered, onNewGroup],
