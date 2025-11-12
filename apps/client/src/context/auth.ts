@@ -33,7 +33,7 @@ const authSlice = createSlice({
     },
     initializeToken: (
       state,
-      action: PayloadAction<{ authToken: string; refreshToken: string }>
+      action: PayloadAction<{ authToken: string; refreshToken: string }>,
     ) => {
       if (typeof window !== 'undefined') {
         const { authToken, refreshToken } = action.payload;

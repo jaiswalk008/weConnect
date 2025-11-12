@@ -13,7 +13,7 @@ export const validate =
       return next();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const message = error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+        const message = error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
         throw new ValidationError(message);
       }
       next(error);

@@ -11,7 +11,6 @@ export const httpLogger = {
 };
 
 // Application logger
-/* eslint-disable no-console */
 export const logger = {
   info: (message: string): void => {
     console.log(`[INFO] ${new Date().toISOString()}: ${message}`);
@@ -31,7 +30,6 @@ export const logger = {
     console.log(`[HTTP] ${new Date().toISOString()}: ${message}`);
   },
 };
-/* eslint-enable no-console */
 
 // Create stream for Morgan
 export const stream = {

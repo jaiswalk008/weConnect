@@ -1,6 +1,7 @@
 import { MessageSquare, Users, Settings, Moon, Sun, LogOut } from 'lucide-react';
 import { useTheme } from '@/theme/theme-context';
-import { Popover, PopoverContent, PopoverTrigger, Separator } from '@weconnect/ui';
+import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
+import { Separator } from '@workspace/ui/components/separator';
 import { useDispatch, useSelector } from 'react-redux';
 import { authActions, type RootState } from '@/context/store';
 import { TABS } from '@/constants/tabs';
@@ -29,24 +30,24 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full w-16 bg-card border-r border-border">
+    <div className='flex flex-col h-full w-16 bg-card border-r border-border'>
       {/* Theme Toggle */}
-      <div className="p-3 border-b border-border">
+      <div className='p-3 border-b border-border'>
         <button
           onClick={toggleTheme}
-          className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors"
-          aria-label="Toggle theme"
+          className='w-10 h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'
+          aria-label='Toggle theme'
         >
           {theme === 'light' ? (
-            <Moon className="w-5 h-5 text-foreground" />
+            <Moon className='w-5 h-5 text-foreground' />
           ) : (
-            <Sun className="w-5 h-5 text-foreground" />
+            <Sun className='w-5 h-5 text-foreground' />
           )}
         </button>
       </div>
 
       {/* Navigation Icons */}
-      <div className="flex-1 flex flex-col gap-2 p-3">
+      <div className='flex-1 flex flex-col gap-2 p-3'>
         <button
           onClick={() => onTabChange(TABS.CHATS)}
           className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
@@ -54,9 +55,9 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
               ? 'bg-primary text-primary-foreground'
               : 'hover:bg-accent text-muted-foreground'
           }`}
-          aria-label="Chats"
+          aria-label='Chats'
         >
-          <MessageSquare className="w-5 h-5" />
+          <MessageSquare className='w-5 h-5' />
         </button>
 
         <button
@@ -66,45 +67,45 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
               ? 'bg-primary text-primary-foreground'
               : 'hover:bg-accent text-muted-foreground'
           }`}
-          aria-label="Friends"
+          aria-label='Friends'
         >
-          <Users className="w-5 h-5" />
+          <Users className='w-5 h-5' />
         </button>
       </div>
 
       {/* Profile Settings */}
-      <div className="p-3 border-t border-border">
+      <div className='p-3 border-t border-border'>
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors"
-              aria-label="Settings"
+              className='w-10 h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'
+              aria-label='Settings'
             >
-              <Settings className="w-5 h-5 text-muted-foreground" />
+              <Settings className='w-5 h-5 text-muted-foreground' />
             </button>
           </PopoverTrigger>
-          <PopoverContent side="right" align="end" className="w-56 p-2">
-            <div className="flex flex-col gap-1">
+          <PopoverContent side='right' align='end' className='w-56 p-2'>
+            <div className='flex flex-col gap-1'>
               <button
                 onClick={handleMyAccount}
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors text-left w-full"
+                className='flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors text-left w-full'
               >
                 <ProfileImage
-                  size="small"
+                  size='small'
                   image={user.profile_image || ''}
                   chatName={user.username || user.name}
                 />
-                <span className="text-sm font-medium">My Account</span>
+                <span className='text-sm font-medium'>My Account</span>
               </button>
 
-              <Separator className="my-1" />
+              <Separator className='my-1' />
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-destructive/10 text-destructive transition-colors text-left w-full"
+                className='flex items-center gap-3 px-3 py-2 rounded-md hover:bg-destructive/10 text-destructive transition-colors text-left w-full'
               >
-                <LogOut className="w-4 h-4" />
-                <span className="text-sm font-medium">Logout</span>
+                <LogOut className='w-4 h-4' />
+                <span className='text-sm font-medium'>Logout</span>
               </button>
             </div>
           </PopoverContent>

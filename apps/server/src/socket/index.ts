@@ -23,10 +23,10 @@ export class SocketService {
       pingTimeout: 60000,
       pingInterval: 25000,
     });
-    this.io.engine.on('initial_headers', headers => {
+    this.io.engine.on('initial_headers', (headers) => {
       headers['Access-Control-Allow-Origin'] = process.env.FRONTEND_URL || 'http://localhost:5173';
     });
-    this.io.engine.on('headers', headers => {
+    this.io.engine.on('headers', (headers) => {
       headers['Access-Control-Allow-Origin'] = process.env.FRONTEND_URL || 'http://localhost:5173';
     });
     this.initializeMiddleware();

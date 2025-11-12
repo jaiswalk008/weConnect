@@ -4,7 +4,7 @@ import friendRoutes from './friend.routes';
 import authRoutes from './auth.routes';
 import chatRoutes from './chat.routes';
 import groupRoutes from './group.routes';
-const router = Router();
+const router: Router = Router();
 
 router.use('/api', userRoutes);
 router.use('/api', friendRoutes);

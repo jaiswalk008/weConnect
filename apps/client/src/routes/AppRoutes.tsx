@@ -43,7 +43,7 @@ const AppRoutes: React.FC = () => {
       />
 
       {/* 404 Not Found */}
-      <Route path="*" element={<Navigate to={protectedRoutes.HOME} replace />} />
+      <Route path='*' element={<Navigate to={protectedRoutes.HOME} replace />} />
     </Routes>
   );
 };

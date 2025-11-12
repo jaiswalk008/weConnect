@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Input, Card } from '@weconnect/ui';
+import { Input } from '@workspace/ui/components/input';
+import { Card } from '@workspace/ui/components/card';
 import { Search, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import axiosInstance from '@/utils/axiosInstance';
@@ -95,7 +96,7 @@ const SearchUserComponent = ({
         setActionLoading(null);
       }
     },
-    [debouncedQuery, fetchData, dispatch]
+    [debouncedQuery, fetchData, dispatch],
   );
 
   const isValidQuery = searchQuery.trim().length >= 3;
@@ -105,24 +106,24 @@ const SearchUserComponent = ({
   const showNoResults = showResults && users.length === 0;
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="space-y-4">
+    <div className='w-full max-w-4xl mx-auto'>
+      <div className='space-y-4'>
         {/* Search Input */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <div className='relative'>
+          <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground' />
           <Input
-            type="text"
+            type='text'
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search users by name or username..."
-            className="w-full pl-10 pr-4 py-2 bg-secondary rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder='Search users by name or username...'
+            className='w-full pl-10 pr-4 py-2 bg-secondary rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring'
           />
         </div>
         {/* Validation Message */}
         {showValidationMessage && (
-          <Card className="p-4 bg-muted/50 border-muted">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <AlertCircle className="w-4 h-4" />
+          <Card className='p-4 bg-muted/50 border-muted'>
+            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <AlertCircle className='w-4 h-4' />
               <p>Please enter at least 3 characters to search</p>
             </div>
           </Card>
@@ -130,25 +131,25 @@ const SearchUserComponent = ({
 
         {/* Loading State */}
         {loading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <div className='flex items-center justify-center py-12'>
+            <Loader2 className='w-8 h-8 animate-spin text-primary' />
           </div>
         )}
 
         {/* Error State */}
         {error && !loading && (
-          <Card className="p-8 bg-destructive/10 border-destructive/20">
-            <div className="flex items-center justify-center gap-2 text-destructive">
-              <AlertCircle className="w-5 h-5" />
-              <p className="font-medium">{error}</p>
+          <Card className='p-8 bg-destructive/10 border-destructive/20'>
+            <div className='flex items-center justify-center gap-2 text-destructive'>
+              <AlertCircle className='w-5 h-5' />
+              <p className='font-medium'>{error}</p>
             </div>
           </Card>
         )}
 
         {/* No Results */}
         {showNoResults && (
-          <Card className="p-8">
-            <p className="text-center text-muted-foreground">
+          <Card className='p-8'>
+            <p className='text-center text-muted-foreground'>
               No users found for "{debouncedQuery}"
             </p>
           </Card>
@@ -156,11 +157,11 @@ const SearchUserComponent = ({
 
         {/* Search Results */}
         {showResults && users.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
+          <div className='space-y-3'>
+            <p className='text-sm text-muted-foreground'>
               Found {users.length} {users.length === 1 ? 'user' : 'users'}
             </p>
-            <div className="flex flex-col gap-3">
+            <div className='flex flex-col gap-3'>
               {users.map((user: SearchUser) => (
                 <UserSearchCard
                   key={user.username}

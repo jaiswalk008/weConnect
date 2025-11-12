@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticateMiddleware } from '../middlewares/auth.middleware';
 import ChatController from '../controllers/chat.controller';
 
-const router = Router();
+const router: Router = Router();
 
 router.post('/chat', authenticateMiddleware, ChatController.createChat);
 router.get('/chat/list', authenticateMiddleware, ChatController.getChatList);

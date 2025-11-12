@@ -7,7 +7,7 @@ import logger from '../../config/logger';
 export class ChatHandler {
   constructor(
     private io: CustomServer,
-    private socket: CustomSocket
+    private socket: CustomSocket,
   ) {}
 
   async handleJoinChat(data: { chatId: number }) {
@@ -60,8 +60,8 @@ export class ChatHandler {
   }
 
   registerEvents() {
-    this.socket.on(SOCKET_EVENTS.CHAT_JOIN, data => this.handleJoinChat(data));
+    this.socket.on(SOCKET_EVENTS.CHAT_JOIN, (data) => this.handleJoinChat(data));
 
-    this.socket.on(SOCKET_EVENTS.CHAT_LEAVE, data => this.handleLeaveChat(data));
+    this.socket.on(SOCKET_EVENTS.CHAT_LEAVE, (data) => this.handleLeaveChat(data));
   }
 }

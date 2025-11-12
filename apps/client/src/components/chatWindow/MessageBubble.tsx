@@ -13,7 +13,7 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
   const userData = useSelector((state: RootState) => state.auth.userData);
   const isSender = useMemo(
     () => message.sender.username === userData?.username,
-    [message, userData]
+    [message, userData],
   );
   return (
     <div className={`flex w-full ${isSender ? 'justify-end' : 'justify-start'}`}>
@@ -24,10 +24,10 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
             : 'bg-card text-card-foreground rounded-bl-sm'
         }`}
       >
-        <p className="text-sm wrap-break whitespace-pre-wrap">{message.content}</p>
+        <p className='text-sm wrap-break whitespace-pre-wrap'>{message.content}</p>
 
         {/* Time and Status */}
-        <div className="flex items-center justify-end gap-1 mt-1">
+        <div className='flex items-center justify-end gap-1 mt-1'>
           <span
             className={`text-xs ${
               isSender ? 'text-primary-foreground/70' : 'text-muted-foreground'

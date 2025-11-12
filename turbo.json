@@ -1,5 +1,17 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalEnv": [
+    "PORT",
+    "NODE_ENV",
+    "JWT_SECRET",
+    "DATABASE_URL",
+    "AI_SERVICE_URL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "GOOGLE_CALLBACK_URL",
+    "FRONTEND_URL"
+  ],
   "tasks": {
     "build": {
       "outputs": ["dist/**", ".next/**", "build/**"],
@@ -9,18 +21,6 @@
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "lint": {
-      "cache": true
-    },
-    "format": {
-      "cache": false
-    },
-    "check-types": {
-      "cache": true
-    },
-    "type-check": {
-      "cache": true
     }
   }
 }

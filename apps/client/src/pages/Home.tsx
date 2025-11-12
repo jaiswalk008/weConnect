@@ -26,7 +26,7 @@ function Home() {
         authActions.initializeToken({
           authToken: authUtils.getAuthToken() || '',
           refreshToken: authUtils.getRefreshToken() || '',
-        })
+        }),
       );
     } catch (error: any) {
       toast.error(error.response.data.message || 'Failed to fetch user data');

@@ -13,7 +13,7 @@ class GroupService {
     user: User,
     groupName: string,
     description: string,
-    users: string[]
+    users: string[],
   ): Promise<chatListData> {
     const userIdsMap = await prisma.user.findMany({
       where: {
@@ -26,7 +26,7 @@ class GroupService {
       },
     });
 
-    const userIds = userIdsMap.map(user => user.id);
+    const userIds = userIdsMap.map((user) => user.id);
     const newChat = await chatService.createChat(groupName, '', userIds, ChatType.GROUP, user.id);
     const group = await prisma.group.create({
       data: {
@@ -46,7 +46,7 @@ class GroupService {
       chatCreatedAt: group.created_at,
     };
     const io = getIO();
-    userIds.forEach(userId => {
+    userIds.forEach((userId) => {
       io.to(`user:${userId}`).emit(SOCKET_EVENTS.NOTIFICATION, {
         type: NotificationType.NEW_GROUP,
         chatListData: chatListData,

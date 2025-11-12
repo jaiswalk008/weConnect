@@ -64,7 +64,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   [SOCKET_EVENTS.MESSAGE_SEND]: (
     _data: SendMessagePayload,
-    _callback?: (_response: MessageResponse) => void
+    _callback?: (_response: MessageResponse) => void,
   ) => void;
   [SOCKET_EVENTS.MESSAGE_MARK_DELIVERED]: (_data: { messageId: number }) => void;
   [SOCKET_EVENTS.MESSAGE_MARK_READ]: (_data: { messageId: number; chatId: number }) => void;

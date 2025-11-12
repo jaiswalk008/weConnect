@@ -14,12 +14,12 @@ class FriendService {
       {
         user: true,
         friend_user: true,
-      }
+      },
     );
 
     // Find chat for each friend
     const friendsWithChats = await Promise.all(
-      friends.map(async friend => {
+      friends.map(async (friend) => {
         const chat = await prisma.chatParticipant.findFirst({
           where: {
             user_id: userId,
@@ -43,39 +43,39 @@ class FriendService {
             chatId: chat?.chat_id || null,
           },
         };
-      })
+      }),
     );
 
-    const onlineFriendsData = friendsWithChats.filter(friend => {
+    const onlineFriendsData = friendsWithChats.filter((friend) => {
       return friend.friend_user.status === 'online' && friend.status === 'ACCEPTED';
     });
-    const onlineFriends = onlineFriendsData.map(friend => {
+    const onlineFriends = onlineFriendsData.map((friend) => {
       return {
         ...userService.getUserProfile(friend.friend_user),
         chat: friend.chat,
       };
     });
-    const offlineFriendsData = friendsWithChats.filter(friend => {
+    const offlineFriendsData = friendsWithChats.filter((friend) => {
       return friend.friend_user.status !== 'online' && friend.status === 'ACCEPTED';
     });
-    const offlineFriends = offlineFriendsData.map(friend => {
+    const offlineFriends = offlineFriendsData.map((friend) => {
       return {
         ...userService.getUserProfile(friend.friend_user),
         chat: friend.chat,
       };
     });
-    const pendingFriendsData = friends.filter(friend => {
+    const pendingFriendsData = friends.filter((friend) => {
       return friend.status === 'SENT';
     });
-    const pendingFriends = pendingFriendsData.map(friend => {
+    const pendingFriends = pendingFriendsData.map((friend) => {
       return {
         ...userService.getUserProfile(friend.friend_user),
       };
     });
-    const requestFriendsData = friends.filter(friend => {
+    const requestFriendsData = friends.filter((friend) => {
       return friend.status === 'RECEIVED';
     });
-    const requestFriends = requestFriendsData.map(friend => {
+    const requestFriends = requestFriendsData.map((friend) => {
       return {
         ...userService.getUserProfile(friend.friend_user),
       };
@@ -118,11 +118,11 @@ class FriendService {
     await Promise.all([
       friendRepository.updateFriendshipStatus(
         { user_id_friend_user_id: { user_id: user.id, friend_user_id: friendUser.id } },
-        { status }
+        { status },
       ),
       friendRepository.updateFriendshipStatus(
         { user_id_friend_user_id: { user_id: friendUser.id, friend_user_id: user.id } },
-        { status }
+        { status },
       ),
     ]);
     await chatService.createChat(
@@ -130,7 +130,7 @@ class FriendService {
       '',
       [user.id, friendUser.id],
       ChatType.PERSONAL,
-      user.id
+      user.id,
     );
   }
 

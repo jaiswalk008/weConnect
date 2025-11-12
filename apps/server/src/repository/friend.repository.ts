@@ -9,7 +9,7 @@ type FriendWithUsers = Friend & {
 class FriendRepository {
   async findFriends(
     data: Prisma.FriendWhereInput,
-    include?: Prisma.FriendInclude
+    include?: Prisma.FriendInclude,
   ): Promise<FriendWithUsers[]> {
     const friends = (await prisma.friend.findMany({
       where: data,

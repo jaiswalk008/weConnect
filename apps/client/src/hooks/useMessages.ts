@@ -38,7 +38,7 @@ export const useMessages = (chatId: number) => {
 
   const sendMessage = (
     content: string,
-    callback?: (_response: { success: boolean; message?: MessageData; error?: string }) => void
+    callback?: (_response: { success: boolean; message?: MessageData; error?: string }) => void,
   ) => {
     if (!socket) return;
 
@@ -56,7 +56,7 @@ export const useMessages = (chatId: number) => {
           dispatch(chatActions.addMessage(message));
         }
         callback?.(response);
-      }
+      },
     );
   };
 

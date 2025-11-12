@@ -50,8 +50,8 @@ const configurePassport: () => void = () => {
           logger.error('Google auth error:', error);
           return done(error);
         }
-      }
-    )
+      },
+    ),
   );
 
   // IMPORTANT: Add serialization

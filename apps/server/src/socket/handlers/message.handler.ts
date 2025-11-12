@@ -9,7 +9,7 @@ import { NotificationData, NotificationType } from '../../types/notification';
 export class MessageHandler {
   constructor(
     private io: CustomServer,
-    private socket: CustomSocket
+    private socket: CustomSocket,
   ) {}
 
   async handleSendMessage(data: SendMessagePayload, callback?: (response: any) => void) {
@@ -72,7 +72,7 @@ export class MessageHandler {
       this.socket.to(roomName).emit(SOCKET_EVENTS.MESSAGE_NEW, messageData);
 
       // Fetch and update participants in a single transaction
-      const allParticipants = await prisma.$transaction(async tx => {
+      const allParticipants = await prisma.$transaction(async (tx) => {
         const participants = await tx.chatParticipant.findMany({
           where: {
             chat_id: chatId,
@@ -108,7 +108,7 @@ export class MessageHandler {
           await tx.chatParticipant.updateMany({
             where: {
               chat_id: chatId,
-              user_id: { in: participants.map(p => p.user_id) },
+              user_id: { in: participants.map((p) => p.user_id) },
             },
             data: {
               unread_count: { increment: 1 },
@@ -238,7 +238,7 @@ export class MessageHandler {
         return;
       }
 
-      const messageIds = messagesToMarkAsRead.map(m => m.id);
+      const messageIds = messagesToMarkAsRead.map((m) => m.id);
       // Update message statuses for all unread messages
       await prisma.messageStatus.updateMany({
         where: {
@@ -271,12 +271,12 @@ export class MessageHandler {
       });
 
       // Notify all unique senders about read receipts
-      const uniqueSenderIds = [...new Set(messagesToMarkAsRead.map(m => m.sender_id))];
+      const uniqueSenderIds = [...new Set(messagesToMarkAsRead.map((m) => m.sender_id))];
 
-      uniqueSenderIds.forEach(senderId => {
+      uniqueSenderIds.forEach((senderId) => {
         const senderMessages = messagesToMarkAsRead
-          .filter(m => m.sender_id === senderId)
-          .map(m => m.id);
+          .filter((m) => m.sender_id === senderId)
+          .map((m) => m.id);
         this.io.to(`chat:${data.chatId}`).emit(SOCKET_EVENTS.MESSAGE_READ, {
           messageIds: senderMessages,
           chatId: data.chatId,
@@ -286,7 +286,7 @@ export class MessageHandler {
       });
 
       logger.info(
-        `Marked ${messageIds.length} messages as read for user ${userId} in chat ${data.chatId} (latest: ${latestMessage.id})`
+        `Marked ${messageIds.length} messages as read for user ${userId} in chat ${data.chatId} (latest: ${latestMessage.id})`,
       );
     } catch (error) {
       logger.error('Error marking messages as read:', error);
@@ -350,7 +350,7 @@ export class MessageHandler {
         return;
       }
 
-      const messageIds = pendingStatuses.map(s => s.message_id);
+      const messageIds = pendingStatuses.map((s) => s.message_id);
 
       // Update all to DELIVERED
       await prisma.messageStatus.updateMany({
@@ -370,7 +370,7 @@ export class MessageHandler {
       // Group by sender and notify
       const senderGroups = new Map<number, number[]>();
 
-      pendingStatuses.forEach(status => {
+      pendingStatuses.forEach((status) => {
         const senderId = status.message.sender_id;
         if (!senderGroups.has(senderId)) {
           senderGroups.set(senderId, []);
@@ -395,9 +395,11 @@ export class MessageHandler {
 
   registerEvents() {
     this.socket.on(SOCKET_EVENTS.MESSAGE_SEND, (data, callback) =>
-      this.handleSendMessage(data, callback)
+      this.handleSendMessage(data, callback),
     );
-    this.socket.on(SOCKET_EVENTS.MESSAGE_MARK_READ, data => this.handleMarkAsRead(data));
-    this.socket.on(SOCKET_EVENTS.MESSAGE_MARK_DELIVERED, data => this.handleMarkAsDelivered(data));
+    this.socket.on(SOCKET_EVENTS.MESSAGE_MARK_READ, (data) => this.handleMarkAsRead(data));
+    this.socket.on(SOCKET_EVENTS.MESSAGE_MARK_DELIVERED, (data) =>
+      this.handleMarkAsDelivered(data),
+    );
   }
 }

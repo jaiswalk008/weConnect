@@ -4,7 +4,7 @@ import { authAPIs } from '@/api/auth';
 
 export const authHandler = async (
   formData: AuthFormData,
-  isSignup: boolean
+  isSignup: boolean,
 ): Promise<AuthResponse> => {
   const endpoint = isSignup ? authAPIs.signup : authAPIs.login;
   const response = await axiosInstance.post(endpoint, formData);

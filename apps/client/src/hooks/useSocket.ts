@@ -7,7 +7,7 @@ import type { RootState } from '@/context/store';
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | null>(
-    null
+    null,
   );
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,19 +26,19 @@ export const useSocket = () => {
       setSocket(socketInstance);
 
       const handleConnect = () => {
-        console.log('Socket connected successfully');
+        // console.log('Socket connected successfully');
         setIsConnected(true);
         setError(null);
         // socketService.setOnline();
       };
 
       const handleDisconnect = () => {
-        console.log('Socket disconnected');
+        // console.log('Socket disconnected');
         setIsConnected(false);
       };
 
       const handleConnectError = (error: Error) => {
-        console.error('Socket connection error:', error);
+        // console.error('Socket connection error:', error);
         setError(`Connection error: ${error.message}`);
       };
 
@@ -54,7 +54,7 @@ export const useSocket = () => {
       };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to connect to socket';
-      console.error('Socket initialization error:', errorMessage);
+      // console.error('Socket initialization error:', errorMessage);
       setError(errorMessage);
     }
   }, [token]);

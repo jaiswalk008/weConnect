@@ -5,7 +5,7 @@ import type { AuthFormData } from '../types/auth';
 function Login() {
   return (
     <AuthForm
-      title="Login"
+      title='Login'
       onSubmit={(data: AuthFormData) => authHandler(data, false)}
       onGoogleSignIn={googleAuthHandler}
     />

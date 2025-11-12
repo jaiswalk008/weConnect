@@ -27,7 +27,7 @@ axiosInstance.interceptors.request.use(
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor - Handle errors globally
@@ -52,32 +52,33 @@ axiosInstance.interceptors.response.use(
 
         case 403:
           // Forbidden - User doesn't have permission
-          console.error('Access forbidden:', error.response.data);
+          // console.error('Access forbidden:', error.response.data);
           break;
 
         case 404:
           // Not found
-          console.error('Resource not found:', error.response.data);
+          // console.error('Resource not found:', error.response.data);
           break;
 
         case 500:
           // Server error
-          console.error('Server error:', error.response.data);
+          // console.error('Server error:', error.response.data);
           break;
 
         default:
-          console.error('API error:', error.response.data);
+          // console.error('API error:', error.response.data);
+          break;
       }
     } else if (error.request) {
       // Request was made but no response received
-      console.error('Network error: No response from server');
+      // console.error('Network error: No response from server');
     } else {
       // Something else happened
-      console.error('Error:', error.message);
+      // console.error('Error:', error.message);
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

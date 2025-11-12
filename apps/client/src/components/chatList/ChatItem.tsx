@@ -51,19 +51,19 @@ export const ChatItem = ({ chat, isSelected, onClick }: ChatItemProps) => {
       }`}
     >
       {/* Avatar */}
-      <ProfileImage size="medium" image={chat.chatImage || ''} chatName={chat.chatName} />
+      <ProfileImage size='medium' image={chat.chatImage || ''} chatName={chat.chatName} />
       {/* Chat Info */}
-      <div className="flex-1 min-w-0 text-left">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="font-semibold text-foreground truncate">{chat.chatName}</h3>
-          <span className="text-xs text-muted-foreground ml-2 shrink-0">
+      <div className='flex-1 min-w-0 text-left'>
+        <div className='flex items-center justify-between mb-1'>
+          <h3 className='font-semibold text-foreground truncate'>{chat.chatName}</h3>
+          <span className='text-xs text-muted-foreground ml-2 shrink-0'>
             {formatDayMonth(chat.lastMessage?.createdAt || chat.chatCreatedAt || new Date())}
           </span>
         </div>
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground truncate">{lastMessageContent}</p>
+        <div className='flex items-center justify-between'>
+          <p className='text-sm text-muted-foreground truncate'>{lastMessageContent}</p>
           {!!chat?.unreadCount && (
-            <span className="ml-2 shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+            <span className='ml-2 shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center'>
               {chat.unreadCount}
             </span>
           )}

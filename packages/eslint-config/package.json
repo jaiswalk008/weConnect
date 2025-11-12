@@ -1,12 +1,26 @@
 {
-  "name": "@weconnect/eslint-config",
-  "version": "1.0.0",
+  "name": "@workspace/eslint-config",
+  "version": "0.0.0",
+  "type": "module",
   "private": true,
-  "main": "index.js",
-  "files": [
-    "index.js"
-  ],
+  "scripts": {
+    "lint": "echo 'No linting needed for eslint-config'"
+  },
+  "exports": {
+    "./base": "./base.js",
+    "./express": "./express.js",
+    "./vite": "./vite.js",
+    "./react-internal": "./react-internal.js"
+  },
+  "dependencies": {
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-turbo": "^2.4.2",
+    "globals": "^15.15.0",
+    "typescript-eslint": "^8.24.1"
+  },
   "peerDependencies": {
-    "eslint": "^9.36.0"
+    "eslint": "^9.0.0",
+    "typescript": "^5.0.0"
   }
 }

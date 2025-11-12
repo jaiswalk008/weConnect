@@ -1,13 +1,13 @@
 import AuthForm from '../components/common/Auth';
-import { authHandler } from '../services/auth';
+import { authHandler, googleAuthHandler } from '../services/auth';
 import type { AuthFormData } from '../types/auth';
 
 function Signup() {
   return (
     <AuthForm
-      title="Signup"
+      title='Signup'
       onSubmit={(data: AuthFormData) => authHandler(data, true)}
-      onGoogleSignIn={() => {}}
+      onGoogleSignIn={googleAuthHandler}
     />
   );
 }

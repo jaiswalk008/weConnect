@@ -6,11 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Button,
-  Input,
-  Label,
-  dicebearAvatars,
-} from '@weconnect/ui';
+} from '@workspace/ui/components/dialog';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
+import { dicebearAvatars } from '@workspace/ui/components/avatars';
 import { Upload, Check } from 'lucide-react';
 import axiosInstance from '@/utils/axiosInstance';
 import { userAPIs } from '@/api/user';
@@ -30,7 +30,9 @@ export function ProfileSetupModal({
   const [selectedAvatar, setSelectedAvatar] = useState<string>('profile-0');
   const [uploadedImage, setUploadedImage] = useState<string>('');
   const [useUpload, setUseUpload] = useState(false);
-  const [avatars, setAvatars] = useState<Array<{id: string; seed: string; styleName: string; dataUri: string}>>([]);
+  const [avatars, setAvatars] = useState<
+    Array<{ id: string; seed: string; styleName: string; dataUri: string }>
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
 
@@ -41,12 +43,12 @@ export function ProfileSetupModal({
         const loadedAvatars = await dicebearAvatars();
         setAvatars(loadedAvatars);
       } catch (error) {
-        console.error('Failed to load avatars:', error);
+        // console.error('Failed to load avatars:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     loadAvatars();
   }, []);
 
@@ -87,7 +89,7 @@ export function ProfileSetupModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild></DialogTrigger>
       <DialogContent
-        className="max-w-[90%] [&>button]:hidden md:max-w-[600px] max-h-[90vh] overflow-y-auto"
+        className='max-w-[90%] [&>button]:hidden md:max-w-[600px] max-h-[90vh] overflow-y-auto'
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -98,44 +100,44 @@ export function ProfileSetupModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className='space-y-6 py-4'>
           {/* Username Input */}
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+          <div className='space-y-2'>
+            <Label htmlFor='username'>Username</Label>
             <Input
-              id="username"
-              placeholder="Enter your username"
+              id='username'
+              placeholder='Enter your username'
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
 
           {/* Upload Photo Section */}
-          <div className="space-y-2">
+          <div className='space-y-2'>
             <Label>Profile Photo</Label>
-            <div className="flex items-center gap-4">
-              <div className="relative">
+            <div className='flex items-center gap-4'>
+              <div className='relative'>
                 <input
-                  type="file"
-                  accept="image/*"
+                  type='file'
+                  accept='image/*'
                   onChange={handleImageUpload}
-                  className="hidden"
-                  id="photo-upload"
+                  className='hidden'
+                  id='photo-upload'
                 />
                 <label
-                  htmlFor="photo-upload"
-                  className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md cursor-pointer hover:bg-secondary/80 transition"
+                  htmlFor='photo-upload'
+                  className='flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md cursor-pointer hover:bg-secondary/80 transition'
                 >
-                  <Upload className="w-4 h-4" />
+                  <Upload className='w-4 h-4' />
                   Upload Photo
                 </label>
               </div>
               {uploadedImage && (
-                <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary">
-                  <img src={uploadedImage} alt="Uploaded" className="w-full h-full object-cover" />
+                <div className='relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary'>
+                  <img src={uploadedImage} alt='Uploaded' className='w-full h-full object-cover' />
                   {useUpload && (
-                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                      <Check className="w-6 h-6 text-primary" />
+                    <div className='absolute inset-0 bg-primary/20 flex items-center justify-center'>
+                      <Check className='w-6 h-6 text-primary' />
                     </div>
                   )}
                 </div>
@@ -144,16 +146,19 @@ export function ProfileSetupModal({
           </div>
 
           {/* Avatar Selection */}
-          <div className="space-y-3">
+          <div className='space-y-3'>
             <Label>Or Choose an Avatar</Label>
             {isLoading ? (
-              <div className="grid grid-cols-4 gap-3">
+              <div className='grid grid-cols-4 gap-3'>
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="w-full aspect-square rounded-full bg-muted animate-pulse" />
+                  <div
+                    key={i}
+                    className='w-full aspect-square rounded-full bg-muted animate-pulse'
+                  />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-4 gap-3">
+              <div className='grid grid-cols-4 gap-3'>
                 {avatars.map((avatar) => (
                   <button
                     key={avatar.id}
@@ -167,11 +172,11 @@ export function ProfileSetupModal({
                     <img
                       src={avatar.dataUri}
                       alt={`Avatar ${avatar.id}`}
-                      className="w-full h-full object-cover bg-linear-to-br from-blue-50 to-purple-50"
+                      className='w-full h-full object-cover bg-linear-to-br from-blue-50 to-purple-50'
                     />
                     {selectedAvatar === avatar.seed && !useUpload && (
-                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                        <Check className="w-5 h-5 text-primary" />
+                      <div className='absolute inset-0 bg-primary/20 flex items-center justify-center'>
+                        <Check className='w-5 h-5 text-primary' />
                       </div>
                     )}
                   </button>
@@ -181,8 +186,8 @@ export function ProfileSetupModal({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => setOpen(false)}>
+        <div className='flex justify-end gap-3'>
+          <Button variant='outline' onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button

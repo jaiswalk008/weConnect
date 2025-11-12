@@ -1,10 +1,10 @@
-import { Router } from 'express';
+import { Router, type Router as RouterType } from 'express';
 import { validate } from '../middlewares/validate';
 import { signupSchema, loginSchema } from '../validations/auth.validation';
 import passport from 'passport';
 import AuthController from '../controllers/auth.controller';
 
-const router = Router();
+const router: RouterType = Router();
 
 // Authentication routes
 router.post('/signup', validate(signupSchema), AuthController.signup);
@@ -16,7 +16,7 @@ router.get('/google', AuthController.googleAuth);
 router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/auth/login' }),
-  AuthController.googleAuthCallback
+  AuthController.googleAuthCallback,
 );
 
 export default router;

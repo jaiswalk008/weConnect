@@ -4,13 +4,13 @@ import { authenticateMiddleware } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate';
 import { updateFriendSchema } from '../validations/friend.validation';
 
-const router = Router();
+const router: Router = Router();
 
 router.post(
   '/friend',
   validate(updateFriendSchema),
   authenticateMiddleware,
-  FriendController.updateFriendshipStatus
+  FriendController.updateFriendshipStatus,
 );
 router.get('/friend', authenticateMiddleware, FriendController.findFriends);
 export default router;

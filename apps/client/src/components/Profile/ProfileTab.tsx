@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { X, Camera, Eye, EyeOff } from 'lucide-react';
+import { Camera, Eye, EyeOff } from 'lucide-react';
 import { authActions, type RootState } from '@/context/store';
 import ProfileImage from './ProfileImage';
-import { Button, Input, Textarea, Label, Separator, getCachedAvatars } from '@weconnect/ui';
-import { cn } from '@/lib/utils';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Textarea } from '@workspace/ui/components/textarea';
+import { Label } from '@workspace/ui/components/label';
+import { Separator } from '@workspace/ui/components/separator';
+import { getCachedAvatars } from '@workspace/ui/components/avatars';
+import { cn } from '@workspace/ui/lib/utils';
 import axiosInstance from '@/utils/axiosInstance';
 import { userAPIs } from '@/api/user';
 import { toast } from 'sonner';
@@ -32,7 +37,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
 
   const [selectedImage, setSelectedImage] = useState(user.profile_image || '');
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
-  const [avatars, setAvatars] = useState<Array<{seed: string; dataUri: string}>>([]);
+  const [avatars, setAvatars] = useState<Array<{ seed: string; dataUri: string }>>([]);
   const [isLoadingAvatars, setIsLoadingAvatars] = useState(false);
   const [showPasswords, setShowPasswords] = useState({
     new: false,
@@ -103,7 +108,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
       dispatch(authActions.setUserData(response.data.user));
       toast.success(response.data.message);
     } catch (error) {
-      console.error('Failed to update profile:', error);
+      // console.error('Failed to update profile:', error);
       toast.error('Failed to update profile. Please try again.');
     } finally {
       setIsLoadingProfile(false);
@@ -121,13 +126,13 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
           setAvatars(cached);
         } catch (error) {
           // If not cached, load them asynchronously
-          const loadedAvatars = await import('@weconnect/ui').then(module => 
-            module.dicebearAvatars()
+          const loadedAvatars = await import('@workspace/ui/components/avatars').then((module) =>
+            module.dicebearAvatars(),
           );
           setAvatars(loadedAvatars);
         }
       } catch (error) {
-        console.error('Failed to load avatars:', error);
+        // console.error('Failed to load avatars:', error);
       } finally {
         setIsLoadingAvatars(false);
       }
@@ -153,7 +158,7 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
 
       toast.success('Password updated successfully!');
     } catch (error) {
-      console.error('Failed to update password:', error);
+      // console.error('Failed to update password:', error);
       toast.error('Failed to update password. Please try again.');
     } finally {
       setIsLoadingPassword(false);
@@ -161,63 +166,51 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
-        <h2 className="text-lg font-semibold">My Account</h2>
-        <button
-          onClick={onClose}
-          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-accent transition-colors"
-          aria-label="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-
+    <div className='flex flex-col h-full bg-background'>
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6 flex flex-col gap-6 max-w-2xl mx-auto w-full">
+      <div className='flex-1 overflow-y-auto'>
+        <div className='p-6 flex flex-col gap-6 max-w-2xl mx-auto w-full'>
           {/* Profile Image Section */}
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
+          <div className='flex flex-col items-center gap-4'>
+            <div className='relative'>
               <ProfileImage
-                size="large"
+                size='large'
                 image={selectedImage}
                 chatName={formData.username || user.name}
-                className="ring-4 ring-border"
+                className='ring-4 ring-border'
               />
               <button
                 onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                className="absolute top-10 left-10 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg"
-                aria-label="Change profile picture"
+                className='absolute top-10 left-10 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg'
+                aria-label='Change profile picture'
               >
-                <Camera className="w-5 h-5" />
+                <Camera className='w-5 h-5' />
               </button>
             </div>
             {showAvatarPicker && (
-              <div className="w-full p-4 border border-border rounded-lg bg-card">
-                <p className="text-sm font-medium mb-3">Choose an avatar</p>
+              <div className='w-full p-4 border border-border rounded-lg bg-card'>
+                <p className='text-sm font-medium mb-3'>Choose an avatar</p>
                 {isLoadingAvatars ? (
-                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                  <div className='grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3'>
                     {[...Array(8)].map((_, i) => (
-                      <div key={i} className="w-12 h-12 rounded-full bg-muted animate-pulse" />
+                      <div key={i} className='w-12 h-12 rounded-full bg-muted animate-pulse' />
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                  <div className='grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3'>
                     {avatars.map((avatar) => (
                       <button
                         key={avatar.seed}
                         onClick={() => handleImageSelect(avatar.seed)}
                         className={cn(
                           'w-12 h-12 rounded-full overflow-hidden hover:ring-2 hover:ring-primary transition-all',
-                          selectedImage === avatar.seed && 'ring-2 ring-primary'
+                          selectedImage === avatar.seed && 'ring-2 ring-primary',
                         )}
                       >
                         <img
                           src={avatar.dataUri}
                           alt={avatar.seed}
-                          className="w-full h-full object-cover"
+                          className='w-full h-full object-cover'
                         />
                       </button>
                     ))}
@@ -230,53 +223,53 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
           <Separator />
 
           {/* Profile Information Section */}
-          <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-semibold">Profile Information</h3>
+          <div className='flex flex-col gap-4'>
+            <h3 className='text-sm font-semibold'>Profile Information</h3>
 
             {/* Username Section */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="username" className="text-sm font-medium">
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='username' className='text-sm font-medium'>
                 Username
               </Label>
               <Input
-                id="username"
-                name="username"
-                type="text"
+                id='username'
+                name='username'
+                type='text'
                 value={formData.username}
                 onChange={handleInputChange}
-                placeholder="Enter your username"
+                placeholder='Enter your username'
                 className={cn(
-                  errors.username && 'border-destructive focus-visible:ring-destructive'
+                  errors.username && 'border-destructive focus-visible:ring-destructive',
                 )}
               />
-              {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
+              {errors.username && <p className='text-sm text-destructive'>{errors.username}</p>}
             </div>
 
             {/* About Section */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="about" className="text-sm font-medium">
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='about' className='text-sm font-medium'>
                 About
               </Label>
               <Textarea
-                id="about"
-                name="about"
+                id='about'
+                name='about'
                 value={formData.about}
                 onChange={handleInputChange}
-                placeholder="Write something about yourself..."
-                className="resize-none min-h-[100px]"
+                placeholder='Write something about yourself...'
+                className='resize-none min-h-[100px]'
                 maxLength={200}
               />
-              <p className="text-xs text-muted-foreground text-right">
+              <p className='text-xs text-muted-foreground text-right'>
                 {formData.about.length}/200
               </p>
             </div>
 
             {/* Save Profile Button */}
-            <div className="flex justify-end">
+            <div className='flex justify-end'>
               <Button
                 onClick={handleSaveProfile}
                 disabled={isLoadingProfile}
-                className="w-full sm:w-auto"
+                className='w-full sm:w-auto'
               >
                 {isLoadingProfile ? 'Saving...' : 'Save Profile'}
               </Button>
@@ -286,83 +279,83 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
           <Separator />
 
           {/* Password Section */}
-          <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-semibold">Change Password</h3>
+          <div className='flex flex-col gap-4'>
+            <h3 className='text-sm font-semibold'>Change Password</h3>
 
             {/* New Password */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="newPassword" className="text-sm font-medium">
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='newPassword' className='text-sm font-medium'>
                 New Password
               </Label>
-              <div className="relative">
+              <div className='relative'>
                 <Input
-                  id="newPassword"
-                  name="newPassword"
+                  id='newPassword'
+                  name='newPassword'
                   type={showPasswords.new ? 'text' : 'password'}
                   value={formData.newPassword}
                   onChange={handleInputChange}
-                  placeholder="Enter new password"
+                  placeholder='Enter new password'
                   className={cn(
                     'pr-10',
-                    errors.newPassword && 'border-destructive focus-visible:ring-destructive'
+                    errors.newPassword && 'border-destructive focus-visible:ring-destructive',
                   )}
                 />
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => setShowPasswords((prev) => ({ ...prev, new: !prev.new }))}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label="Toggle password visibility"
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
+                  aria-label='Toggle password visibility'
                 >
-                  {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPasswords.new ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}
                 </button>
               </div>
               {errors.newPassword && (
-                <p className="text-sm text-destructive">{errors.newPassword}</p>
+                <p className='text-sm text-destructive'>{errors.newPassword}</p>
               )}
             </div>
 
             {/* Confirm Password */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium">
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='confirmPassword' className='text-sm font-medium'>
                 Confirm New Password
               </Label>
-              <div className="relative">
+              <div className='relative'>
                 <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id='confirmPassword'
+                  name='confirmPassword'
                   type={showPasswords.confirm ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  placeholder="Confirm new password"
+                  placeholder='Confirm new password'
                   className={cn(
                     'pr-10',
-                    errors.confirmPassword && 'border-destructive focus-visible:ring-destructive'
+                    errors.confirmPassword && 'border-destructive focus-visible:ring-destructive',
                   )}
                 />
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => setShowPasswords((prev) => ({ ...prev, confirm: !prev.confirm }))}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label="Toggle password visibility"
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
+                  aria-label='Toggle password visibility'
                 >
                   {showPasswords.confirm ? (
-                    <EyeOff className="w-4 h-4" />
+                    <EyeOff className='w-4 h-4' />
                   ) : (
-                    <Eye className="w-4 h-4" />
+                    <Eye className='w-4 h-4' />
                   )}
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                <p className='text-sm text-destructive'>{errors.confirmPassword}</p>
               )}
             </div>
 
             {/* Save Password Button */}
-            <div className="flex justify-end">
+            <div className='flex justify-end'>
               <Button
                 onClick={handleSavePassword}
                 disabled={isLoadingPassword}
-                className="w-full sm:w-auto"
+                className='w-full sm:w-auto'
               >
                 {isLoadingPassword ? 'Updating...' : 'Update Password'}
               </Button>
@@ -372,8 +365,8 @@ export default function ProfileTab({ onClose }: ProfileTabProps) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-end gap-3 p-4 border-t border-border shrink-0">
-        <Button variant="outline" onClick={onClose}>
+      <div className='flex items-center justify-end gap-3 p-4 border-t border-border shrink-0'>
+        <Button variant='outline' onClick={onClose}>
           Close
         </Button>
       </div>

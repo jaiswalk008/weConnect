@@ -17,7 +17,7 @@ import type { ChatHistoryResponse } from '@/types/socket';
 import { useFetch } from '@/hooks/useFetch';
 import { ChatWindowSkeleton } from '../ui/ChatSkeletonLoader';
 import ProfileImage from '../Profile/ProfileImage';
-import { Input } from '@weconnect/ui';
+import { Input } from '@workspace/ui/components/input';
 import { useMessages } from '@/hooks/useMessages';
 import { useDispatch, useSelector } from 'react-redux';
 import { chatActions, type RootState } from '@/context/store';
@@ -180,17 +180,17 @@ export const ChatWindow = ({
 
   if (!chatDetails.chatId) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-background">
+      <div className='flex-1 flex items-center justify-center bg-background'>
         {activeTab === 'chats' ? (
-          <div className="text-center text-muted-foreground">
-            <MessageSquare className="w-16 h-16 mx-auto mb-4 opacity-20" />
-            <p className="text-lg">Select a chat to start messaging</p>
+          <div className='text-center text-muted-foreground'>
+            <MessageSquare className='w-16 h-16 mx-auto mb-4 opacity-20' />
+            <p className='text-lg'>Select a chat to start messaging</p>
           </div>
         ) : (
-          <div className="text-center text-muted-foreground">
-            <Users className="w-16 h-16 mx-auto mb-4 opacity-20" />
-            <p className="text-lg font-semibold mb-2">Connect with Friends</p>
-            <p className="text-sm max-w-sm mx-auto">
+          <div className='text-center text-muted-foreground'>
+            <Users className='w-16 h-16 mx-auto mb-4 opacity-20' />
+            <p className='text-lg font-semibold mb-2'>Connect with Friends</p>
+            <p className='text-sm max-w-sm mx-auto'>
               View your friends, manage connections, and stay in touch with your network
             </p>
           </div>
@@ -200,47 +200,47 @@ export const ChatWindow = ({
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full w-full bg-background">
+    <div className='flex-1 flex flex-col h-full w-full bg-background'>
       {/* Chat Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-border bg-card">
+      <div className='flex items-center gap-3 p-4 border-b border-border bg-card'>
         {isMobile && (
-          <button onClick={onBack} className="mr-2 shrink-0" aria-label="Back">
-            <ArrowLeft className="w-5 h-5 text-foreground" />
+          <button onClick={onBack} className='mr-2 shrink-0' aria-label='Back'>
+            <ArrowLeft className='w-5 h-5 text-foreground' />
           </button>
         )}
 
-        <ProfileImage size="medium" image={chatDetails.chatImage} chatName={chatDetails.chatName} />
+        <ProfileImage size='medium' image={chatDetails.chatImage} chatName={chatDetails.chatName} />
 
-        <div className="flex-1 min-w-0">
-          <h2 className="font-semibold text-foreground truncate">{chatDetails.chatName}</h2>
-          <p className="text-xs text-muted-foreground">Online</p>
+        <div className='flex-1 min-w-0'>
+          <h2 className='font-semibold text-foreground truncate'>{chatDetails.chatName}</h2>
+          <p className='text-xs text-muted-foreground'>Online</p>
         </div>
 
-        <div className="flex items-center gap-1 md:gap-2 shrink-0">
-          <button className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors">
-            <Phone className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+        <div className='flex items-center gap-1 md:gap-2 shrink-0'>
+          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'>
+            <Phone className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
           </button>
-          <button className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors">
-            <Video className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'>
+            <Video className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
           </button>
-          <button className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors">
-            <MoreVertical className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'>
+            <MoreVertical className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
           </button>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-hidden relative bg-secondary/30">
+      <div className='flex-1 overflow-hidden relative bg-secondary/30'>
         <div
           ref={messagesContainerRef}
-          className="h-full overflow-y-auto px-3 py-4 md:px-4"
+          className='h-full overflow-y-auto px-3 py-4 md:px-4'
           onScroll={handleScroll}
         >
-          <div className="flex flex-col gap-2 w-full max-w-full">
+          <div className='flex flex-col gap-2 w-full max-w-full'>
             {chatData?.map((message, index) => {
               // Check if we need to show a date divider
               const showDateDivider =
-                index === 0 || !isSameDay(message.createdAt, chatData[index - 1].createdAt);
+                index === 0 || !isSameDay(message.createdAt, chatData[index - 1]?.createdAt || '');
 
               return (
                 <div key={message.id}>
@@ -259,10 +259,10 @@ export const ChatWindow = ({
         {newMessageCount > 0 && (
           <button
             onClick={() => scrollToBottom()}
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-2 hover:bg-primary/90 transition-colors z-10"
+            className='absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg flex items-center gap-2 hover:bg-primary/90 transition-colors z-10'
           >
-            <ChevronDown className="w-4 h-4" />
-            <span className="text-sm font-medium">
+            <ChevronDown className='w-4 h-4' />
+            <span className='text-sm font-medium'>
               {newMessageCount} new message{newMessageCount > 1 ? 's' : ''}
             </span>
           </button>
@@ -270,32 +270,32 @@ export const ChatWindow = ({
       </div>
 
       {/* Input Area */}
-      <div className="p-3 md:p-4 border-t border-border bg-card">
-        <div className="flex items-center gap-1 md:gap-2">
-          <button className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0">
-            <Smile className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+      <div className='p-3 md:p-4 border-t border-border bg-card'>
+        <div className='flex items-center gap-1 md:gap-2'>
+          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0'>
+            <Smile className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
           </button>
-          <button className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0">
-            <Paperclip className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0'>
+            <Paperclip className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
           </button>
 
           <Input
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyPress={handleKeyPress}
             value={messageInput}
-            type="text"
-            placeholder="Type a message..."
-            className="flex-1 min-w-0 px-3 py-2 md:px-4 bg-secondary rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            type='text'
+            placeholder='Type a message...'
+            className='flex-1 min-w-0 px-3 py-2 md:px-4 bg-secondary rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring'
           />
 
-          <button className="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0">
-            <Mic className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0'>
+            <Mic className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
           </button>
           <button
             onClick={handleSendMessage}
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity shrink-0"
+            className='w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-opacity shrink-0'
           >
-            <Send className="w-4 h-4 md:w-5 md:h-5" />
+            <Send className='w-4 h-4 md:w-5 md:h-5' />
           </button>
         </div>
       </div>

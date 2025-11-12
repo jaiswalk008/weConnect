@@ -22,7 +22,7 @@ export const socketAuthMiddleware = async (socket: CustomSocket, next: (err?: Er
 
     next();
   } catch (error) {
-    console.error('Socket authentication error:', error);
-    next(new Error('Authentication error: Invalid token'));
+    // console.error('Socket authentication error:', error);
+    next(error as Error);
   }
 };

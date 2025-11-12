@@ -3,6 +3,7 @@ import authService from '../services/auth.service';
 import { AuthenticationError, ValidationError } from '../utils/errors';
 import passport from 'passport';
 import config from '../config/environment';
+import { User } from '@prisma/client';
 
 class AuthController {
   static async signup(req: Request, res: Response, next: NextFunction) {
@@ -49,7 +50,7 @@ class AuthController {
 
   static async googleAuthCallback(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = req.user as any;
+      const user = req.user as User;
       if (!user) {
         throw new AuthenticationError('Authentication failed');
       }

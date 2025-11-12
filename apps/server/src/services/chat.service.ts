@@ -10,7 +10,7 @@ class ChatService {
     chatImage: string,
     participants: number[],
     chatType: ChatType,
-    userId: number
+    userId: number,
   ) {
     const newChat = await prisma.chat.create({
       data: {
@@ -66,7 +66,7 @@ class ChatService {
     });
 
     // Create message status entries for all participants
-    const statusPromises = participants.map(participant =>
+    const statusPromises = participants.map((participant) =>
       prisma.messageStatus.create({
         data: {
           message_id: messageId,
@@ -74,7 +74,7 @@ class ChatService {
           status:
             participant.user.status === 'ONLINE' ? MessageStatus.DELIVERED : MessageStatus.SENT,
         },
-      })
+      }),
     );
 
     // Increment unread count for all participants except sender
@@ -141,7 +141,7 @@ class ChatService {
     });
 
     const chatHistoryList = await Promise.all(
-      chatList.map(async participant => {
+      chatList.map(async (participant) => {
         const chat = participant.chat;
         let chatName = '';
         let chatImage = '';
@@ -178,15 +178,15 @@ class ChatService {
           if (chat.last_message.sender_id === userId) {
             // Current user is sender - check if others have read it
             const otherStatuses = chat.last_message.message_statuses.filter(
-              status => status.user_id !== userId
+              (status) => status.user_id !== userId,
             );
 
             // Determine overall status based on other participants
             if (otherStatuses.length === 0) {
               messageStatus = MessageStatus.SENT;
-            } else if (otherStatuses.every(s => s.status === MessageStatus.READ)) {
+            } else if (otherStatuses.every((s) => s.status === MessageStatus.READ)) {
               messageStatus = MessageStatus.READ;
-            } else if (otherStatuses.some(s => s.status === MessageStatus.DELIVERED)) {
+            } else if (otherStatuses.some((s) => s.status === MessageStatus.DELIVERED)) {
               messageStatus = MessageStatus.DELIVERED;
             } else {
               messageStatus = MessageStatus.SENT;
@@ -194,7 +194,7 @@ class ChatService {
           } else {
             // Current user is receiver - check their own status
             const userStatus = chat.last_message.message_statuses.find(
-              status => status.user_id === userId
+              (status) => status.user_id === userId,
             );
             messageStatus = (userStatus?.status as MessageStatus) || MessageStatus.SENT;
           }
@@ -213,7 +213,7 @@ class ChatService {
         }
 
         return result;
-      })
+      }),
     );
 
     return chatHistoryList;
@@ -243,25 +243,27 @@ class ChatService {
       },
     });
 
-    const formattedMessages = messages.map(message => {
+    const formattedMessages = messages.map((message) => {
       let messageStatus: MessageStatus;
 
       if (message.sender_id === userId) {
         // Current user is sender - check if OTHER participants have read it
-        const otherStatuses = message.message_statuses.filter(status => status.user_id !== userId);
+        const otherStatuses = message.message_statuses.filter(
+          (status) => status.user_id !== userId,
+        );
 
         if (otherStatuses.length === 0) {
           messageStatus = MessageStatus.SENT;
-        } else if (otherStatuses.every(s => s.status === MessageStatus.READ)) {
+        } else if (otherStatuses.every((s) => s.status === MessageStatus.READ)) {
           messageStatus = MessageStatus.READ;
-        } else if (otherStatuses.some(s => s.status === MessageStatus.DELIVERED)) {
+        } else if (otherStatuses.some((s) => s.status === MessageStatus.DELIVERED)) {
           messageStatus = MessageStatus.DELIVERED;
         } else {
           messageStatus = MessageStatus.SENT;
         }
       } else {
         // Current user is receiver - check their own status
-        const userStatus = message.message_statuses.find(status => status.user_id === userId);
+        const userStatus = message.message_statuses.find((status) => status.user_id === userId);
         messageStatus = (userStatus?.status as MessageStatus) || MessageStatus.SENT;
       }
 

@@ -15,7 +15,7 @@ const GoogleAuth = () => {
         const token = searchParams.get('token');
 
         if (!token) {
-          console.error('No token found in callback URL');
+          // console.error('No token found in callback URL');
           navigate(authRoutes.LOGIN);
           return;
         }
@@ -23,7 +23,7 @@ const GoogleAuth = () => {
         authUtils.setAuthToken(token);
         navigate(protectedRoutes.HOME);
       } catch (error) {
-        console.error('Error handling OAuth callback:', error);
+        // console.error('Error handling OAuth callback:', error);
         navigate(authRoutes.LOGIN);
       }
     };
@@ -32,8 +32,8 @@ const GoogleAuth = () => {
   }, [navigate, searchParams]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
+    <div className='flex items-center justify-center min-h-screen'>
+      <div className='text-center'>
         <h2>Authenticating...</h2>
         <p>Please wait while we log you in</p>
       </div>

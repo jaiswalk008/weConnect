@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@weconnect/ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
+import { Badge } from '@workspace/ui/components/badge';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import axiosInstance from '@/utils/axiosInstance';
@@ -78,31 +79,47 @@ const FriendsList = ({ onChatSelect, setActiveTab }: FriendListProps) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className='flex items-center justify-center min-h-[400px]'>
+        <Loader2 className='w-8 h-8 animate-spin text-primary' />
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <Tabs defaultValue="friends" className="w-full">
-        <TabsList className="w-full flex items-center mb-6">
-          <TabsTrigger value="friends" className="flex w-1/2 flex-1 items-center gap-2">
-            Friends
-            <Badge variant="secondary" className="ml-auto">
+    <div className='w-full max-w-4xl mx-auto p-4'>
+      <Tabs defaultValue='friends' className='w-full'>
+        <TabsList className='grid w-full grid-cols-2 gap-1 mb-6 bg-muted/50 p-1.5 rounded-[62px] shadow-sm'>
+          <TabsTrigger
+            value='friends'
+            className='flex items-center justify-between gap-2 p-2 rounded-[60px] transition-all duration-300 data-[state=active]:bg-background data-[state=active]:shadow-md font-medium'
+          >
+            <span className='text-xs sm:text-sm whitespace-nowrap'>Friends</span>
+            <Badge
+              variant='secondary'
+              className='rounded-full px-2 py-0.5 text-xs font-semibold shrink-0'
+            >
               {friends.onlineFriends.length + friends.offlineFriends.length}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="requests" className="flex w-1/2 flex-1 items-center gap-2">
-            Pending Requests
-            <Badge variant="secondary" className="ml-auto">
+
+          <TabsTrigger
+            value='requests'
+            className='flex items-center justify-between gap-2 p-2 rounded-[60px] transition-all duration-300 data-[state=active]:bg-background data-[state=active]:shadow-md font-medium'
+          >
+            <span className='text-xs sm:text-sm whitespace-nowrap truncate'>Pending Requests</span>
+            <Badge
+              variant='secondary'
+              className='rounded-full px-2 py-0.5 text-xs font-semibold shrink-0'
+            >
               {friends.requestFriends.length}
             </Badge>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="friends">
+        <TabsContent
+          value='friends'
+          className='mt-0 focus-visible:outline-none focus-visible:ring-0'
+        >
           <FriendListTab
             onlineFriends={friends.onlineFriends}
             offlineFriends={friends.offlineFriends}
@@ -112,7 +129,10 @@ const FriendsList = ({ onChatSelect, setActiveTab }: FriendListProps) => {
           />
         </TabsContent>
 
-        <TabsContent value="requests">
+        <TabsContent
+          value='requests'
+          className='mt-0 focus-visible:outline-none focus-visible:ring-0'
+        >
           <PendingRequestsTab
             requestFriends={friends.requestFriends}
             actionLoading={actionLoading}

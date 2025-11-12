@@ -42,7 +42,7 @@ export const ChatLayout = () => {
       createdAt: new Date(chatData.lastMessage?.createdAt),
       unreadCount: isSelected ? 0 : chatData.unreadCount || 0,
     }),
-    []
+    [],
   );
   const createNewChat = useCallback(
     (chatData: ChatListData, isSelected: boolean): ChatListData => ({
@@ -62,7 +62,7 @@ export const ChatLayout = () => {
       createdByUser: chatData.createdByUser,
       unreadCount: isSelected ? 0 : chatData.unreadCount || 1,
     }),
-    []
+    [],
   );
   const handleNewGroup = useCallback(
     (notification: NotificationData) => {
@@ -79,7 +79,7 @@ export const ChatLayout = () => {
         ? createUpdatedChat(
             chatList.find((chat) => chat.chatId === chatData.chatId)!,
             chatData,
-            isSelectedChat
+            isSelectedChat,
           )
         : createNewChat(chatData, isSelectedChat);
 
@@ -102,7 +102,7 @@ export const ChatLayout = () => {
       markAsRead,
       user?.username,
       chatList,
-    ]
+    ],
   );
 
   const handleNewMessage = useCallback(
@@ -121,13 +121,13 @@ export const ChatLayout = () => {
         ? createUpdatedChat(
             chatList.find((chat) => chat.chatId === chatData.chatId)!,
             chatData,
-            isSelectedChat
+            isSelectedChat,
           )
         : createNewChat(chatData, isSelectedChat);
 
       dispatch(chatActions.upsertChat(newChat));
     },
-    [selectedChat.chatId, createUpdatedChat, createNewChat, dispatch, markAsRead, chatList]
+    [selectedChat.chatId, createUpdatedChat, createNewChat, dispatch, markAsRead, chatList],
   );
 
   // Use notification system
@@ -145,7 +145,7 @@ export const ChatLayout = () => {
 
   useEffect(() => {
     if (error) {
-      console.error('Socket error:', error);
+      // console.error('Socket error:', error);
     }
   }, [error]);
 
@@ -185,7 +185,7 @@ export const ChatLayout = () => {
   };
 
   return (
-    <div className="h-screen flex overflow-hidden relative">
+    <div className='h-screen flex overflow-hidden relative'>
       <ConnectionLoader isConnected={isConnected} />
 
       {(!isMobile || !showChatWindow) && (

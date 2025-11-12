@@ -41,15 +41,15 @@ class SocketService {
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
+      // console.log('Socket disconnected:', reason);
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('Connection error:', error.message);
+      // console.error('Connection error:', error.message);
       this.reconnectAttempts++;
 
       if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-        console.error('Max reconnection attempts reached');
+        // console.error('Max reconnection attempts reached');
       }
     });
   }

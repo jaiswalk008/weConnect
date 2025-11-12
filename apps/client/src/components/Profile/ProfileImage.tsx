@@ -1,6 +1,7 @@
-import { Avatar, AvatarFallback, AvatarImage, getCachedAvatars } from '@weconnect/ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 import { useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@workspace/ui/lib/utils';
+import { getCachedAvatars } from '@workspace/ui/components/avatars';
 
 const sizeClasses = {
   small: 'w-8 h-8',
@@ -34,7 +35,7 @@ export default function ProfileImage({
         }
         setChatImage(image);
       } catch (error) {
-        console.error('Error loading avatar:', error);
+        // console.error('Error loading avatar:', error);
         setChatImage(image);
       }
     };
@@ -45,7 +46,12 @@ export default function ProfileImage({
   return (
     <Avatar className={cn(sizeClasses[size], 'shrink-0', className)}>
       <AvatarImage src={chatImage} alt={chatName} />
-      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+      <AvatarFallback
+        className={cn(
+          'bg-primary text-primary-foreground font-semibold flex items-center justify-center w-full h-full rounded-full',
+          className,
+        )}
+      >
         {chatName[0]}
       </AvatarFallback>
     </Avatar>

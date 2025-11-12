@@ -27,7 +27,7 @@ const chatSlice = createSlice({
     updateChat: (state, action: PayloadAction<ChatListData>) => {
       const chatData = action.payload;
       state.chatList = state.chatList.map((chat) =>
-        chat.chatId === chatData.chatId ? chatData : chat
+        chat.chatId === chatData.chatId ? chatData : chat,
       );
     },
     upsertChat: (state, action: PayloadAction<ChatListData>) => {
@@ -54,12 +54,12 @@ const chatSlice = createSlice({
     },
     updateMessage: (state, action: PayloadAction<MessageData>) => {
       state.chatData = state.chatData.map((message) =>
-        message.id === action.payload.id ? action.payload : message
+        message.id === action.payload.id ? action.payload : message,
       );
     },
     updateMessageStatus: (state, action: PayloadAction<MessageData>) => {
       state.chatData = state.chatData.map((message) =>
-        message.id === action.payload.id ? action.payload : message
+        message.id === action.payload.id ? action.payload : message,
       );
     },
     markMessagesAsRead: (
@@ -69,12 +69,12 @@ const chatSlice = createSlice({
         chatId: number;
         user: userAuthState;
         timestamp: Date;
-      }>
+      }>,
     ) => {
       state.chatData = state.chatData.map((message) =>
         action.payload.messageIds.includes(message.id)
           ? { ...message, status: MessageStatus.READ }
-          : message
+          : message,
       );
     },
     clearChatData: (state) => {

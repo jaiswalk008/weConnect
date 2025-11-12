@@ -9,10 +9,10 @@ import { store } from './context/store';
 function App() {
   return (
     <Provider store={store}>
-      <AppThemeProvider defaultTheme="light" storageKey="weconnect-theme">
+      <AppThemeProvider defaultTheme='light' storageKey='weconnect-theme'>
         <BrowserRouter>
           <AppRoutes />
-          <Toaster position="bottom-right" richColors closeButton />
+          <Toaster position='bottom-right' richColors closeButton />
         </BrowserRouter>
       </AppThemeProvider>
     </Provider>

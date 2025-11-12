@@ -50,7 +50,7 @@ export interface ClientToServerEvents {
   // Message events
   'message:send': (
     data: SendMessagePayload,
-    callback?: (response: MessageResponse) => void
+    callback?: (response: MessageResponse) => void,
   ) => void;
   'message:markDelivered': (data: { messageId: number }) => void;
   'message:markRead': (data: { messageId: number; chatId: number }) => void;

@@ -71,7 +71,7 @@ class UserService {
       return [];
     }
 
-    const topTenUserIds = topTenUsers.map(user => user.id);
+    const topTenUserIds = topTenUsers.map((user) => user.id);
 
     // Batch all queries together instead of individual queries per user
     const [friendsData, userChatIds, commonChats] = await Promise.all([
@@ -100,17 +100,17 @@ class UserService {
     ]);
 
     // Extract chat IDs
-    const userChatIdSet = new Set(userChatIds.map(chat => chat.chat_id));
+    const userChatIdSet = new Set(userChatIds.map((chat) => chat.chat_id));
 
     // Create lookup maps for O(1) access
     const friendshipMap = new Map<number, string>();
-    friendsData.forEach(friend => {
+    friendsData.forEach((friend) => {
       friendshipMap.set(friend.friend_user_id, friend.status);
     });
 
     // Create common chat map: userId -> chatId
     const commonChatMap = new Map<number, number>();
-    commonChats.forEach(chat => {
+    commonChats.forEach((chat) => {
       // Only add if current user is also in this chat
       if (userChatIdSet.has(chat.chat_id)) {
         // Only set if not already set (first common chat)
@@ -121,14 +121,13 @@ class UserService {
     });
 
     // Map users with O(1) lookups instead of queries
-    return topTenUsers.map(user => ({
+    return topTenUsers.map((user) => ({
       ...this.getUserProfile(user),
       friendShipStatus: friendshipMap.get(user.id) || 'NOT_FRIEND',
       chatId: commonChatMap.get(user.id) || null,
     }));
   }
   async updatePassword(userId: number, password: string): Promise<void> {
-    console.log(password);
     const hashedPassword = await bcrypt.hash(password, 10);
     await userRepository.updateUser(userId, { password: hashedPassword });
   }

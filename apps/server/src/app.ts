@@ -27,7 +27,7 @@ app.use(
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
-  })
+  }),
 );
 // Make socket service available globally in the app
 app.set('socketService', socketService);
@@ -37,7 +37,7 @@ app.use(
     credentials: true, // ✅ Enable this if you're using cookies/sessions
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-  })
+  }),
 );
 
 // Middleware
