@@ -33,7 +33,7 @@ export const viteConfig = [
       // Disable React import requirement (new JSX transform)
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
-      
+
       // Allow any types
       '@typescript-eslint/no-explicit-any': 'off',
     },
