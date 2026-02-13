@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSocket } from '@/context/socket-context';
 import { SOCKET_EVENTS, type MessageData } from '@/types/socket';
 import { useDispatch, useSelector } from 'react-redux';
-import { chatActions, type RootState } from '@/context/store';
+import { chatActions, type RootState, store } from '@/context/store';
 import type { userAuthState } from '@/types/user';
 
 export const useMessages = (chatId: number) => {
@@ -53,6 +53,17 @@ export const useMessages = (chatId: number) => {
           //   lastMessage:message,
 
           // }))
+          const currentChatList = store.getState().chat.chatList;
+          const currentChat = currentChatList.find((c) => c.chatId === chatId);
+
+          if (currentChat) {
+            dispatch(
+              chatActions.upsertChat({
+                ...currentChat,
+                lastMessage: message,
+              }),
+            );
+          }
           dispatch(chatActions.addMessage(message));
         }
         callback?.(response);

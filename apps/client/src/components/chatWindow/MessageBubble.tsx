@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import { formatTime } from '@/utils/dateUtils';
 import { MessageStatus } from './MessageStatus';
 import type { MessageStatus as MessageStatusType } from '@/types/socket';
+import Linkify from 'linkify-react';
+
 interface MessageBubbleProps {
   message: MessageData;
 }
@@ -15,6 +17,13 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
     () => message.sender.username === userData?.username,
     [message, userData],
   );
+
+  const linkifyOptions = {
+    className: 'underline hover:opacity-80 transition-opacity',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+  };
+
   return (
     <div className={`flex w-full ${isSender ? 'justify-end' : 'justify-start'}`}>
       <div
@@ -24,9 +33,10 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
             : 'bg-card text-card-foreground rounded-bl-sm'
         }`}
       >
-        <p className='text-sm wrap-break whitespace-pre-wrap'>{message.content}</p>
+        <Linkify options={linkifyOptions}>
+          <p className='text-sm break-all whitespace-pre-wrap'>{message.content}</p>
+        </Linkify>
 
-        {/* Time and Status */}
         <div className='flex items-center justify-end gap-1 mt-1'>
           <span
             className={`text-xs ${

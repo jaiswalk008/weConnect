@@ -18,6 +18,8 @@ import type { RootState } from '@/context/store';
 import ProfileImage from '../Profile/ProfileImage';
 import axiosInstance from '@/utils/axiosInstance';
 import { toast } from 'sonner';
+import logger from '@/lib/logger';
+import { groupAPIs } from '@/api/group';
 
 interface GroupFormData {
   groupName: string;
@@ -121,10 +123,10 @@ export default function CreateGroupModal({ open, onOpenChange }: CreateGroupModa
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      await axiosInstance.post('/api/group', formData);
+      await axiosInstance.post(groupAPIs.createGroup, formData);
       resetModal();
-    } catch (error) {
-      // console.log(error);
+    } catch (error: any) {
+      logger.error(error.response.data.message || 'Failed to create group');
       toast.error('Failed to create group');
     } finally {
       setLoading(false);

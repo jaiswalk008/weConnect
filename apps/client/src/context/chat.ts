@@ -8,12 +8,14 @@ interface chatState {
   chatData: MessageData[];
   chatList: ChatListData[];
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
+  draftMessages: Record<number, string>;
 }
 
 const initialState: chatState = {
   chatData: [],
   chatList: [],
   socket: null,
+  draftMessages: {},
 };
 
 const chatSlice = createSlice({
@@ -30,15 +32,13 @@ const chatSlice = createSlice({
         chat.chatId === chatData.chatId ? chatData : chat,
       );
     },
-    upsertChat: (state, action: PayloadAction<ChatListData>) => {
+        upsertChat: (state, action: PayloadAction<ChatListData>) => {
       let chatData = action.payload;
       const existingIndex = state.chatList.findIndex((chat) => chat.chatId === chatData.chatId);
-      if (existingIndex == -1) {
-        // Remove existing and add to front
-        const oldChatData = state.chatList.splice(existingIndex, 1);
-        chatData = { ...oldChatData[0], ...chatData };
-      } else {
-        chatData.chatType = 'PERSONAL';
+      if (existingIndex !== -1) {
+        const existingChat = state.chatList[existingIndex];
+        chatData = { ...existingChat, ...chatData };
+        state.chatList.splice(existingIndex, 1);
       }
       state.chatList.unshift(chatData);
     },
@@ -79,6 +79,12 @@ const chatSlice = createSlice({
     },
     clearChatData: (state) => {
       state.chatData = [];
+    },
+    setDraftMessage: (state, action: PayloadAction<{ chatId: number; message: string }>) => {
+      state.draftMessages[action.payload.chatId] = action.payload.message;
+    },
+    clearDraftMessage: (state, action: PayloadAction<number>) => {
+      delete state.draftMessages[action.payload];
     },
   },
 });

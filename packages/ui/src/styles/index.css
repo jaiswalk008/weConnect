@@ -1,6 +1,8 @@
 @import 'tailwindcss';
+@plugin "tailwindcss-animate";
 @import '@fontsource-variable/geist';
-
+@source "../components/**/*.tsx";
+@source "../lib/**/*.ts";
 @theme {
   /* Color mappings for Tailwind v4 */
   --color-background: oklch(var(--background));

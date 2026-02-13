@@ -40,7 +40,7 @@ export const ChatLayout = () => {
       chatImage: chatData.chatImage || chat.chatImage,
       lastMessage: chatData.lastMessage,
       createdAt: new Date(chatData.lastMessage?.createdAt),
-      unreadCount: isSelected ? 0 : chatData.unreadCount || 0,
+      unreadCount: isSelected ? 0 : chatData.unreadCount || (chat.unreadCount || 0) + 1,
     }),
     [],
   );

@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   Phone,
   Video,
-  MoreVertical,
   Smile,
   Paperclip,
   Mic,
@@ -17,7 +16,6 @@ import type { ChatHistoryResponse } from '@/types/socket';
 import { useFetch } from '@/hooks/useFetch';
 import { ChatWindowSkeleton } from '../ui/ChatSkeletonLoader';
 import ProfileImage from '../Profile/ProfileImage';
-import { Input } from '@workspace/ui/components/input';
 import { useMessages } from '@/hooks/useMessages';
 import { useDispatch, useSelector } from 'react-redux';
 import { chatActions, type RootState } from '@/context/store';
@@ -25,6 +23,9 @@ import { getMessageDateLabel, isSameDay } from '@/utils/dateUtils';
 import { DateDivider } from './DateDivider';
 import { chatAPI } from '@/api/chat';
 import { TABS } from '@/constants/tabs';
+import { Textarea } from '@workspace/ui/components/textarea';
+import { Button } from '@workspace/ui/components/button';
+import ChatMenu from './ChatMenu';
 
 export interface ChatDetails {
   chatId: number;
@@ -49,9 +50,9 @@ export const ChatWindow = ({
   activeTab,
 }: ChatWindowProps) => {
   const { data, loading, fetchData } = useFetch<ChatHistoryResponse>();
-  const [messageInput, setMessageInput] = useState('');
   const dispatch = useDispatch();
-  const chatData = useSelector((state: RootState) => state.chat.chatData);
+  const { chatData, draftMessages } = useSelector((state: RootState) => state.chat);
+  const [messageInput, setMessageInput] = useState(draftMessages[chatDetails.chatId] || '');
   // Refs for the messages container and tracking
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -100,7 +101,9 @@ export const ChatWindow = ({
       setNewMessageCount(0);
     }
   }, [checkIfAtBottom, newMessageCount]);
-
+  useEffect(() => {
+    setMessageInput(draftMessages[chatDetails.chatId] || '');
+  }, [draftMessages, chatDetails.chatId]);
   // Reset states when chat changes
   useEffect(() => {
     if (previousChatIdRef.current !== chatDetails.chatId) {
@@ -168,14 +171,23 @@ export const ChatWindow = ({
   const handleSendMessage = () => {
     if (messageInput.trim() === '') return;
     sendMessage(messageInput.trim());
-    setMessageInput('');
+    dispatch(chatActions.clearDraftMessage(chatDetails.chatId));
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessageInput(e.target.value);
+    dispatch(
+      chatActions.setDraftMessage({
+        chatId: chatDetails.chatId,
+        message: e.target.value,
+      }),
+    );
   };
 
   if (!chatDetails.chatId) {
@@ -217,15 +229,19 @@ export const ChatWindow = ({
         </div>
 
         <div className='flex items-center gap-1 md:gap-2 shrink-0'>
-          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'>
+          <Button
+            variant='ghost'
+            className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'
+          >
             <Phone className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
-          </button>
-          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'>
+          </Button>
+          <Button
+            variant='ghost'
+            className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'
+          >
             <Video className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
-          </button>
-          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'>
-            <MoreVertical className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
-          </button>
+          </Button>
+          <ChatMenu chatId={chatDetails.chatId} />
         </div>
       </div>
 
@@ -272,20 +288,25 @@ export const ChatWindow = ({
       {/* Input Area */}
       <div className='p-3 md:p-4 border-t border-border bg-card'>
         <div className='flex items-center gap-1 md:gap-2'>
-          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0'>
+          <Button
+            variant='ghost'
+            className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0'
+          >
             <Smile className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
-          </button>
-          <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0'>
+          </Button>
+          <Button
+            variant='ghost'
+            className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0'
+          >
             <Paperclip className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
-          </button>
+          </Button>
 
-          <Input
-            onChange={(e) => setMessageInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+          <Textarea
+            onChange={handleInputChange}
+            onKeyDown={handleKeyPress}
             value={messageInput}
-            type='text'
             placeholder='Type a message...'
-            className='flex-1 min-w-0 px-3 py-2 md:px-4 bg-secondary rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring'
+            className='flex-1 min-w-0 px-3 break-all whitespace-pre-wrap md:px-4 bg-secondary rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring'
           />
 
           <button className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors shrink-0'>
