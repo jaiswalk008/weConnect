@@ -94,3 +94,8 @@ export interface ChatDetailsResponse {
     joinedAt: Date;
   }>;
 }
+
+export interface ChatHistoryResponse {
+  messages: MessageData[];
+  nextCursor: number | null;
+}

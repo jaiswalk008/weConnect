@@ -1,4 +1,4 @@
-import { ArrowLeft, Phone, Video, Smile, Paperclip, Mic, Send, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Phone, Video, Smile, Paperclip, Mic, Send, ChevronDown, Loader2 } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
 import { MessageSquare } from 'lucide-react';
 import { Users } from 'lucide-react';
@@ -18,6 +18,7 @@ import { Textarea } from '@workspace/ui/components/textarea';
 import { Button } from '@workspace/ui/components/button';
 import ChatMenu from './ChatMenu';
 import ChatDetails from './ChatDetails';
+import axiosInstance from '@/utils/axiosInstance';
 
 export interface ChatDetails {
   chatId: number;
@@ -57,6 +58,10 @@ export const ChatWindow = ({
   const hasScrolledInitiallyRef = useRef(false);
   const [showDetails, setShowDetails] = useState(false);
 
+  // Pagination states
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+
   // Check if user is scrolled to bottom
   const checkIfAtBottom = useCallback(() => {
     const container = messagesContainerRef.current;
@@ -85,8 +90,59 @@ export const ChatWindow = ({
     setNewMessageCount(0);
   }, []);
 
+  // Load more messages (pagination)
+  const loadMoreMessages = useCallback(async () => {
+    if (!nextCursor || isFetchingMore) return;
+
+    setIsFetchingMore(true);
+    const container = messagesContainerRef.current;
+    
+    // Capture curent scroll height and scroll top
+    const previousScrollHeight = container ? container.scrollHeight : 0;
+    const previousScrollTop = container ? container.scrollTop : 0;
+
+    try {
+      const response = await axiosInstance.get(`${chatAPI.fetchChatHistory}?chatId=${chatDetails.chatId}&cursor=${nextCursor}`);
+      
+      if (response.data.success) {
+        const { chatHistory, nextCursor: newCursor } = response.data;
+        
+        if (chatHistory.length > 0) {
+          // Prepend messages to redux store
+          isPaginationRef.current = true;
+          dispatch(chatActions.prependChatData(chatHistory));
+          setNextCursor(newCursor ?? null);
+          
+          // Maintain scroll position after render
+          // Using setTimeout to allow Redux update and React render to occur
+          setTimeout(() => {
+            if (messagesContainerRef.current) {
+               const newScrollHeight = messagesContainerRef.current.scrollHeight;
+               // Calculate new scroll top to keep user at the same relative position
+               messagesContainerRef.current.scrollTop = newScrollHeight - previousScrollHeight + previousScrollTop;
+            }
+          }, 0);
+        } else {
+          setNextCursor(null);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load more messages:", error);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  }, [chatDetails.chatId, nextCursor, isFetchingMore, dispatch]);
+
   // Handle scroll events
   const handleScroll = useCallback(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    // Check if near top to load more
+    if (container.scrollTop < 50 && nextCursor && !isFetchingMore) {
+      loadMoreMessages();
+    }
+
     const atBottom = checkIfAtBottom();
     setIsAtBottom(atBottom);
 
@@ -94,7 +150,7 @@ export const ChatWindow = ({
     if (atBottom && newMessageCount > 0) {
       setNewMessageCount(0);
     }
-  }, [checkIfAtBottom, newMessageCount]);
+  }, [checkIfAtBottom, newMessageCount, nextCursor, isFetchingMore, loadMoreMessages]);
   useEffect(() => {
     setMessageInput(draftMessages[chatDetails.chatId] || '');
   }, [draftMessages, chatDetails.chatId]);
@@ -104,6 +160,8 @@ export const ChatWindow = ({
       setIsAtBottom(true);
       setNewMessageCount(0);
       setInitialLoad(true);
+      setNextCursor(null); // Reset cursor on chat switch
+      setIsFetchingMore(false);
       lastMessageCountRef.current = 0;
       previousChatIdRef.current = chatDetails.chatId;
       hasScrolledInitiallyRef.current = false;
@@ -122,8 +180,9 @@ export const ChatWindow = ({
   useEffect(() => {
     if (chatDetails.chatId && data?.chatHistory) {
       dispatch(chatActions.setChatData(data.chatHistory));
+      setNextCursor(data.nextCursor ?? null); // Set initial cursor
     }
-  }, [chatDetails.chatId, dispatch, data?.chatHistory]);
+  }, [chatDetails.chatId, dispatch, data]);
 
   // Handle initial scroll position after messages are loaded
   useEffect(() => {
@@ -138,9 +197,17 @@ export const ChatWindow = ({
     }
   }, [chatData.length, initialLoad, scrollToRecent]);
 
+  const isPaginationRef = useRef(false);
+
   // Handle new messages - only count actual new messages, not initial load
   useEffect(() => {
     if (chatData.length > 0 && !initialLoad && hasScrolledInitiallyRef.current) {
+      if (isPaginationRef.current) {
+        lastMessageCountRef.current = chatData.length;
+        isPaginationRef.current = false;
+        return;
+      }
+
       const actualNewMessages = chatData.length - lastMessageCountRef.current;
 
       if (actualNewMessages > 0) {
@@ -282,6 +349,11 @@ export const ChatWindow = ({
             <div ref={messagesEndRef} />
           </div>
         </div>
+        {isFetchingMore && (
+          <div className='absolute top-2 left-1/2 transform -translate-x-1/2 bg-background/80 p-1 rounded-full shadow-sm z-10'>
+            <Loader2 className='w-4 h-4 animate-spin text-primary' />
+          </div>
+        )}
 
         {/* New Messages Indicator - ADDED BACK */}
         {newMessageCount > 0 && (

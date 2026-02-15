@@ -94,6 +94,7 @@ export interface MessageData {
 }
 export interface ChatHistoryResponse {
   chatHistory: MessageData[];
+  nextCursor: number | null;
   success: boolean;
   message: string;
 }
