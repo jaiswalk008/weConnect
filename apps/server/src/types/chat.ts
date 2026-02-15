@@ -68,3 +68,29 @@ export interface MessageResponse {
   message?: MessageData;
   error?: string;
 }
+
+export interface ChatDetailsResponse {
+  id: number;
+  chatId?: number; // Optional for backward compatibility if needed, but id is the main one
+  name: string | null;
+  description: string | null;
+  image: string | null;
+  type: string;
+  createdAt: Date;
+  createdBy?: {
+    id: number;
+    name: string;
+    username: string;
+    profile_image: string | null;
+  };
+  participants: Array<{
+    id: number;
+    name: string;
+    username: string;
+    profile_image: string | null;
+    about: string | null;
+    last_seen: Date | null;
+    role: string;
+    joinedAt: Date;
+  }>;
+}

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ChatType, User } from '@prisma/client';
 import { ValidationError } from '../utils/errors';
 import chatService from '../services/chat.service';
@@ -52,6 +52,26 @@ class ChatController {
         success: true,
         chatHistory,
         message: 'Chat history fetched successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getChatDetails(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { chatId } = req.params;
+      const user = req.user as User;
+
+      if (!chatId) {
+        throw new Error('Chat ID is required');
+      }
+
+      const chatDetails = await chatService.getChatDetails(Number(chatId), user.id);
+
+      res.status(200).json({
+        success: true,
+        data: chatDetails,
       });
     } catch (error) {
       next(error);

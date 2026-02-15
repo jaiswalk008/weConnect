@@ -16,7 +16,7 @@ import { groupAPIs } from '@/api/group';
 
 type DialogType = 'leave' | 'clear' | null;
 
-export default function ChatMenu({chatId}: {chatId: number}) {
+export default function ChatMenu({ chatId }: { chatId: number }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<DialogType>(null);
 
@@ -31,12 +31,11 @@ export default function ChatMenu({chatId}: {chatId: number}) {
   };
 
   async function handleLeaveGroupConfirmation() {
-    try{
+    try {
       await axiosInstance.patch(groupAPIs.leaveGroup, {
-        chatId 
-      })
-    }
-    catch(error){
+        chatId,
+      });
+    } catch (error) {
       logger.error('Error leaving group:', error);
       toast.error('Failed to leave group');
     }
@@ -44,11 +43,10 @@ export default function ChatMenu({chatId}: {chatId: number}) {
   const handleConfirm = async () => {
     if (dialogType === 'leave') {
       // Add your leave group logic here
-      await handleLeaveGroupConfirmation()
+      await handleLeaveGroupConfirmation();
       // await leaveGroupAPI();
     } else if (dialogType === 'clear') {
       // Add your clear chat logic here
-      
       // await clearChatAPI();
     }
   };

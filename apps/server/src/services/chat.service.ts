@@ -1,8 +1,9 @@
 import { ChatType, Prisma } from '@prisma/client';
 import prisma from '../config/database';
-import { chatListData, MessageData, MessageStatus } from '../types/chat';
+import { chatListData, MessageData, MessageStatus, SendMessagePayload } from '../types/chat';
 import userService from './user.service';
-import { NotFoundError } from '../utils/errors';
+import { NotFoundError, ValidationError } from '../utils/errors';
+import { ChatDetailsResponse } from '../types/chat';
 
 class ChatService {
   async createChat(
@@ -91,6 +92,92 @@ class ChatService {
 
     await Promise.all([...statusPromises, unreadCountPromise]);
     return;
+  }
+
+  async processSendMessage(payload: SendMessagePayload, senderId: number) {
+    const { chatId, content, mediaUrl, mediaType } = payload;
+
+    // 1. Fetch Chat and Participants
+    const chatParticipants = await prisma.chatParticipant.findMany({
+      where: {
+        chat_id: chatId,
+        is_active: true,
+      },
+      include: {
+        user: true,
+        chat: {
+          include: {
+            created_by_user: true,
+          },
+        },
+      },
+    });
+
+    // 2. Validate Sender
+    const senderParticipant = chatParticipants.find((p) => p.user_id === senderId);
+    // Find the chat details (can be taken from any participant)
+    const chat = chatParticipants[0]?.chat;
+
+    if (!senderParticipant || !chat) {
+      throw new ValidationError('User not authorized in this chat');
+    }
+
+    // 3. Transaction for Message Creation and Updates
+    const message = await prisma.$transaction(async (tx) => {
+      // Create Message
+      const newMessage = await tx.message.create({
+        data: {
+          chat_id: chatId,
+          sender_id: senderId,
+          content,
+          media_url: mediaUrl,
+          media_type: mediaType as any,
+        },
+      });
+
+      // Update Chat's Last Message
+      await tx.chat.update({
+        where: { id: chatId },
+        data: { last_message_id: newMessage.id },
+      });
+
+      // Identify recipients (everyone except sender)
+      const recipients = chatParticipants.filter((p) => p.user_id !== senderId);
+
+      if (recipients.length > 0) {
+        // Create Statuses (Batch)
+        await tx.messageStatus.createMany({
+          data: recipients.map((p) => ({
+            message_id: newMessage.id,
+            user_id: p.user_id,
+            status:
+              p.user.status === 'ONLINE'
+                ? (MessageStatus.DELIVERED as any)
+                : (MessageStatus.SENT as any),
+          })),
+        });
+
+        // Increment Unread Counts (Batch)
+        await tx.chatParticipant.updateMany({
+          where: {
+            chat_id: chatId,
+            user_id: { in: recipients.map((p) => p.user_id) },
+          },
+          data: {
+            unread_count: { increment: 1 },
+          },
+        });
+      }
+
+      return newMessage;
+    });
+
+    return {
+      message,
+      chat,
+      participants: chatParticipants,
+      sender: senderParticipant.user,
+    };
   }
   async getUserChatHistoryList(userId: number): Promise<chatListData[]> {
     const chatList = await prisma.chatParticipant.findMany({
@@ -281,6 +368,90 @@ class ChatService {
     });
 
     return formattedMessages;
+  }
+
+  async getChatDetails(chatId: number, currentUserId: number): Promise<ChatDetailsResponse> {
+    const chat = await prisma.chat.findUnique({
+      where: {
+        id: chatId,
+      },
+      include: {
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                profile_image: true,
+                about: true,
+                last_seen: true,
+              },
+            },
+          },
+        },
+        created_by_user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            profile_image: true,
+          },
+        },
+        group: true,
+      },
+    });
+
+    if (!chat) {
+      throw new NotFoundError('Chat not found');
+    }
+
+    const isParticipant = chat.participants.some((p) => p.user_id === currentUserId);
+    if (!isParticipant) {
+      throw new ValidationError('User not authorized to view this chat');
+    }
+
+    let chatName = chat.chat_name;
+    let chatImage = chat.chat_image;
+    let description = chat.group?.description || null;
+
+    // For Personal chats, use the other user's details
+    if (chat.chat_type === ChatType.PERSONAL) {
+      const otherParticipant = chat.participants.find((p) => p.user_id !== currentUserId);
+      if (otherParticipant) {
+        chatName = otherParticipant.user.name; // Or username, depending on preference
+        chatImage = otherParticipant.user.profile_image;
+        description = otherParticipant.user.about;
+      }
+    }
+
+    return {
+      id: chat.id,
+      chatId: chat.id,
+      type: chat.chat_type,
+      name: chatName,
+      image: chatImage,
+      description,
+      createdAt: chat.created_at,
+      createdBy: chat.created_by_user
+        ? {
+            id: chat.created_by_user.id,
+            name: chat.created_by_user.name,
+            username: chat.created_by_user.username,
+            profile_image: chat.created_by_user.profile_image,
+          }
+        : undefined,
+      participants: chat.participants.map((p) => ({
+        id: p.user.id,
+        name: p.user.name,
+        username: p.user.username,
+        profile_image: p.user.profile_image,
+        about: p.user.about,
+        last_seen: p.user.last_seen,
+        role: p.role,
+        joinedAt: p.joined_at,
+      })),
+    };
   }
 }
 
