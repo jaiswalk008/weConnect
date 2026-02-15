@@ -8,7 +8,6 @@ import { getIO } from '../socket';
 import { SOCKET_EVENTS } from '../socket/events';
 import { NotificationType } from '../types/notification';
 
-
 class GroupService {
   async createGroup(
     user: User,

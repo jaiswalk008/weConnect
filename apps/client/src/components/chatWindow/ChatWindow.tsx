@@ -1,4 +1,14 @@
-import { ArrowLeft, Phone, Video, Smile, Paperclip, Mic, Send, ChevronDown, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Phone,
+  Video,
+  Smile,
+  Paperclip,
+  Mic,
+  Send,
+  ChevronDown,
+  Loader2,
+} from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
 import { MessageSquare } from 'lucide-react';
 import { Users } from 'lucide-react';
@@ -96,30 +106,33 @@ export const ChatWindow = ({
 
     setIsFetchingMore(true);
     const container = messagesContainerRef.current;
-    
+
     // Capture curent scroll height and scroll top
     const previousScrollHeight = container ? container.scrollHeight : 0;
     const previousScrollTop = container ? container.scrollTop : 0;
 
     try {
-      const response = await axiosInstance.get(`${chatAPI.fetchChatHistory}?chatId=${chatDetails.chatId}&cursor=${nextCursor}`);
-      
+      const response = await axiosInstance.get(
+        `${chatAPI.fetchChatHistory}?chatId=${chatDetails.chatId}&cursor=${nextCursor}`,
+      );
+
       if (response.data.success) {
         const { chatHistory, nextCursor: newCursor } = response.data;
-        
+
         if (chatHistory.length > 0) {
           // Prepend messages to redux store
           isPaginationRef.current = true;
           dispatch(chatActions.prependChatData(chatHistory));
           setNextCursor(newCursor ?? null);
-          
+
           // Maintain scroll position after render
           // Using setTimeout to allow Redux update and React render to occur
           setTimeout(() => {
             if (messagesContainerRef.current) {
-               const newScrollHeight = messagesContainerRef.current.scrollHeight;
-               // Calculate new scroll top to keep user at the same relative position
-               messagesContainerRef.current.scrollTop = newScrollHeight - previousScrollHeight + previousScrollTop;
+              const newScrollHeight = messagesContainerRef.current.scrollHeight;
+              // Calculate new scroll top to keep user at the same relative position
+              messagesContainerRef.current.scrollTop =
+                newScrollHeight - previousScrollHeight + previousScrollTop;
             }
           }, 0);
         } else {
@@ -127,7 +140,7 @@ export const ChatWindow = ({
         }
       }
     } catch (error) {
-      console.error("Failed to load more messages:", error);
+      console.error('Failed to load more messages:', error);
     } finally {
       setIsFetchingMore(false);
     }
@@ -284,7 +297,7 @@ export const ChatWindow = ({
   return (
     <div className='flex-1 flex flex-col h-full w-full bg-background'>
       {/* Chat Header */}
-      <div className='flex items-center gap-3 p-4 border-b border-border bg-card'>
+      <div className='flex items-center gap-3 p-4 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20'>
         {isMobile && (
           <button onClick={onBack} className='mr-2 shrink-0' aria-label='Back'>
             <ArrowLeft className='w-5 h-5 text-foreground' />
@@ -325,7 +338,7 @@ export const ChatWindow = ({
       </div>
 
       {/* Messages Area */}
-      <div className='flex-1 overflow-hidden relative bg-secondary/30'>
+      <div className='flex-1 overflow-hidden relative bg-gradient-to-b from-background to-secondary/20'>
         <div
           ref={messagesContainerRef}
           className='h-full overflow-y-auto px-3 py-4 md:px-4'
@@ -370,7 +383,7 @@ export const ChatWindow = ({
       </div>
 
       {/* Input Area */}
-      <div className='p-3 md:p-4 border-t border-border bg-card'>
+      <div className='p-3 md:p-4 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
         <div className='flex items-center gap-1 md:gap-2'>
           <Button
             variant='ghost'

@@ -33,71 +33,79 @@
 }
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
-  /* Light Theme - Soft Blue & White Palette */
-  --background: 0.98 0.01 240;
-  --foreground: 0.15 0.08 250;
-  --card: 1 0 0;
-  --card-foreground: 0.15 0.08 250;
+  /* LIGHT THEME: Premium Modern Surface */
+  /* Background: Pure matte white with slight warm undertone for comfort */
+  --background: 1 0 0; 
+  --foreground: 0.15 0.04 260; /* Deep indigo-black for softer contrast than pure black */
+
+  /* Surface System: Card-like separation */
+  --card: 1 0 0; 
+  --card-foreground: 0.15 0.04 260;
   --popover: 1 0 0;
-  --popover-foreground: 0.15 0.08 250;
+  --popover-foreground: 0.15 0.04 260;
 
-  /* Facebook Blue Button - #1877f2 */
-  --primary: 0.59 0.21 264;
-  --primary-foreground: 0.98 0.01 250;
+  /* Primary: Vivid Electric Blue - High energy */
+  --primary: 0.55 0.25 260; /* Vibrant blue */
+  --primary-foreground: 1 0 0; /* White text */
 
-  --secondary: 0.95 0.02 240;
-  --secondary-foreground: 0.25 0.1 250;
-  --muted: 0.96 0.02 240;
-  --muted-foreground: 0.45 0.05 250;
-  --accent: 0.92 0.04 235;
-  --accent-foreground: 0.25 0.1 250;
-  --destructive: 0.577 0.245 27.325;
-  --destructive-foreground: 0.985 0 0;
-  --border: 0.9 0.02 240;
-  --input: 0.9 0.02 240;
-  --ring: 0.59 0.21 264;
+  /* Secondary: Subtle off-white/gray for interactions */
+  --secondary: 0.96 0.01 260; /* Very light cool gray */
+  --secondary-foreground: 0.2 0.06 260;
+
+  /* Muted: De-emphasized text */
+  --muted: 0.95 0.02 260;
+  --muted-foreground: 0.5 0.06 260;
+
+  /* Accent: Hover states */
+  --accent: 0.94 0.03 260; /* Light blue-gray tint */
+  --accent-foreground: 0.15 0.04 260;
+
+  /* Functional */
+  --destructive: 0.6 0.22 25;
+  --destructive-foreground: 0.98 0 0;
+  
+  /* Borders: Extremely subtle definition */
+  --border: 0.92 0.01 260; 
+  --input: 0.92 0.01 260;
+  --ring: 0.55 0.25 260; /* Matches primary */
 }
 
 .dark {
-  /* ✅ PURE BLACK THEME - True Black with Gray Accents */
-  /* Pure black background #000000 */
-  --background: 0 0 0;
-  --foreground: 0.98 0 0;
+  /* DARK THEME: Deep Space void */
+  /* Background: Rich, deep void black/blue */
+  --background: 0.05 0.02 260; /* #05050f - Very dark blue-black */
+  --foreground: 0.95 0.01 240; /* Near white */
 
-  /* Card - Very dark gray for subtle depth */
-  --card: 0.08 0 0;
-  --card-foreground: 0.98 0 0;
+  /* Surfaces: Elevated levels of darkness */
+  --card: 0.1 0.03 260; /* Slightly lighter void */
+  --card-foreground: 0.95 0.01 240;
+  --popover: 0.08 0.03 260;
+  --popover-foreground: 0.95 0.01 240;
 
-  /* Popover - Slightly lighter gray */
-  --popover: 0.12 0 0;
-  --popover-foreground: 0.98 0 0;
+  /* Primary: Neon Cyber Blue */
+  --primary: 0.6 0.25 260; /* High energy blue */
+  --primary-foreground: 1 0 0;
 
-  /* Facebook Blue Button - Vibrant for contrast */
-  --primary: 0.59 0.21 264;
-  --primary-foreground: 0.98 0 0;
+  /* Secondary: Deep Interactive Elements */
+  --secondary: 0.15 0.04 260;
+  --secondary-foreground: 0.9 0.02 240;
 
-  /* Secondary - Dark gray */
-  --secondary: 0.15 0 0;
-  --secondary-foreground: 0.9 0 0;
+  /* Muted elements */
+  --muted: 0.18 0.03 260;
+  --muted-foreground: 0.7 0.02 240;
 
-  /* Muted - Medium gray */
-  --muted: 0.2 0 0;
-  --muted-foreground: 0.65 0 0;
+  /* Accents */
+  --accent: 0.2 0.05 260;
+  --accent-foreground: 1 0 0;
 
-  /* Accent - Lighter gray for highlights */
-  --accent: 0.25 0 0;
-  --accent-foreground: 0.98 0 0;
-
-  /* Destructive red */
-  --destructive: 0.62 0.22 27;
-  --destructive-foreground: 0.98 0 0;
-
-  /* Borders and inputs - Subtle gray */
-  --border: 0.18 0 0;
-  --input: 0.15 0 0;
-  --ring: 0.59 0.21 264;
+  /* Functional */
+  --destructive: 0.4 0.2 25; /* Deep Crimson */
+  --destructive-foreground: 0.95 0.01 240;
+  --border: 0.2 0.04 260; /* Visible but subtle galaxy borders */
+  --input: 0.15 0.04 260;
+  --ring: 0.6 0.25 260;
 }
 
 @layer base {

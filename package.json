@@ -8,9 +8,8 @@
     "dev": "turbo dev",
     "lint": "turbo lint  --log-order=grouped",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:backend": "prettier --write \"apps/backend/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:admin": "prettier --write \"apps/admin-web/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:user": "prettier --write \"apps/user-web/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:server": "prettier --write \"apps/server/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:client": "prettier --write \"apps/client/**/*.{ts,tsx,js,jsx,json,md}\"",
     "check-types": "turbo check-types"
   },
   "devDependencies": {
