@@ -1,13 +1,4 @@
-import {
-  ArrowLeft,
-  Phone,
-  Video,
-  Smile,
-  Paperclip,
-  Mic,
-  Send,
-  ChevronDown,
-} from 'lucide-react';
+import { ArrowLeft, Phone, Video, Smile, Paperclip, Mic, Send, ChevronDown } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
 import { MessageSquare } from 'lucide-react';
 import { Users } from 'lucide-react';
@@ -26,6 +17,7 @@ import { TABS } from '@/constants/tabs';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Button } from '@workspace/ui/components/button';
 import ChatMenu from './ChatMenu';
+import ChatDetails from './ChatDetails';
 
 export interface ChatDetails {
   chatId: number;
@@ -61,7 +53,9 @@ export const ChatWindow = ({
   const [initialLoad, setInitialLoad] = useState(true);
   const lastMessageCountRef = useRef(0);
   const previousChatIdRef = useRef<number>(0);
+
   const hasScrolledInitiallyRef = useRef(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   // Check if user is scrolled to bottom
   const checkIfAtBottom = useCallback(() => {
@@ -113,6 +107,7 @@ export const ChatWindow = ({
       lastMessageCountRef.current = 0;
       previousChatIdRef.current = chatDetails.chatId;
       hasScrolledInitiallyRef.current = false;
+      setShowDetails(false); // Reset details view on chat change
     }
   }, [chatDetails.chatId]);
 
@@ -211,6 +206,14 @@ export const ChatWindow = ({
     );
   }
 
+  if (showDetails) {
+    return (
+      <div className='flex-1 flex flex-col h-full min-w-0 bg-background'>
+        <ChatDetails chatId={chatDetails.chatId} onBack={() => setShowDetails(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className='flex-1 flex flex-col h-full w-full bg-background'>
       {/* Chat Header */}
@@ -221,11 +224,20 @@ export const ChatWindow = ({
           </button>
         )}
 
-        <ProfileImage size='medium' image={chatDetails.chatImage} chatName={chatDetails.chatName} />
+        <div
+          className='flex items-center gap-3 flex-1 min-w-0 cursor-pointer p-2 rounded-md hover:bg-accent transition-colors'
+          onClick={() => setShowDetails(true)}
+        >
+          <ProfileImage
+            size='medium'
+            image={chatDetails.chatImage}
+            chatName={chatDetails.chatName}
+          />
 
-        <div className='flex-1 min-w-0'>
-          <h2 className='font-semibold text-foreground truncate'>{chatDetails.chatName}</h2>
-          <p className='text-xs text-muted-foreground'>Online</p>
+          <div className='flex-1 min-w-0'>
+            <h2 className='font-semibold text-foreground truncate'>{chatDetails.chatName}</h2>
+            <p className='text-xs text-muted-foreground'>Click for info</p>
+          </div>
         </div>
 
         <div className='flex items-center gap-1 md:gap-2 shrink-0'>

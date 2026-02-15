@@ -21,6 +21,7 @@
     "@workspace/ui": "workspace:*",
     "axios": "^1.12.2",
     "boring-avatars": "^2.0.4",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.23.24",
     "js-cookie": "^3.0.5",
     "linkify-react": "^4.3.2",

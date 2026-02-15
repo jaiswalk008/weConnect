@@ -14,7 +14,7 @@ export class MessageHandler {
 
   async handleSendMessage(data: SendMessagePayload, callback?: (response: any) => void) {
     try {
-      const { chatId, content, mediaUrl, mediaType } = data;
+      const { chatId } = data;
       const senderId = this.socket.data.user.id;
 
       if (!chatId || !senderId) {
@@ -24,37 +24,11 @@ export class MessageHandler {
         return;
       }
 
-      // Verify user participation
-      const isParticipant = await chatService.findChatParticipants({
-        chat_id: chatId,
-        user_id: senderId,
-        is_active: true,
-      });
-
-      if (isParticipant.length === 0) {
-        const error = { success: false, error: 'User not authorized in this chat' };
-        logger.error(error.error);
-        callback?.(error);
-        return;
-      }
-
-      // Create message
-      const message = await chatService.createMessage({
-        chat: { connect: { id: chatId } },
-        sender: { connect: { id: senderId } },
-        content,
-        media_url: mediaUrl,
-        media_type: mediaType as any,
-      });
-
-      // Update chat's last message
-      await prisma.chat.update({
-        where: { id: chatId },
-        data: { last_message_id: message.id },
-      });
-
-      // Update message status and unread counts for participants
-      await chatService.updateMessageStatusAndUnreadCount(message.id, chatId, senderId);
+      // Use the modularized service method (1 read query + 1 transaction)
+      const { message, participants, sender } = await chatService.processSendMessage(
+        data,
+        senderId,
+      );
 
       const messageData: MessageData = {
         id: message.id,
@@ -64,66 +38,20 @@ export class MessageHandler {
         mediaUrl: message.media_url || '',
         mediaType: message.media_type || '',
         createdAt: message.created_at,
-        sender: userService.getUserProfile(this.socket.data.user),
+        sender: userService.getUserProfile(sender),
         status: MessageStatus.SENT,
       };
+
       const roomName = `chat:${chatId}`;
       // Emit new message in room
       this.socket.to(roomName).emit(SOCKET_EVENTS.MESSAGE_NEW, messageData);
 
-      // Fetch and update participants in a single transaction
-      const allParticipants = await prisma.$transaction(async (tx) => {
-        const participants = await tx.chatParticipant.findMany({
-          where: {
-            chat_id: chatId,
-            user_id: {
-              not: senderId,
-            },
+      // Emit notifications to other participants
+      // Filter out sender
+      const recipients = participants.filter((p) => p.user_id !== senderId);
 
-            is_active: true,
-          },
-          include: {
-            chat: {
-              select: {
-                id: true,
-                chat_type: true,
-                chat_name: true,
-                chat_image: true,
-                last_message_id: true,
-                created_by_user: true,
-                created_at: true,
-              },
-            },
-            user: {
-              select: {
-                id: true,
-                name: true,
-                profile_image: true,
-              },
-            },
-          },
-        });
-
-        if (participants.length > 0) {
-          await tx.chatParticipant.updateMany({
-            where: {
-              chat_id: chatId,
-              user_id: { in: participants.map((p) => p.user_id) },
-            },
-            data: {
-              unread_count: { increment: 1 },
-            },
-          });
-        }
-
-        return participants;
-      });
-
-      // Emit notifications
-      if (allParticipants.length > 0) {
-        const senderProfile = this.socket.data.user;
-
-        for (const participant of allParticipants) {
+      if (recipients.length > 0) {
+        for (const participant of recipients) {
           const notification: NotificationData = {
             type: NotificationType.NEW_MESSAGE,
             chatData: {
@@ -132,14 +60,14 @@ export class MessageHandler {
               chatName:
                 participant.chat.chat_type === 'GROUP'
                   ? participant.chat.chat_name || 'Group Chat'
-                  : senderProfile.name,
+                  : sender.name,
               chatImage:
                 participant.chat.chat_type === 'GROUP'
                   ? participant.chat.chat_image || ''
-                  : senderProfile.profile_image || '',
+                  : sender.profile_image || '',
               chatType: participant.chat.chat_type,
               lastReadMessageId: participant.last_read_message_id || undefined,
-              unreadCount: participant.unread_count || 0,
+              unreadCount: (participant.unread_count || 0) + 1, // Increment locally for display
               lastMessage: messageData,
               createdByUser: userService.getUserProfile(participant.chat.created_by_user),
               chatCreatedAt: participant.chat.created_at,
@@ -151,9 +79,9 @@ export class MessageHandler {
       }
 
       callback?.({ success: true, message: messageData });
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Error sending message:', error);
-      callback?.({ success: false, error: 'Failed to send message' });
+      callback?.({ success: false, error: error.message || 'Failed to send message' });
     }
   }
 

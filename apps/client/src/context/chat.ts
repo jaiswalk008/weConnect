@@ -32,7 +32,7 @@ const chatSlice = createSlice({
         chat.chatId === chatData.chatId ? chatData : chat,
       );
     },
-        upsertChat: (state, action: PayloadAction<ChatListData>) => {
+    upsertChat: (state, action: PayloadAction<ChatListData>) => {
       let chatData = action.payload;
       const existingIndex = state.chatList.findIndex((chat) => chat.chatId === chatData.chatId);
       if (existingIndex !== -1) {

@@ -50,7 +50,7 @@ export const ChatList = ({
     [TABS.PROFILE]: 'Profile',
   };
   return (
-    <div className='flex flex-col h-full w-full md:w-96 bg-background border-r border-border'>
+    <div className='flex flex-col h-full w-full md:w-96 shrink-0 bg-background border-r border-border'>
       {/* Header */}
       <div className='p-4 border-b border-border'>
         <div className='flex items-center justify-between mb-4'>
