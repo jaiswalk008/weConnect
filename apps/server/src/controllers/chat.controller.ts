@@ -46,11 +46,21 @@ class ChatController {
       if (!user.id) {
         throw new ValidationError('User ID is required');
       }
-      const { chatId } = req.query as { chatId: string };
-      const chatHistory = await chatService.getChatHistory(parseInt(chatId), user.id);
+      const { chatId, cursor, limit } = req.query as {
+        chatId: string;
+        cursor?: string;
+        limit?: string;
+      };
+      const result = await chatService.getChatHistory(
+        parseInt(chatId),
+        user.id,
+        cursor ? parseInt(cursor) : undefined,
+        limit ? parseInt(limit) : undefined,
+      );
       res.status(200).json({
         success: true,
-        chatHistory,
+        chatHistory: result.messages,
+        nextCursor: result.nextCursor,
         message: 'Chat history fetched successfully',
       });
     } catch (error) {

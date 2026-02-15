@@ -306,7 +306,12 @@ class ChatService {
     return chatHistoryList;
   }
 
-  async getChatHistory(chatId: number, userId: number): Promise<MessageData[]> {
+  async getChatHistory(
+    chatId: number,
+    userId: number,
+    cursor?: number,
+    limit: number = 20,
+  ): Promise<{ messages: MessageData[]; nextCursor: number | null }> {
     const chatParticipant = await this.findChatParticipants({
       chat_id: chatId,
       user_id: userId,
@@ -318,6 +323,9 @@ class ChatService {
     }
 
     const messages = await prisma.message.findMany({
+      take: limit + 1,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
       where: {
         chat_id: chatId,
       },
@@ -326,11 +334,17 @@ class ChatService {
         message_statuses: true,
       },
       orderBy: {
-        created_at: 'asc',
+        created_at: 'desc',
       },
     });
 
-    const formattedMessages = messages.map((message) => {
+    let nextCursor: number | null = null;
+    if (messages.length > limit) {
+      const nextItem = messages.pop();
+      nextCursor = nextItem?.id || null;
+    }
+
+    const formattedMessages = messages.reverse().map((message) => {
       let messageStatus: MessageStatus;
 
       if (message.sender_id === userId) {
@@ -367,7 +381,10 @@ class ChatService {
       };
     });
 
-    return formattedMessages;
+    return {
+      messages: formattedMessages,
+      nextCursor,
+    };
   }
 
   async getChatDetails(chatId: number, currentUserId: number): Promise<ChatDetailsResponse> {

@@ -46,6 +46,9 @@ const chatSlice = createSlice({
     setChatData: (state, action: PayloadAction<MessageData[]>) => {
       state.chatData = action.payload;
     },
+    prependChatData: (state, action: PayloadAction<MessageData[]>) => {
+      state.chatData = [...action.payload, ...state.chatData];
+    },
     addMessage: (state, action: PayloadAction<MessageData>) => {
       state.chatData.push(action.payload);
     },
