@@ -37,14 +37,16 @@ export const useMessages = (chatId: number) => {
   }, [socket, chatId, dispatch, user?.username, chatData]);
 
   const sendMessage = (
-    content: string,
+    content?: string,
+    mediaUrl?: string,
+    mediaType?: string,
     callback?: (_response: { success: boolean; message?: MessageData; error?: string }) => void,
   ) => {
     if (!socket) return;
 
     socket.emit(
       SOCKET_EVENTS.MESSAGE_SEND,
-      { chatId, content },
+      { chatId, content, mediaUrl, mediaType },
       (response: { success: boolean; message?: MessageData; error?: string }) => {
         const message = response.message;
         if (response.success && message) {

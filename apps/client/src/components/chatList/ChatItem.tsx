@@ -1,10 +1,11 @@
-import type { MessageData } from '@/types/socket';
+import { MessageData } from '@/types/socket';
 import { formatDayMonth } from '@/utils/dateUtils';
 import ProfileImage from '../Profile/ProfileImage';
 import type { userAuthState } from '@/types/user';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/context/store';
+import { FileIcon, ImageIcon, VideoIcon } from 'lucide-react';
 
 export interface Chat {
   id: number;
@@ -23,13 +24,46 @@ export interface ChatItemProps {
   onClick: () => void;
 }
 
+const getFileNameFromUrl = (url: string) => {
+  try {
+    const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+    const pathname = urlObj.pathname;
+    const segments = pathname.split('/');
+    const lastSegment = segments.pop() || '';
+    return decodeURIComponent(lastSegment);
+  } catch (e) {
+    return 'File';
+  }
+};
+
 export const ChatItem = ({ chat, isSelected, onClick }: ChatItemProps) => {
   const user = useSelector((state: RootState) => state.auth.userData);
+
   const lastMessageContent = useMemo(() => {
     if (chat?.lastMessage?.content) {
       return chat.lastMessage.content;
-    } else if (chat?.lastMessage?.mediaType) {
-      return 'Image';
+    } else if (chat?.lastMessage?.mediaUrl) {
+      const mediaType = chat.lastMessage.mediaType || 'OTHER';
+      const fileName = getFileNameFromUrl(chat.lastMessage.mediaUrl);
+
+      if (mediaType === 'IMAGE')
+        return (
+          <span className='flex items-center gap-1'>
+            <ImageIcon className='w-3 h-3' /> Image
+          </span>
+        );
+      if (mediaType === 'VIDEO')
+        return (
+          <span className='flex items-center gap-1'>
+            <VideoIcon className='w-3 h-3' /> Video
+          </span>
+        );
+
+      return (
+        <span className='flex items-center gap-1'>
+          <FileIcon className='w-3 h-3' /> {fileName}
+        </span>
+      );
     } else if (chat.chatType === 'GROUP') {
       return chat.createdByUser?.username === user?.username
         ? 'You created this group'
@@ -41,8 +75,10 @@ export const ChatItem = ({ chat, isSelected, onClick }: ChatItemProps) => {
     chat.createdByUser?.username,
     chat?.lastMessage?.content,
     chat.lastMessage?.mediaType,
+    chat.lastMessage?.mediaUrl,
     user?.username,
   ]);
+
   return (
     <button
       onClick={onClick}
