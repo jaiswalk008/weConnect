@@ -4,3 +4,4 @@ node_modules
 
 /generated/prisma
 dist/
+CLOUDFRONT_PRIVATE_KEY.txt

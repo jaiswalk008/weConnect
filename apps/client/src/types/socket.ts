@@ -182,3 +182,10 @@ export interface ErrorData {
   message: string;
   code?: string;
 }
+
+export interface ChatDetails {
+  chatId: number;
+  chatImage: string;
+  chatName: string;
+  chatType: string;
+}

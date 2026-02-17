@@ -4,6 +4,7 @@ import friendRoutes from './friend.routes';
 import authRoutes from './auth.routes';
 import chatRoutes from './chat.routes';
 import groupRoutes from './group.routes';
+import storageRoutes from './storage.routes';
 const router: Router = Router();
 
 router.use('/api', userRoutes);
@@ -11,4 +12,5 @@ router.use('/api', friendRoutes);
 router.use('/auth', authRoutes);
 router.use('/api', chatRoutes);
 router.use('/api', groupRoutes);
+router.use('/api/storage', storageRoutes);
 export default router;
