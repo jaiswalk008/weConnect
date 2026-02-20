@@ -14,11 +14,7 @@ export const ParticipantAvatars = ({ participants }: { participants: CallPartici
       {visible.map((p) => (
         <div key={p.id} className='relative' title={p.name}>
           <div className='ring-2 ring-background rounded-full'>
-            <ProfileImage
-              size='small'
-              image={p.profileImage || ''}
-              chatName={p.name}
-            />
+            <ProfileImage size='small' image={p.profileImage || ''} chatName={p.name} />
           </div>
           {/* Green dot for active */}
           <div className='absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background' />

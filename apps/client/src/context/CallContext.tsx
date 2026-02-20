@@ -1,6 +1,12 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-import AgoraRTC, { IAgoraRTCClient, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
+import AgoraRTC, {
+  IAgoraRTCClient,
+  IMicrophoneAudioTrack,
+  ICameraVideoTrack,
+  IAgoraRTCRemoteUser,
+  IRemoteVideoTrack,
+} from 'agora-rtc-sdk-ng';
 import { useSocket } from './socket-context';
 import {
   SOCKET_EVENTS,
@@ -29,6 +35,12 @@ export interface CallParticipant {
   profileImage?: string;
 }
 
+/** Remote video track with its associated user uid */
+export interface RemoteVideoUser {
+  uid: number;
+  videoTrack: IRemoteVideoTrack;
+}
+
 interface CallState {
   status: CallStatus;
   callId: string | null;
@@ -41,21 +53,30 @@ interface CallState {
     profileImage?: string;
   } | null;
   isMuted: boolean;
+  isVideoOff: boolean;
   callDuration: number;
   /** Users currently active in the call */
   activeParticipants: CallParticipant[];
   showParticipantsPanel: boolean;
+  /** Remote users who are publishing video */
+  remoteVideoUsers: RemoteVideoUser[];
 }
 
 interface CallContextType extends CallState {
-  initiateCall: (chatId: number, callType: CallType, peerInfo: { name: string; username?: string; profileImage?: string }) => void;
+  initiateCall: (
+    chatId: number,
+    callType: CallType,
+    peerInfo: { name: string; username?: string; profileImage?: string },
+  ) => void;
   answerCall: () => void;
   rejectCall: () => void;
   endCall: () => void;
   toggleMute: () => void;
+  toggleCamera: () => void;
   toggleParticipantsPanel: () => void;
   retryCall: () => void;
   dismissCall: () => void;
+  localVideoTrack: ICameraVideoTrack | null;
 }
 
 const CallContext = createContext<CallContextType | null>(null);
@@ -73,9 +94,11 @@ const initialCallState: CallState = {
   callType: null,
   peerInfo: null,
   isMuted: false,
+  isVideoOff: false,
   callDuration: 0,
   activeParticipants: [],
   showParticipantsPanel: false,
+  remoteVideoUsers: [],
 };
 
 interface CallProviderProps {
@@ -90,6 +113,7 @@ export const CallProvider = ({ children }: CallProviderProps) => {
   // Refs for Agora resources (avoid stale closures)
   const agoraClientRef = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
+  const localVideoTrackRef = useRef<ICameraVideoTrack | null>(null);
   const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const ringTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const callStateRef = useRef(callState);
@@ -105,29 +129,63 @@ export const CallProvider = ({ children }: CallProviderProps) => {
   }, []);
 
   const joinChannel = useCallback(
-    async (token: string, channel: string, uid: number, appId: string) => {
+    async (token: string, channel: string, uid: number, appId: string, callType: CallType) => {
       const client = createAgoraClient();
       await client.join(appId, channel, token, uid);
 
+      // Always create audio track
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       localAudioTrackRef.current = audioTrack;
-      await client.publish([audioTrack]);
+
+      // For video calls, also create camera track
+      const tracksToPublish: (IMicrophoneAudioTrack | ICameraVideoTrack)[] = [audioTrack];
+      if (callType === 'VIDEO') {
+        try {
+          const videoTrack = await AgoraRTC.createCameraVideoTrack();
+          localVideoTrackRef.current = videoTrack;
+          tracksToPublish.push(videoTrack);
+        } catch (err) {
+          console.warn('Camera not available, proceeding with audio only:', err);
+          toast.error('Camera not available');
+        }
+      }
+
+      await client.publish(tracksToPublish);
 
       durationIntervalRef.current = setInterval(() => {
         setCallState((prev) => ({ ...prev, callDuration: prev.callDuration + 1 }));
       }, 1000);
 
-      client.on('user-published', async (user, mediaType) => {
+      client.on('user-published', async (user: IAgoraRTCRemoteUser, mediaType) => {
         await client.subscribe(user, mediaType);
         if (mediaType === 'audio') {
           user.audioTrack?.play();
         }
+        if (mediaType === 'video' && user.videoTrack) {
+          setCallState((prev) => ({
+            ...prev,
+            remoteVideoUsers: [
+              ...prev.remoteVideoUsers.filter((r) => r.uid !== Number(user.uid)),
+              { uid: Number(user.uid), videoTrack: user.videoTrack! },
+            ],
+          }));
+        }
       });
 
-      client.on('user-left', (user) => {
+      client.on('user-unpublished', (user: IAgoraRTCRemoteUser, mediaType) => {
+        if (mediaType === 'video') {
+          setCallState((prev) => ({
+            ...prev,
+            remoteVideoUsers: prev.remoteVideoUsers.filter((r) => r.uid !== Number(user.uid)),
+          }));
+        }
+      });
+
+      client.on('user-left', (user: IAgoraRTCRemoteUser) => {
         setCallState((prev) => ({
           ...prev,
-          activeParticipants: prev.activeParticipants.filter((p) => p.id !== user.uid),
+          activeParticipants: prev.activeParticipants.filter((p) => p.id !== Number(user.uid)),
+          remoteVideoUsers: prev.remoteVideoUsers.filter((r) => r.uid !== Number(user.uid)),
         }));
       });
     },
@@ -151,6 +209,10 @@ export const CallProvider = ({ children }: CallProviderProps) => {
       localAudioTrackRef.current.close();
       localAudioTrackRef.current = null;
     }
+    if (localVideoTrackRef.current) {
+      localVideoTrackRef.current.close();
+      localVideoTrackRef.current = null;
+    }
     if (agoraClientRef.current) {
       agoraClientRef.current.leave().catch(() => {});
       agoraClientRef.current = null;
@@ -160,10 +222,6 @@ export const CallProvider = ({ children }: CallProviderProps) => {
 
   // ── Shared helper: start ringing after joining Agora channel ──
 
-  /**
-   * After successfully joining Agora, add self to participant list and
-   * start the 60-second ring timeout. Used by initiateCall and retryCall.
-   */
   const startRinging = useCallback(
     (response: CallInitiateResponse) => {
       const selfParticipant: CallParticipant = {
@@ -188,6 +246,10 @@ export const CallProvider = ({ children }: CallProviderProps) => {
             localAudioTrackRef.current.close();
             localAudioTrackRef.current = null;
           }
+          if (localVideoTrackRef.current) {
+            localVideoTrackRef.current.close();
+            localVideoTrackRef.current = null;
+          }
           if (agoraClientRef.current) {
             agoraClientRef.current.leave().catch(() => {});
             agoraClientRef.current = null;
@@ -209,7 +271,11 @@ export const CallProvider = ({ children }: CallProviderProps) => {
   // ── Call actions ──
 
   const initiateCall = useCallback(
-    (chatId: number, callType: CallType, peerInfo: { name: string; username?: string; profileImage?: string }) => {
+    (
+      chatId: number,
+      callType: CallType,
+      peerInfo: { name: string; username?: string; profileImage?: string },
+    ) => {
       if (!socket) {
         toast.error('Not connected to server');
         return;
@@ -227,24 +293,35 @@ export const CallProvider = ({ children }: CallProviderProps) => {
         peerInfo,
       });
 
-      socket.emit(SOCKET_EVENTS.CALL_INITIATE, { chatId, callType }, (response: CallInitiateResponse) => {
-        if (response.success && response.callId && response.token && response.channel && response.uid && response.appId) {
-          setCallState((prev) => ({
-            ...prev,
-            callId: response.callId!,
-          }));
-          joinChannel(response.token, response.channel, response.uid, response.appId)
-            .then(() => startRinging(response))
-            .catch((error) => {
-              console.error('Failed to join channel:', error);
-              toast.error('Failed to start call');
-              cleanup();
-            });
-        } else {
-          toast.error(response.error || 'Failed to initiate call');
-          setCallState(initialCallState);
-        }
-      });
+      socket.emit(
+        SOCKET_EVENTS.CALL_INITIATE,
+        { chatId, callType },
+        (response: CallInitiateResponse) => {
+          if (
+            response.success &&
+            response.callId &&
+            response.token &&
+            response.channel &&
+            response.uid &&
+            response.appId
+          ) {
+            setCallState((prev) => ({
+              ...prev,
+              callId: response.callId!,
+            }));
+            joinChannel(response.token, response.channel, response.uid, response.appId, callType)
+              .then(() => startRinging(response))
+              .catch((error) => {
+                console.error('Failed to join channel:', error);
+                toast.error('Failed to start call');
+                cleanup();
+              });
+          } else {
+            toast.error(response.error || 'Failed to initiate call');
+            setCallState(initialCallState);
+          }
+        },
+      );
     },
     [socket, joinChannel, cleanup, startRinging],
   );
@@ -252,12 +329,18 @@ export const CallProvider = ({ children }: CallProviderProps) => {
   const answerCall = useCallback(() => {
     if (!socket || !callStateRef.current.callId || !callStateRef.current.chatId) return;
 
-    const { callId, chatId } = callStateRef.current;
+    const { callId, chatId, callType } = callStateRef.current;
 
     setCallState((prev) => ({ ...prev, status: 'connecting' }));
 
     socket.emit(SOCKET_EVENTS.CALL_ANSWER, { callId, chatId }, (response: CallAnswerResponse) => {
-      if (response.success && response.token && response.channel && response.uid && response.appId) {
+      if (
+        response.success &&
+        response.token &&
+        response.channel &&
+        response.uid &&
+        response.appId
+      ) {
         // Populate participant list from the server's full snapshot
         const participants = (response.activeParticipants || []).map((p) => ({
           id: p.id,
@@ -266,9 +349,19 @@ export const CallProvider = ({ children }: CallProviderProps) => {
           profileImage: p.profileImage,
         }));
 
-        joinChannel(response.token, response.channel, response.uid, response.appId)
+        joinChannel(
+          response.token,
+          response.channel,
+          response.uid,
+          response.appId,
+          callType || 'VOICE',
+        )
           .then(() => {
-            setCallState((prev) => ({ ...prev, status: 'active', activeParticipants: participants }));
+            setCallState((prev) => ({
+              ...prev,
+              status: 'active',
+              activeParticipants: participants,
+            }));
           })
           .catch((error) => {
             console.error('Failed to join channel:', error);
@@ -310,6 +403,30 @@ export const CallProvider = ({ children }: CallProviderProps) => {
     }
   }, []);
 
+  const toggleCamera = useCallback(async () => {
+    const client = agoraClientRef.current;
+    if (!client) return;
+
+    if (localVideoTrackRef.current) {
+      // Camera is currently on — turn it off
+      await client.unpublish([localVideoTrackRef.current]);
+      localVideoTrackRef.current.close();
+      localVideoTrackRef.current = null;
+      setCallState((prev) => ({ ...prev, isVideoOff: true }));
+    } else {
+      // Camera is currently off — turn it on
+      try {
+        const videoTrack = await AgoraRTC.createCameraVideoTrack();
+        localVideoTrackRef.current = videoTrack;
+        await client.publish([videoTrack]);
+        setCallState((prev) => ({ ...prev, isVideoOff: false }));
+      } catch (err) {
+        console.error('Failed to enable camera:', err);
+        toast.error('Camera not available');
+      }
+    }
+  }, []);
+
   const toggleParticipantsPanel = useCallback(() => {
     setCallState((prev) => ({ ...prev, showParticipantsPanel: !prev.showParticipantsPanel }));
   }, []);
@@ -325,28 +442,41 @@ export const CallProvider = ({ children }: CallProviderProps) => {
       status: 'ringing',
       callId: null,
       isMuted: false,
+      isVideoOff: false,
       callDuration: 0,
       activeParticipants: [],
       showParticipantsPanel: false,
+      remoteVideoUsers: [],
     }));
 
     // Re-initiate the call via socket
-    socket.emit(SOCKET_EVENTS.CALL_INITIATE, { chatId, callType }, (response: CallInitiateResponse) => {
-      if (response.success && response.callId && response.token && response.channel && response.uid && response.appId) {
-        setCallState((prev) => ({ ...prev, callId: response.callId! }));
+    socket.emit(
+      SOCKET_EVENTS.CALL_INITIATE,
+      { chatId, callType },
+      (response: CallInitiateResponse) => {
+        if (
+          response.success &&
+          response.callId &&
+          response.token &&
+          response.channel &&
+          response.uid &&
+          response.appId
+        ) {
+          setCallState((prev) => ({ ...prev, callId: response.callId! }));
 
-        joinChannel(response.token, response.channel, response.uid, response.appId)
-          .then(() => startRinging(response))
-          .catch((error) => {
-            console.error('Failed to join channel:', error);
-            toast.error('Failed to start call');
-            cleanup();
-          });
-      } else {
-        toast.error(response.error || 'Failed to initiate call');
-        cleanup();
-      }
-    });
+          joinChannel(response.token, response.channel, response.uid, response.appId, callType)
+            .then(() => startRinging(response))
+            .catch((error) => {
+              console.error('Failed to join channel:', error);
+              toast.error('Failed to start call');
+              cleanup();
+            });
+        } else {
+          toast.error(response.error || 'Failed to initiate call');
+          cleanup();
+        }
+      },
+    );
   }, [socket, joinChannel, cleanup, startRinging]);
 
   /** Dismiss the no_answer screen and go back to idle */
@@ -361,7 +491,10 @@ export const CallProvider = ({ children }: CallProviderProps) => {
 
     const handleIncoming = (data: CallIncomingData) => {
       if (callStateRef.current.status !== 'idle') {
-        (socket as any).emit(SOCKET_EVENTS.CALL_REJECT, { callId: data.callId, chatId: data.chatId });
+        (socket as any).emit(SOCKET_EVENTS.CALL_REJECT, {
+          callId: data.callId,
+          chatId: data.chatId,
+        });
         return;
       }
 
@@ -398,9 +531,10 @@ export const CallProvider = ({ children }: CallProviderProps) => {
     const handleRejected = (data: CallRejectedData) => {
       if (callStateRef.current.callId === data.callId) {
         toast.info(`${data.username} declined the call`);
-        // Only cleanup if this was a 1:1 call (caller is alone, the only recipient rejected)
-        // For group calls, the call continues for other participants
-        if (callStateRef.current.activeParticipants.length <= 1 && callStateRef.current.status === 'ringing') {
+        if (
+          callStateRef.current.activeParticipants.length <= 1 &&
+          callStateRef.current.status === 'ringing'
+        ) {
           cleanup();
         }
       }
@@ -418,6 +552,7 @@ export const CallProvider = ({ children }: CallProviderProps) => {
         setCallState((prev) => ({
           ...prev,
           activeParticipants: prev.activeParticipants.filter((p) => p.id !== data.userId),
+          remoteVideoUsers: prev.remoteVideoUsers.filter((r) => r.uid !== data.userId),
         }));
       }
     };
@@ -451,9 +586,11 @@ export const CallProvider = ({ children }: CallProviderProps) => {
     rejectCall,
     endCall,
     toggleMute,
+    toggleCamera,
     toggleParticipantsPanel,
     retryCall,
     dismissCall,
+    localVideoTrack: localVideoTrackRef.current,
   };
 
   return <CallContext.Provider value={contextValue}>{children}</CallContext.Provider>;

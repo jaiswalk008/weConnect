@@ -1,6 +1,11 @@
 import { CustomSocket, CustomServer } from '../../types/socket';
 import { SOCKET_EVENTS } from '../events';
-import { CallInitiatePayload, CallAnswerPayload, CallRejectPayload, CallEndPayload } from '../../types/call';
+import {
+  CallInitiatePayload,
+  CallAnswerPayload,
+  CallRejectPayload,
+  CallEndPayload,
+} from '../../types/call';
 import agoraService from '../../services/agora.service';
 import prisma from '../../config/database';
 import logger from '../../config/logger';
@@ -50,12 +55,7 @@ function clearStaleTimeout(call: ActiveCall) {
 }
 
 /** Remove a user from a call and handle cleanup / notifications */
-function removeUserFromCall(
-  io: CustomServer,
-  callId: string,
-  userId: number,
-  username: string,
-) {
+function removeUserFromCall(io: CustomServer, callId: string, userId: number, username: string) {
   const activeCall = activeCalls.get(callId);
   if (!activeCall) return;
 
@@ -104,10 +104,7 @@ export class CallHandler {
     private socket: CustomSocket,
   ) {}
 
-  async handleInitiate(
-    data: CallInitiatePayload,
-    callback: (response: any) => void,
-  ) {
+  async handleInitiate(data: CallInitiatePayload, callback: (response: any) => void) {
     try {
       const callerId = this.socket.data.user.id;
       const { chatId, callType } = data;
@@ -212,8 +209,9 @@ export class CallHandler {
       // Build chat display info
       const chatInfo = {
         chatType: chat.chat_type,
-        chatName: chat.chat_type === 'GROUP' ? (chat.chat_name || 'Group Call') : callerInfo.name,
-        chatImage: chat.chat_type === 'GROUP' ? (chat.chat_image || '') : (callerInfo.profileImage || ''),
+        chatName: chat.chat_type === 'GROUP' ? chat.chat_name || 'Group Call' : callerInfo.name,
+        chatImage:
+          chat.chat_type === 'GROUP' ? chat.chat_image || '' : callerInfo.profileImage || '',
       };
 
       // Get recipient user IDs (everyone except the caller)
@@ -254,10 +252,7 @@ export class CallHandler {
     }
   }
 
-  async handleAnswer(
-    data: CallAnswerPayload,
-    callback: (response: any) => void,
-  ) {
+  async handleAnswer(data: CallAnswerPayload, callback: (response: any) => void) {
     try {
       const userId = this.socket.data.user.id;
       const { callId, chatId } = data;
@@ -405,8 +400,6 @@ export class CallHandler {
     this.socket.on(SOCKET_EVENTS.CALL_REJECT as any, (data: CallRejectPayload) =>
       this.handleReject(data),
     );
-    this.socket.on(SOCKET_EVENTS.CALL_END as any, (data: CallEndPayload) =>
-      this.handleEnd(data),
-    );
+    this.socket.on(SOCKET_EVENTS.CALL_END as any, (data: CallEndPayload) => this.handleEnd(data));
   }
 }

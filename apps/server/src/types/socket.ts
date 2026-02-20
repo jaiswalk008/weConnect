@@ -52,9 +52,21 @@ export interface ServerToClientEvents {
   notification: (data: NotificationData) => void;
 
   // Call events
-  'call:incoming': (data: CallSignalData & { token: string; channel: string; appId: string }) => void;
-  'call:answered': (data: { callId: string; chatId: number; userId: number; username: string }) => void;
-  'call:rejected': (data: { callId: string; chatId: number; userId: number; username: string }) => void;
+  'call:incoming': (
+    data: CallSignalData & { token: string; channel: string; appId: string },
+  ) => void;
+  'call:answered': (data: {
+    callId: string;
+    chatId: number;
+    userId: number;
+    username: string;
+  }) => void;
+  'call:rejected': (data: {
+    callId: string;
+    chatId: number;
+    userId: number;
+    username: string;
+  }) => void;
   'call:ended': (data: { callId: string; chatId: number; userId: number }) => void;
   'call:userJoined': (data: CallUserEvent) => void;
   'call:userLeft': (data: CallUserEvent) => void;
@@ -85,11 +97,26 @@ export interface ClientToServerEvents {
   // Call events
   'call:initiate': (
     data: CallInitiatePayload,
-    callback: (response: { success: boolean; callId?: string; token?: string; channel?: string; uid?: number; appId?: string; error?: string }) => void,
+    callback: (response: {
+      success: boolean;
+      callId?: string;
+      token?: string;
+      channel?: string;
+      uid?: number;
+      appId?: string;
+      error?: string;
+    }) => void,
   ) => void;
   'call:answer': (
     data: CallAnswerPayload,
-    callback: (response: { success: boolean; token?: string; channel?: string; uid?: number; appId?: string; error?: string }) => void,
+    callback: (response: {
+      success: boolean;
+      token?: string;
+      channel?: string;
+      uid?: number;
+      appId?: string;
+      error?: string;
+    }) => void,
   ) => void;
   'call:reject': (data: CallRejectPayload) => void;
   'call:end': (data: CallEndPayload) => void;

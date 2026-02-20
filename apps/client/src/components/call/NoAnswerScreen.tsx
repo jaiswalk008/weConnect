@@ -21,9 +21,7 @@ export const NoAnswerScreen = () => {
 
         {/* Info */}
         <div className='text-center'>
-          <h2 className='text-2xl font-semibold text-foreground'>
-            {peerInfo?.name || 'Call'}
-          </h2>
+          <h2 className='text-2xl font-semibold text-foreground'>{peerInfo?.name || 'Call'}</h2>
           <p className='text-muted-foreground mt-2'>No answer</p>
           <p className='text-sm text-muted-foreground mt-1'>
             The call was not answered. Would you like to try again?
