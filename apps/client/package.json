@@ -19,6 +19,7 @@
     "@reduxjs/toolkit": "^2.9.2",
     "@tailwindcss/vite": "^4.1.17",
     "@workspace/ui": "workspace:*",
+    "agora-rtc-sdk-ng": "^4.24.2",
     "axios": "^1.12.2",
     "boring-avatars": "^2.0.4",
     "date-fns": "^4.1.0",

@@ -13,6 +13,8 @@ interface Config {
   googleClientSecret: string;
   googleCallbackUrl: string;
   frontendUrl: string;
+  agoraAppId: string;
+  agoraAppCertificate: string;
 }
 
 export default {
@@ -25,6 +27,8 @@ export default {
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
   googleCallbackUrl:
-    process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
+  process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  agoraAppId: process.env.AGORA_APP_ID || '',
+  agoraAppCertificate: process.env.AGORA_APP_CERTIFICATE || '',
 } as Config;

@@ -9,6 +9,15 @@ import {
 import { User } from '@prisma/client';
 import { NotificationData } from './notification';
 import { UserInterface } from './user';
+import {
+  CallInitiatePayload,
+  CallSignalData,
+  CallAnswerPayload,
+  CallRejectPayload,
+  CallEndPayload,
+  CallTokenResponse,
+  CallUserEvent,
+} from './call';
 
 export interface ServerToClientEvents {
   // Message events
@@ -42,6 +51,14 @@ export interface ServerToClientEvents {
   // Notification events
   notification: (data: NotificationData) => void;
 
+  // Call events
+  'call:incoming': (data: CallSignalData & { token: string; channel: string; appId: string }) => void;
+  'call:answered': (data: { callId: string; chatId: number; userId: number; username: string }) => void;
+  'call:rejected': (data: { callId: string; chatId: number; userId: number; username: string }) => void;
+  'call:ended': (data: { callId: string; chatId: number; userId: number }) => void;
+  'call:userJoined': (data: CallUserEvent) => void;
+  'call:userLeft': (data: CallUserEvent) => void;
+
   // Error events
   error: (data: { message: string; code?: string }) => void;
 }
@@ -64,6 +81,18 @@ export interface ClientToServerEvents {
   // Typing events
   'typing:start': (data: { chatId: number }) => void;
   'typing:stop': (data: { chatId: number }) => void;
+
+  // Call events
+  'call:initiate': (
+    data: CallInitiatePayload,
+    callback: (response: { success: boolean; callId?: string; token?: string; channel?: string; uid?: number; appId?: string; error?: string }) => void,
+  ) => void;
+  'call:answer': (
+    data: CallAnswerPayload,
+    callback: (response: { success: boolean; token?: string; channel?: string; uid?: number; appId?: string; error?: string }) => void,
+  ) => void;
+  'call:reject': (data: CallRejectPayload) => void;
+  'call:end': (data: CallEndPayload) => void;
 
   // Presence events
   'user:setOnline': () => void;

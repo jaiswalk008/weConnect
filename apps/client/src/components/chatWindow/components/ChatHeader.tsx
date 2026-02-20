@@ -3,6 +3,7 @@ import { Button } from '@workspace/ui/components/button';
 import ProfileImage from '../../Profile/ProfileImage';
 import ChatMenu from '../ChatMenu';
 import { ChatDetails } from '@/types/socket';
+import { useCall } from '@/context/CallContext';
 
 interface ChatHeaderProps {
   chatDetails: ChatDetails;
@@ -12,6 +13,16 @@ interface ChatHeaderProps {
 }
 
 export const ChatHeader = ({ chatDetails, isMobile, onBack, onShowDetails }: ChatHeaderProps) => {
+  const { initiateCall, status } = useCall();
+
+  const handlePhoneCall = () => {
+    if (status !== 'idle') return;
+    initiateCall(chatDetails.chatId, 'VOICE', {
+      name: chatDetails.chatName,
+      profileImage: chatDetails.chatImage,
+    });
+  };
+
   return (
     <div className='flex items-center gap-3 p-4 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20'>
       {isMobile && (
@@ -36,6 +47,8 @@ export const ChatHeader = ({ chatDetails, isMobile, onBack, onShowDetails }: Cha
         <Button
           variant='ghost'
           className='w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center hover:bg-accent transition-colors'
+          onClick={handlePhoneCall}
+          disabled={status !== 'idle'}
         >
           <Phone className='w-4 h-4 md:w-5 md:h-5 text-muted-foreground' />
         </Button>
@@ -50,3 +63,4 @@ export const ChatHeader = ({ chatDetails, isMobile, onBack, onShowDetails }: Cha
     </div>
   );
 };
+

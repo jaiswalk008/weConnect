@@ -38,6 +38,18 @@ export const SOCKET_EVENTS = {
   // Notifications
   NOTIFICATION: 'notification',
 
+  // Call
+  CALL_INITIATE: 'call:initiate',
+  CALL_INCOMING: 'call:incoming',
+  CALL_ANSWER: 'call:answer',
+  CALL_ANSWERED: 'call:answered',
+  CALL_REJECT: 'call:reject',
+  CALL_REJECTED: 'call:rejected',
+  CALL_END: 'call:end',
+  CALL_ENDED: 'call:ended',
+  CALL_USER_JOINED: 'call:userJoined',
+  CALL_USER_LEFT: 'call:userLeft',
+
   // Errors
   ERROR: 'error',
 } as const;

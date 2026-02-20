@@ -293,9 +293,11 @@ export const ChatWindowContainer = ({
   }
 
   if (showDetails) {
-    <div className='flex-1 flex flex-col h-full min-w-0 bg-background'>
-      <ChatDetailsComponent chatId={chatDetails.chatId} onBack={() => setShowDetails(false)} />
-    </div>;
+    return (
+      <div className='flex-1 flex flex-col h-full min-w-0 bg-background'>
+        <ChatDetailsComponent chatId={chatDetails.chatId} onBack={() => setShowDetails(false)} />
+      </div>
+    );
   }
 
   return (

@@ -8,6 +8,7 @@ import { MessageHandler } from './handlers/message.handler';
 // import { PresenceHandler } from './handlers/presence.handler';
 import { SOCKET_EVENTS } from './events';
 import { ChatHandler } from './handlers/chat.handler';
+import { CallHandler } from './handlers/call.handler';
 import logger from '../config/logger';
 export class SocketService {
   private io: CustomServer;
@@ -52,11 +53,13 @@ export class SocketService {
       socket.join(`user:${socket.data.user.id}`);
       const messageHandler = new MessageHandler(this.io, socket);
       const chatHandler = new ChatHandler(this.io, socket);
+      const callHandler = new CallHandler(this.io, socket);
       // const typingHandler = new TypingHandler(this.io, socket);
       // const presenceHandler = new PresenceHandler(this.io, socket);
       messageHandler.markPendingMessagesAsDelivered(socket.data.user.id);
       messageHandler.registerEvents();
       chatHandler.registerEvents();
+      callHandler.registerEvents();
       // typingHandler.registerEvents();
       // presenceHandler.registerEvents();
 
@@ -64,6 +67,8 @@ export class SocketService {
 
       socket.on(SOCKET_EVENTS.DISCONNECT, () => {
         logger.info(`User disconnected: ${socket.data.user.id}`);
+        // Remove disconnected user from any active calls
+        CallHandler.handleDisconnect(this.io, socket.data.user.id);
       });
     });
   }

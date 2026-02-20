@@ -11,6 +11,9 @@ import { authRoutes } from '@/routes/routes';
 import { ChatLayoutSkeleton } from '@/components/ui/ChatSkeletonLoader';
 import { authUtils } from '@/utils/auth';
 import { SocketProvider } from '@/context/Socket';
+import { CallProvider } from '@/context/CallContext';
+import { IncomingCallDialog } from '@/components/call/IncomingCallDialog';
+import { ActiveCallUI } from '@/components/call/ActiveCallUI';
 
 function Home() {
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -55,8 +58,12 @@ function Home() {
   }
   return (
     <SocketProvider>
-      <ProfileSetupModal open={showProfileModal} setOpen={setShowProfileModal} />
-      <ChatLayout />
+      <CallProvider>
+        <ProfileSetupModal open={showProfileModal} setOpen={setShowProfileModal} />
+        <ChatLayout />
+        <IncomingCallDialog />
+        <ActiveCallUI />
+      </CallProvider>
     </SocketProvider>
   );
 }

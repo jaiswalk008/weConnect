@@ -40,6 +40,18 @@ export const SOCKET_EVENTS = {
   // Notifications
   NOTIFICATION: 'notification',
 
+  // Call
+  CALL_INITIATE: 'call:initiate',
+  CALL_INCOMING: 'call:incoming',
+  CALL_ANSWER: 'call:answer',
+  CALL_ANSWERED: 'call:answered',
+  CALL_REJECT: 'call:reject',
+  CALL_REJECTED: 'call:rejected',
+  CALL_END: 'call:end',
+  CALL_ENDED: 'call:ended',
+  CALL_USER_JOINED: 'call:userJoined',
+  CALL_USER_LEFT: 'call:userLeft',
+
   // Errors
   ERROR: 'error',
 };
@@ -59,6 +71,14 @@ export interface ServerToClientEvents {
   [SOCKET_EVENTS.FRIEND_ACCEPTED]: (_data: FriendRequestData) => void;
   [SOCKET_EVENTS.NOTIFICATION]: (_data: NotificationData) => void;
   [SOCKET_EVENTS.ERROR]: (_data: ErrorData) => void;
+
+  // Call events
+  [SOCKET_EVENTS.CALL_INCOMING]: (_data: CallIncomingData) => void;
+  [SOCKET_EVENTS.CALL_ANSWERED]: (_data: CallAnsweredData) => void;
+  [SOCKET_EVENTS.CALL_REJECTED]: (_data: CallRejectedData) => void;
+  [SOCKET_EVENTS.CALL_ENDED]: (_data: CallEndedData) => void;
+  [SOCKET_EVENTS.CALL_USER_JOINED]: (_data: CallUserEventData) => void;
+  [SOCKET_EVENTS.CALL_USER_LEFT]: (_data: CallUserEventData) => void;
 }
 
 export interface ClientToServerEvents {
@@ -74,6 +94,18 @@ export interface ClientToServerEvents {
   [SOCKET_EVENTS.TYPING_STOP]: (_data: { chatId: number }) => void;
   [SOCKET_EVENTS.USER_SET_ONLINE]: () => void;
   [SOCKET_EVENTS.USER_SET_OFFLINE]: () => void;
+
+  // Call events
+  [SOCKET_EVENTS.CALL_INITIATE]: (
+    _data: CallInitiatePayload,
+    _callback: (_response: CallInitiateResponse) => void,
+  ) => void;
+  [SOCKET_EVENTS.CALL_ANSWER]: (
+    _data: CallAnswerPayload,
+    _callback: (_response: CallAnswerResponse) => void,
+  ) => void;
+  [SOCKET_EVENTS.CALL_REJECT]: (_data: CallRejectPayload) => void;
+  [SOCKET_EVENTS.CALL_END]: (_data: CallEndPayload) => void;
 }
 
 // Data Types
@@ -188,4 +220,100 @@ export interface ChatDetails {
   chatImage: string;
   chatName: string;
   chatType: string;
+}
+
+// Call types
+export type CallType = 'VOICE' | 'VIDEO';
+
+export interface CallInitiatePayload {
+  chatId: number;
+  callType: CallType;
+}
+
+export interface CallAnswerPayload {
+  callId: string;
+  chatId: number;
+}
+
+export interface CallRejectPayload {
+  callId: string;
+  chatId: number;
+}
+
+export interface CallEndPayload {
+  callId: string;
+  chatId: number;
+}
+
+export interface CallIncomingData {
+  callId: string;
+  chatId: number;
+  callType: CallType;
+  caller: {
+    id: number;
+    name: string;
+    username?: string;
+    profileImage?: string;
+  };
+  chatInfo: {
+    chatType: 'PERSONAL' | 'GROUP';
+    chatName: string;
+    chatImage: string;
+  };
+  participants: number[];
+  token: string;
+  channel: string;
+  appId: string;
+}
+
+export interface CallAnsweredData {
+  callId: string;
+  chatId: number;
+  userId: number;
+  username: string;
+}
+
+export interface CallRejectedData {
+  callId: string;
+  chatId: number;
+  userId: number;
+  username: string;
+}
+
+export interface CallEndedData {
+  callId: string;
+  chatId: number;
+  userId: number;
+}
+
+export interface CallUserEventData {
+  callId: string;
+  chatId: number;
+  userId: number;
+  username: string;
+}
+
+export interface CallInitiateResponse {
+  success: boolean;
+  callId?: string;
+  token?: string;
+  channel?: string;
+  uid?: number;
+  appId?: string;
+  error?: string;
+}
+
+export interface CallAnswerResponse {
+  success: boolean;
+  token?: string;
+  channel?: string;
+  uid?: number;
+  appId?: string;
+  error?: string;
+  activeParticipants?: Array<{
+    id: number;
+    name: string;
+    username?: string;
+    profileImage?: string;
+  }>;
 }

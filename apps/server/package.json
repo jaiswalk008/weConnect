@@ -23,6 +23,7 @@
     "@aws-sdk/cloudfront-signer": "^3.988.0",
     "@aws-sdk/s3-request-presigner": "^3.990.0",
     "@prisma/client": "^6.18.0",
+    "agora-token": "^2.0.5",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
