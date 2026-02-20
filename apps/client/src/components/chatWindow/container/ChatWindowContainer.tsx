@@ -89,6 +89,13 @@ export const ChatWindowContainer = ({
     }
   };
 
+  const handleAudioSubmit = async (file: File) => {
+    const result = await uploadFile(file);
+    if (result) {
+      sendMessage(undefined, result.publicUrl, 'AUDIO');
+    }
+  };
+
   // Check if user is scrolled to bottom
   const checkIfAtBottom = useCallback(() => {
     const container = messagesContainerRef.current;
@@ -326,6 +333,7 @@ export const ChatWindowContainer = ({
         handleKeyPress={handleKeyPress}
         handleSendMessage={handleSendMessage}
         handleFileSelect={handleFileSelect}
+        handleAudioSubmit={handleAudioSubmit}
         isUploading={isUploading}
       />
     </div>

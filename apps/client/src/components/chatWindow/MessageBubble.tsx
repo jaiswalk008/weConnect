@@ -6,8 +6,9 @@ import { formatTime } from '@/utils/dateUtils';
 import { MessageStatus } from './MessageStatus';
 import type { MessageStatus as MessageStatusType } from '@/types/socket';
 import Linkify from 'linkify-react';
-import { FileIcon, Download } from 'lucide-react';
+import { FileIcon, Download, Play, Pause } from 'lucide-react';
 import { ImageViewer } from './components/ImageViewer';
+import { AudioPlayer } from './components/AudioPlayer';
 
 interface MessageBubbleProps {
   message: MessageData;
@@ -78,8 +79,16 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
         </div>
       );
     }
+    
+    if (mediaType === 'AUDIO') {
+      return (
+        <div className='mb-2 overflow-hidden w-full'>
+          <AudioPlayer src={mediaUrl} isSender={isSender} />
+        </div>
+      );
+    }
 
-    // For other files (PDF, Audio, etc.)
+    // For other files (PDF, Audio fallback, etc.)
     const fileName = getFileNameFromUrl(mediaUrl);
 
     return (
